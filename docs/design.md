@@ -21,26 +21,27 @@ teamotp/
 ├── src/
 │   ├── server/
 │   │   ├── index.ts            # Entry point, Bun.serve bootstrap + route table
+│   │   ├── db.ts               # bun:sqlite access layer + migrations
+│   │   ├── totp.ts             # otplib wrapper: generate code + remaining TTL
+│   │   ├── session.ts          # In-memory session store (Map + TTL)
+│   │   ├── ldap.ts             # LDAP bind + group-to-role mapping
+│   │   │
 │   │   ├── middleware/
 │   │   │   ├── auth.ts         # Session validation, attaches user+role to request
 │   │   │   ├── rbac.ts         # Role guard factory (requireRole(...))
 │   │   │   └── headers.ts      # Security headers (CSP, HSTS, etc.)
+│   │   │
 │   │   └── routes/
 │   │       ├── auth.ts         # POST /api/auth/login, /logout, GET /api/auth/me
 │   │       ├── otp.ts          # GET /api/otp, POST /api/otp
 │   │       ├── trash.ts        # GET/DELETE /api/trash, POST /api/trash/:id/restore
 │   │       └── codes.ts        # GET /api/otp/:id/code
 │   │
-│   ├── services/
-│   │   ├── ldap.ts             # LDAP bind + group-to-role mapping
-│   │   ├── session.ts          # In-memory session store (Map + TTL)
-│   │   ├── totp.ts             # otplib wrapper: generate code + remaining TTL
-│   │   └── db.ts               # bun:sqlite access layer + migrations
+│   ├── shared/
+│   │   └── models/
+│   │       ├── otp.ts          # OtpEntry, NewOtpEntry, OtpAlgorithm, OtpDigits, OtpPeriod
+│   │       └── session.ts      # Session type (userId, role, expiresAt)
 │   │
-│   └── shared/
-│       └── models/
-│           ├── otp.ts          # OtpEntry, NewOtpEntry, OtpAlgorithm, OtpDigits, OtpPeriod
-│           └── session.ts      # Session type (userId, role, expiresAt)
 │   └── frontend/               # Vanilla TS SPA, bundled by Bun
 │       ├── index.html
 │       ├── main.ts             # Bootstrap + hash router
