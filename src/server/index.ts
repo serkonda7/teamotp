@@ -12,7 +12,7 @@ const server = Bun.serve({
 		},
 	},
 
-	fetch(req) {
+	fetch(_req) {
 		return new Response('not found', { status: 404 })
 	},
 })
