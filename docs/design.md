@@ -35,7 +35,6 @@ teamotp/
 │   │   ├── ldap.ts             # LDAP bind + group-to-role mapping
 │   │   ├── session.ts          # In-memory session store (Map + TTL)
 │   │   ├── totp.ts             # otplib wrapper: generate code + remaining TTL
-│   │   ├── crypto.ts           # AES-256-GCM encrypt/decrypt (Web Crypto API)
 │   │   └── db.ts               # bun:sqlite access layer + migrations
 │   │
 │   └── shared/
@@ -59,31 +58,25 @@ teamotp/
 ├── data/                       # Gitignored volume mount
 │   └── teamotp.db
 │
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-├── biome.jsonc
-├── tsconfig.json
-└── package.json
+└── ... # config files
 ```
 
 ---
 
 ## Tech Stack
 
-| Concern | Choice | Rationale |
-|---|---|---|
-| Runtime & bundler | **Bun** | Server, bundler, test runner in one |
-| Language | **TypeScript** | Type safety across API contracts and crypto code |
-| Linting / formatting | **Biome** | Replaces ESLint + Prettier |
-| Database | **SQLite** (`bun:sqlite`) | Self-contained, zero infra, built into Bun |
-| TOTP | **`otplib`** | RFC 6238, well-tested, actively maintained |
-| Encryption | **Web Crypto API** (`AES-256-GCM`) | Native to Bun, no extra dependency |
-| Authentication | **LDAP** (`ldapts`) | Delegates auth entirely to directory service |
-| Sessions | In-memory `Map` with expiry | Sufficient for small teams |
-| Frontend routing | Hash-based (`#/vault`) | No server-side routing config needed |
-| Styling | Vanilla CSS | Full control, matches stack constraints |
-| Deployment | **Docker** + `docker-compose` | On-prem install, reproducible environment |
+| Concern | Choice | Rationale | Status |
+|---|---|---|---|
+| Runtime & bundler | **Bun** | Server, bundler, test runner in one | ✓ |
+| Language | **TypeScript** | Type safety across API contracts and crypto code | ✓ |
+| Linting / formatting | **Biome** | Replaces ESLint + Prettier | ✓ |
+| Database | **SQLite** (`bun:sqlite`) | Self-contained, zero infra, built into Bun | ✓ |
+| TOTP | **`otplib`** | RFC 6238, well-tested, actively maintained | (Planned) |
+| Authentication | **LDAP** (`ldapts`) | Delegates auth entirely to directory service | (Planned) |
+| Sessions | In-memory `Map` with expiry | Sufficient for small teams | (Planned) |
+| Frontend routing | Hash-based (`#/vault`) | No server-side routing config needed | (Planned) |
+| Styling | Vanilla CSS | Full control, matches stack constraints | (Planned) |
+| Deployment | **Docker** + `docker-compose` | On-prem install, reproducible environment | (Planned) |
 
 > `ldapts` is the recommended LDAP client for Node-compatible runtimes. It uses pure TS, supports TLS, and has no native bindings — making it Bun-compatible and Docker-friendly.
 
@@ -136,19 +129,15 @@ LDAP_GROUP_VIEWER=cn=teamotp-viewers,ou=groups,dc=example,dc=com
 Roles and users are **not** stored in SQLite — only app data is.
 
 ### `entries`
-| Column | Type | Notes |
-|---|---|---|
-| `id` | TEXT (UUID) | PK |
-| `label` | TEXT | e.g. "AWS Root" |
-| `issuer` | TEXT | Required |
-| `secret_enc` | TEXT | AES-256-GCM ciphertext (base64) |
-| `secret_iv` | TEXT | IV for decryption (base64) |
-| `algorithm` | TEXT | SHA1 / SHA256 / SHA512 |
-| `digits` | INTEGER | 6 or 8 |
-| `period` | INTEGER | 30 or 60 |
-| `deleted_at` | INTEGER | NULL = active; timestamp = in trash |
-| `created_at` | INTEGER | |
-| `created_by` | TEXT | LDAP username |
+| Column | Type | Notes | Status |
+|---|---|---|---|
+| `id` | TEXT (UUID) | PK | ✓ |
+| `label` | TEXT | e.g. "AWS Root" | ✓ |
+| `issuer` | TEXT | Required | ✓ |
+| `secret` | TEXT | Plaintext (Temporary for Phase 1) | ✓ |
+| `algorithm` | TEXT | SHA1 / SHA256 / SHA512 | ✓ |
+| `digits` | INTEGER | 6 or 8 | ✓ |
+| `period` | INTEGER | 30 or 60 | ✓ |
 
 > The `OtpEntry` type (used in API responses) exposes `secret` as a plain field — the enc/IV split is a persistence detail hidden inside the server. Raw secrets are **never** sent to the frontend; only computed OTP codes are.
 
@@ -183,20 +172,20 @@ All write operations and every `/api/entries/:id/code` call write an audit log r
 
 ## API Surface
 
-| Method | Path | Min Role | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/login` | — | LDAP auth, set session cookie |
-| `POST` | `/api/auth/logout` | viewer | Invalidate session |
-| `GET` | `/api/auth/me` | viewer | Current user info + role |
-| `GET` | `/api/otp` | viewer | List all active OTP entries |
-| `POST` | `/api/otp` | viewer | Add a new OTP entry |
-| `PATCH` | `/api/otp/:id` | editor | Update entry metadata |
-| `DELETE` | `/api/otp/:id` | editor | Soft-delete entry |
-| `GET` | `/api/otp/:id/code` | viewer | Get current OTP code + `validFor` seconds; writes `code.accessed` audit event |
-| `GET` | `/api/audit` | admin | Paginated audit log |
-| `GET` | `/api/trash` | editor | List trashed entries |
-| `POST` | `/api/trash/:id/restore` | editor | Restore entry from trash |
-| `DELETE` | `/api/trash/:id` | admin | Permanently delete from trash |
+| Method | Path | Min Role | Description | Status |
+|---|---|---|---|---|
+| `POST` | `/api/auth/login` | — | LDAP auth, set session cookie | (Planned) |
+| `POST` | `/api/auth/logout` | viewer | Invalidate session | (Planned) |
+| `GET` | `/api/auth/me` | viewer | Current user info + role | (Planned) |
+| `GET` | `/api/otp` | viewer | List all active OTP entries | ✓ |
+| `POST` | `/api/otp` | viewer | Add a new OTP entry | ✓ |
+| `PATCH` | `/api/otp/:id` | editor | Update entry metadata | (Planned) |
+| `DELETE` | `/api/otp/:id` | editor | Soft-delete entry | (Planned) |
+| `GET` | `/api/otp/:id/code` | viewer | Get current OTP code + `validFor` seconds | (Planned) |
+| `GET` | `/api/audit` | admin | Paginated audit log | (Planned) |
+| `GET` | `/api/trash` | editor | List trashed entries | (Planned) |
+| `POST` | `/api/trash/:id/restore` | editor | Restore entry from trash | (Planned) |
+| `DELETE` | `/api/trash/:id` | admin | Permanently delete from trash | (Planned) |
 
 ---
 
@@ -252,14 +241,16 @@ volumes:
 ## Phased Delivery
 
 ### Phase 1 — MVP
-- [ ] Project scaffolding (Bun, TS, Biome, Dockerfile)
-- [ ] SQLite schema + migration runner
+- [x] Project scaffolding (Bun, TS, Biome)
+- [ ] Dockerfile
+- [x] SQLite initial schema
+- [ ] Migration runner
 - [ ] LDAP auth service + login/logout routes
 - [ ] Session middleware + RBAC middleware
 - [ ] Crypto service (AES-256-GCM)
 - [ ] TOTP service (`otplib` wrapper)
 - [ ] Audit log service (append-only writes on all mutations + code access)
-- [ ] REST API: `GET /api/otp`, `POST /api/otp`, code endpoint, trash, audit log
+- [/] REST API (Started: `GET /api/otp`, `POST /api/otp`)
 - [ ] Frontend: Login + Vault (live codes + countdown)
 - [ ] Role-aware UI guards
 

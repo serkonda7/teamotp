@@ -1,16 +1,17 @@
-import { db } from '../../services/db.ts'
 import type { NewOtpEntry } from '../../shared/models/otp.ts'
+import { db } from '../db.ts'
 import { Status } from '../models/http.ts'
 
 export async function handle_get_otp_entries(_req: Request): Promise<Response> {
 	try {
-		const entries = db
-			.query('SELECT id, label, issuer FROM entries')
-			.all()
+		const entries = db.query('SELECT id, label, issuer FROM entries').all()
 		return Response.json(entries, { status: Status.OK })
 	} catch (error) {
 		console.error('Failed to get OTP entries:', error)
-		return Response.json({ error: 'Internal server error' }, { status: Status.INTERNAL_SERVER_ERROR })
+		return Response.json(
+			{ error: 'Internal server error' },
+			{ status: Status.INTERNAL_SERVER_ERROR },
+		)
 	}
 }
 
@@ -36,17 +37,26 @@ export async function handle_add_otp_entry(req: Request): Promise<Response> {
 
 		// TODO implement: Only 6 digit TOTPs are supported for now
 		if (entry.digits !== 6) {
-			return Response.json({ error: 'Only 6 digit TOTPs are supported for now. Please raise an issue' }, { status: Status.INTERNAL_SERVER_ERROR })
+			return Response.json(
+				{ error: 'Only 6 digit TOTPs are supported for now. Please raise an issue' },
+				{ status: Status.INTERNAL_SERVER_ERROR },
+			)
 		}
 
 		// TODO implement: Only 30s period is supported for now
 		if (entry.period !== 30) {
-			return Response.json({ error: 'Only 30s period is supported for now. Please raise an issue' }, { status: Status.INTERNAL_SERVER_ERROR })
+			return Response.json(
+				{ error: 'Only 30s period is supported for now. Please raise an issue' },
+				{ status: Status.INTERNAL_SERVER_ERROR },
+			)
 		}
 
 		// TODO implement: Only SHA1 algorithm is supported for now
 		if (entry.algorithm !== 'SHA1') {
-			return Response.json({ error: 'Only SHA1 algorithm is supported for now. Please raise an issue' }, { status: Status.INTERNAL_SERVER_ERROR })
+			return Response.json(
+				{ error: 'Only SHA1 algorithm is supported for now. Please raise an issue' },
+				{ status: Status.INTERNAL_SERVER_ERROR },
+			)
 		}
 
 		db.run(
