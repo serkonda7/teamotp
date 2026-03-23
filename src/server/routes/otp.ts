@@ -1,10 +1,18 @@
 import type { NewOtpEntry } from '../../shared/models/otp.ts'
-import { db } from '../db.ts'
+import { entries_table } from '../db/schema.ts'
+import { db } from '../index.ts'
 import { Status } from '../models/http.ts'
 
 export async function handle_get_otp_entries(_req: Request): Promise<Response> {
 	try {
-		const entries = db.query('SELECT id, label, issuer FROM entries').all()
+		const entries = db
+			.select({
+				id: entries_table.id,
+				label: entries_table.label,
+				issuer: entries_table.issuer,
+			})
+			.from(entries_table)
+			.all()
 		return Response.json(entries, { status: Status.OK })
 	} catch (error) {
 		console.error('Failed to get OTP entries:', error)
@@ -23,10 +31,7 @@ export async function handle_add_otp_entry(req: Request): Promise<Response> {
 			return Response.json({ error: 'Missing label or secret' }, { status: Status.BAD_REQUEST })
 		}
 
-		const id = crypto.randomUUID()
-
-		const entry = {
-			id,
+		const entry: typeof entries_table.$inferInsert = {
 			label: body.label,
 			issuer: body.issuer ?? '',
 			secret: body.secret,
@@ -59,22 +64,9 @@ export async function handle_add_otp_entry(req: Request): Promise<Response> {
 			)
 		}
 
-		db.run(
-			`INSERT INTO entries (
-				id, label, issuer, secret, algorithm, digits, period
-			) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-			[
-				entry.id,
-				entry.label,
-				entry.issuer,
-				entry.secret,
-				entry.algorithm,
-				entry.digits,
-				entry.period,
-			],
-		)
+		const id_obj = await db.insert(entries_table).values(entry).returning({ id: entries_table.id })
 
-		return Response.json({ id }, { status: Status.OK })
+		return Response.json(id_obj, { status: Status.OK })
 	} catch (error) {
 		console.error('Failed to add OTP entry:', error)
 		return Response.json(
