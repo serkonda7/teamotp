@@ -1,23 +1,24 @@
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { handleCreateOtp, handleGetOtpCode, handleListOtp, handleUpdateOtp } from './routes/otp'
+
+const app = new Hono()
+app.use('/*', cors())
+
+const api = new Hono()
+	.get('/otp', handleListOtp)
+	.post('/otp', handleCreateOtp)
+	.get('/otp/:id', handleGetOtpCode)
+	.post('/otp/:id', handleUpdateOtp)
+
+app.route('/api', api)
+
+export type AppType = typeof app
 
 const server = Bun.serve({
 	hostname: '0.0.0.0',
 	port: 3000,
-
-	routes: {
-		'/api/otp': {
-			GET: handleListOtp,
-			POST: handleCreateOtp,
-		},
-		'/api/otp/:id': {
-			GET: (req) => handleGetOtpCode(req, req.params.id),
-			POST: (req) => handleUpdateOtp(req, req.params.id),
-		},
-	},
-
-	fetch(_req) {
-		return new Response('not found', { status: 404 })
-	},
+	fetch: app.fetch,
 })
 
 console.log(`TeamOTP server listening on ${server.url}`)

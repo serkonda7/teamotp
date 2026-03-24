@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { createEntry, listEntries } from '../db'
 import type { NewOtpEntry } from '../types'
 
@@ -10,15 +11,15 @@ function badRequest(msg: string): Response {
 }
 
 // GET /api/otp — list all entries
-export async function handleListOtp(_req: Request): Promise<Response> {
+export async function handleListOtp(_c: Context): Promise<Response> {
 	return json(listEntries())
 }
 
 // POST /api/otp — create a new entry
-export async function handleCreateOtp(req: Request): Promise<Response> {
+export async function handleCreateOtp(c: Context): Promise<Response> {
 	let body: NewOtpEntry
 	try {
-		body = await req.json()
+		body = await c.req.json()
 	} catch {
 		return badRequest('Invalid JSON body')
 	}
@@ -32,14 +33,14 @@ export async function handleCreateOtp(req: Request): Promise<Response> {
 }
 
 // GET /api/otp/:id — get the current TOTP code for an entry
-export async function handleGetOtpCode(_req: Request, _id: string): Promise<Response> {
+export async function handleGetOtpCode(_c: Context): Promise<Response> {
 	// TODO
 
 	return json({ error: 'Not implemented' }, 501)
 }
 
 // POST /api/otp/:id — update an existing entry
-export async function handleUpdateOtp(_req: Request, _id: string): Promise<Response> {
+export async function handleUpdateOtp(_c: Context): Promise<Response> {
 	// TODO
 
 	return json({ error: 'Not implemented' }, 501)
