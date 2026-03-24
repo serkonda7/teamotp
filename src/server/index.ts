@@ -23,6 +23,7 @@ const server = Bun.serve({
 			GET: handle_get_otp_entries,
 			POST: handle_add_otp_entry,
 		},
+		'/*': Bun.file(join(process.cwd(), 'public', 'index.html')),
 	},
 
 	fetch(_req) {

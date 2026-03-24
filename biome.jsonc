@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["src/**/*.ts"]
+    "includes": ["src/**/*.ts", "public/**/*.html"]
   },
   "formatter": {
     "enabled": true
@@ -23,6 +23,13 @@
       "semicolons": "asNeeded",
       "quoteStyle": "single",
       "lineWidth": 100
+    }
+  },
+  "html": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2
     }
   },
   "json": {
