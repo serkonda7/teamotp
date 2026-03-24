@@ -5,6 +5,6 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "shared": "workspace:*"
+    "hono": "~4.12.9"
   }
 }

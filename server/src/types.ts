@@ -1,20 +1,31 @@
 export interface OtpEntry {
 	id: string
-	name: string
-	issuer?: string
+	label: string
+	issuer: string
 	secret: string
-	createdAt: string
-	updatedAt: string
+	algorithm: string
+	digits: number
+	period: number
 }
 
-export interface CreateOtpEntryDto {
-	name: string
-	issuer?: string
+// Required and optional fields per RFC 6238
+export interface NewOtpEntry {
+	label: string
 	secret: string
+	issuer?: string
+	algorithm?: string
+	digits?: number
+	period?: number
 }
 
-export interface UpdateOtpEntryDto {
-	name?: string
+// Other fields are not updatable
+export interface UpdateOtpEntry {
+	label?: string
 	issuer?: string
-	secret?: string
+}
+
+export interface OtpDisplayInfo {
+	id: string
+	label: string
+	issuer: string
 }

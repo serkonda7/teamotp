@@ -13,20 +13,13 @@
     "client": {
       "name": "client",
       "version": "0.0.0-dev",
-      "dependencies": {
-        "shared": "workspace:*",
-      },
     },
     "server": {
       "name": "server",
       "version": "0.0.0-dev",
       "dependencies": {
-        "shared": "workspace:*",
+        "hono": "~4.12.9",
       },
-    },
-    "shared": {
-      "name": "shared",
-      "version": "0.0.0-dev",
     },
   },
   "packages": {
@@ -68,9 +61,9 @@
 
     "client": ["client@workspace:client"],
 
-    "server": ["server@workspace:server"],
+    "hono": ["hono@4.12.9", "", {}, "sha512-wy3T8Zm2bsEvxKZM5w21VdHDDcwVS1yUFFY6i8UobSsKfFceT7TOwhbhfKsDyx7tYQlmRM5FLpIuYvNFyjctiA=="],
 
-    "shared": ["shared@workspace:shared"],
+    "server": ["server@workspace:server"],
 
     "turbo": ["turbo@2.8.20", "", { "optionalDependencies": { "@turbo/darwin-64": "2.8.20", "@turbo/darwin-arm64": "2.8.20", "@turbo/linux-64": "2.8.20", "@turbo/linux-arm64": "2.8.20", "@turbo/windows-64": "2.8.20", "@turbo/windows-arm64": "2.8.20" }, "bin": { "turbo": "bin/turbo" } }, "sha512-Rb4qk5YT8RUwwdXtkLpkVhNEe/lor6+WV7S5tTlLpxSz6MjV5Qi8jGNn4gS6NAvrYGA/rNrE6YUQM85sCZUDbQ=="],
 
