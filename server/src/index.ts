@@ -21,4 +21,4 @@ const server = Bun.serve({
 	fetch: app.fetch,
 })
 
-console.log(`TeamOTP server listening on ${server.url}`)
+console.log(`API running on ${server.url}`)

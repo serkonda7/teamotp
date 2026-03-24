@@ -1,7 +1,17 @@
 {
   "name": "client",
   "version": "0.0.0-dev",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "~8.0.2",
+    "vite-plugin-solid": "~2.11.8",
+    "solid-devtools": "~0.34.3"
+  },
   "dependencies": {
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "solid-js": "~1.9.12"
   }
 }
