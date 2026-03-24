@@ -1,6 +1,9 @@
 {
   "name": "server",
   "version": "0.0.0-dev",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts"
+  },
   "dependencies": {
     "shared": "workspace:*"
   }
