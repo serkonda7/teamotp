@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamOTP</title>
   </head>
-
   <body>
     <h1>TeamOTP</h1>
 
@@ -31,62 +30,6 @@
       <li>Loading...</li>
     </ul>
 
-    <script>
-    const form = document.getElementById('add-form')
-    const list = document.getElementById('codes-list')
-
-    async function fetchCodes() {
-      try {
-        const response = await fetch('/api/otp')
-        if (!response.ok) throw new Error('Failed to fetch')
-        const codes = await response.json()
-
-        list.innerHTML = ''
-        if (!codes || codes.length === 0) {
-          list.innerHTML = '<li>No codes found.</li>'
-          return
-        }
-
-        codes.forEach((code) => {
-          const li = document.createElement('li')
-          li.textContent = `${code.issuer ? code.issuer + ' - ' : ''}${code.label}`
-          list.appendChild(li)
-        })
-      } catch (error) {
-        console.error('Error fetching codes:', error)
-        list.innerHTML = '<li>Error loading codes.</li>'
-      }
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault()
-
-      const label = document.getElementById('label').value
-      const issuer = document.getElementById('issuer').value
-      const secret = document.getElementById('secret').value
-
-      try {
-        const response = await fetch('/api/otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ label, issuer, secret }),
-        })
-
-        if (response.ok) {
-          form.reset()
-          await fetchCodes()
-        } else {
-          const data = await response.json()
-          alert(`Error: ${data.error || 'Unknown error'}`)
-        }
-      } catch (error) {
-        console.error('Error adding code:', error)
-        alert('An error occurred while adding the code.')
-      }
-    })
-
-    // Fetch initially
-    fetchCodes()
-    </script>
+    <script src="./app.js"></script>
   </body>
 </html>

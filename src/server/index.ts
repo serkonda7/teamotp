@@ -2,6 +2,7 @@ import { Database } from 'bun:sqlite'
 import { existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
+import homepage from '../../public/index.html'
 import { handle_add_otp_entry, handle_get_otp_entries } from './routes/otp.ts'
 
 const DATA_DIR = join(process.cwd(), 'data')
@@ -23,12 +24,14 @@ const server = Bun.serve({
 			GET: handle_get_otp_entries,
 			POST: handle_add_otp_entry,
 		},
-		'/*': Bun.file(join(process.cwd(), 'public', 'index.html')),
+		'/': homepage,
 	},
 
 	fetch(_req) {
 		return new Response('not found', { status: 404 })
 	},
+
+	development: true,
 })
 
 console.log(`TeamOTP server listening on ${server.url}`)

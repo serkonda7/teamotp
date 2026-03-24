@@ -16,6 +16,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run src/server/index.ts",
+    "build": "bun build ./src/client/app.ts --outdir ./public",
     "lint": "biome check --write",
     "lint:ci": "biome ci",
     "check": "tsgo"
