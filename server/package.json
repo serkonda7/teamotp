@@ -6,6 +6,7 @@
     "check": "tsgo"
   },
   "dependencies": {
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "otplib": "catalog:"
   }
 }

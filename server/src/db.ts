@@ -51,6 +51,12 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 	return entry
 }
 
+export function getEntryById(id: string): OtpEntry | null {
+	const query = db.query('SELECT id, label, issuer, secret, algorithm, digits, period FROM entries WHERE id = ?')
+	const row = query.get(id)
+	return (row as OtpEntry | null) ?? null
+}
+
 export function updateEntry(_id: string, _updated: UpdateOtpEntry): void {
 	// TODO
 }
