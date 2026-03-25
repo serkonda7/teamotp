@@ -5,6 +5,7 @@
       "dependsOn": ["^dev"],
       "cache": false,
       "persistent": true
-    }
+    },
+    "check": {}
   }
 }

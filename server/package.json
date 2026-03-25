@@ -2,7 +2,8 @@
   "name": "server",
   "version": "0.0.0-dev",
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "check": "tsgo"
   },
   "dependencies": {
     "hono": "catalog:"

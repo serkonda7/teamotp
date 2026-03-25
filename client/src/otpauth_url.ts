@@ -15,10 +15,13 @@ export function parseOtpauthUrl(raw: string): NewOtpEntry {
 		: ['', path_label]
 
 	const secret = url.searchParams.get('secret')
+	if (!secret) {
+		throw new Error('Missing required query parameter: secret')
+	}
 
 	const entry: NewOtpEntry = {
 		label: labelFromPath,
-		secret: secret,
+		secret,
 		issuer: url.searchParams.get('issuer') ?? issuerFromPath,
 	}
 

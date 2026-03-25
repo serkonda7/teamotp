@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import { createEntry, listEntries } from '../db'
 import type { NewOtpEntry } from '../../../shared/src/types'
+import { createEntry, listEntries } from '../db'
 
 function json(data: unknown, status = 200): Response {
 	return Response.json(data, { status })
