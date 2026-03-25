@@ -1,8 +1,8 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { NewOtpEntry, OtpEntry, UpdateOtpEntry } from './types'
-import type { OtpDisplayInfo } from '../../shared/src/types'
+import type { NewOtpEntry, OtpDisplayInfo } from '../../shared/src/types'
+import type { OtpEntry, UpdateOtpEntry } from './types'
 
 const data_dir = path.join(process.cwd(), 'data')
 if (!fs.existsSync(data_dir)) {
@@ -14,7 +14,7 @@ export const db = new Database(db_path, { create: true, strict: true })
 
 db.run(`
 CREATE TABLE IF NOT EXISTS entries (
-	id INTEGER PRIMARY KEY,
+	id TEXT PRIMARY KEY,
 	label TEXT NOT NULL,
 	issuer TEXT NOT NULL,
 	secret TEXT NOT NULL,
