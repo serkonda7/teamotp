@@ -1,7 +1,8 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { NewOtpEntry, OtpDisplayInfo, OtpEntry, UpdateOtpEntry } from './types'
+import type { NewOtpEntry, OtpEntry, UpdateOtpEntry } from './types'
+import type { OtpDisplayInfo } from '../../shared/src/types'
 
 const data_dir = path.join(process.cwd(), 'data')
 if (!fs.existsSync(data_dir)) {

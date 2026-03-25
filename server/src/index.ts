@@ -3,15 +3,11 @@ import { cors } from 'hono/cors'
 import { handleCreateOtp, handleGetOtpCode, handleListOtp, handleUpdateOtp } from './routes/otp'
 
 const app = new Hono()
-app.use('/*', cors())
-
-const api = new Hono()
+	.use('/*', cors())
 	.get('/otp', handleListOtp)
 	.post('/otp', handleCreateOtp)
 	.get('/otp/:id', handleGetOtpCode)
 	.post('/otp/:id', handleUpdateOtp)
-
-app.route('/api', api)
 
 export type AppType = typeof app
 

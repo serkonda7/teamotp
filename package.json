@@ -14,7 +14,8 @@
   },
   "workspaces": [
     "server",
-    "client"
+    "client",
+    "shared"
   ],
   "scripts": {
     "lint": "biome check --write",

@@ -23,9 +23,3 @@ export interface UpdateOtpEntry {
 	label?: string
 	issuer?: string
 }
-
-export interface OtpDisplayInfo {
-	id: string
-	label: string
-	issuer: string
-}
