@@ -40,5 +40,7 @@ export function parseOtpauthUrl(raw: string): Result<NewOtpEntry, Error> {
 		entry.period = Number.parseInt(period, 10)
 	}
 
+	// TODO client-side validation of fields
+
 	return ok(entry)
 }

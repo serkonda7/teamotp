@@ -10,6 +10,7 @@ if (!fs.existsSync(data_dir)) {
 }
 
 // TODO use orm, e.g. drizzle
+// TODO enrypt entire DB
 
 const db_path = path.join(data_dir, 'teamotp.db')
 export const db = new Database(db_path, { create: true, strict: true })

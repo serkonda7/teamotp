@@ -11,6 +11,7 @@ const app = new Hono()
 
 export type AppType = typeof app
 
+// TODO read port from config file or env variable
 const server = Bun.serve({
 	hostname: '0.0.0.0',
 	port: 3000,

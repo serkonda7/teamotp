@@ -45,7 +45,7 @@ export async function handleListOtp(_c: Context): Promise<Response> {
 	return json(listEntries())
 }
 
-// POST /api/otp — create a new entry
+// POST /api/otp — create a new entry, return its id
 export async function handleCreateOtp(c: Context): Promise<Response> {
 	let body: NewOtpEntry
 	try {
@@ -54,12 +54,13 @@ export async function handleCreateOtp(c: Context): Promise<Response> {
 		return badRequest('Invalid JSON body')
 	}
 
+	// TODO server-side validation of fields
 	if (!body.label || !body.secret) {
-		return badRequest('Fields "name" and "secret" are required')
+		return badRequest('Fields "label" and "secret" are required')
 	}
 
 	const entry = createEntry(body)
-	return json(entry, 201)
+	return json({ id: entry.id }, 201)
 }
 
 // GET /api/otp/:id — get the current TOTP code for an entry
