@@ -90,7 +90,7 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 
 // POST /api/otp/:id — update an existing entry
 export async function handleUpdateOtp(_c: Context): Promise<Response> {
-	// TODO
+	// TODO implement handleUpdateOtp
 
 	return json({ error: 'Not implemented' }, 501)
 }

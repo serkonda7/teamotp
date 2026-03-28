@@ -9,6 +9,8 @@ if (!fs.existsSync(data_dir)) {
 	fs.mkdirSync(data_dir, { recursive: true })
 }
 
+// TODO use orm, e.g. drizzle
+
 const db_path = path.join(data_dir, 'teamotp.db')
 export const db = new Database(db_path, { create: true, strict: true })
 
@@ -60,5 +62,5 @@ export function getEntryById(id: string): OtpEntry | null {
 }
 
 export function updateEntry(_id: string, _updated: UpdateOtpEntry): void {
-	// TODO
+	// TODO implement updateEntry
 }
