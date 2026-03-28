@@ -1,5 +1,5 @@
 import { createResource, createSignal, For, Show } from 'solid-js'
-import type { NewOtpEntry, OtpDisplayInfo } from '../../shared/src/types'
+import type { OtpDisplayInfo } from '../../shared/src/types'
 import { client } from './api'
 import { parseOtpauthUrl } from './otpauth_url'
 
