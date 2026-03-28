@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import { generate } from 'otplib'
 import type { HashAlgorithm } from 'otplib'
+import { generate } from 'otplib'
 import type { NewOtpEntry } from '../../../shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
 
@@ -17,7 +17,12 @@ function getHashAlgorithm(algorithm: string): HashAlgorithm {
 	}
 }
 
-async function generateTotpCode(secret: string, algorithm: string, digits: number, period: number): Promise<string> {
+async function generateTotpCode(
+	secret: string,
+	algorithm: string,
+	digits: number,
+	period: number,
+): Promise<string> {
 	return await generate({
 		secret,
 		algorithm: getHashAlgorithm(algorithm),
@@ -70,7 +75,12 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 	}
 
 	try {
-		const code = await generateTotpCode(entry.secret, entry.algorithm, entry.digits, entry.period)
+		const code = await generateTotpCode(
+			entry.secret,
+			entry.algorithm,
+			entry.digits,
+			entry.period,
+		)
 		return json({ code })
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'Failed to generate OTP code'

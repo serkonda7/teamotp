@@ -1,11 +1,12 @@
+import { err, ok, type Result } from '@serkonda7/ts-result'
 import type { NewOtpEntry } from '../../shared/src/types'
 
 // TODO us result type
-export function parseOtpauthUrl(raw: string): NewOtpEntry {
+export function parseOtpauthUrl(raw: string): Result<NewOtpEntry, Error> {
 	const url = new URL(raw)
 
 	if (url.protocol !== 'otpauth:' || url.hostname.toLowerCase() !== 'totp') {
-		throw new Error('URL must start with otpauth://totp/...')
+		return err(new Error('URL must start with otpauth://totp/...'))
 	}
 
 	const path_label = decodeURIComponent(url.pathname).replace(/^\//, '')
@@ -16,7 +17,7 @@ export function parseOtpauthUrl(raw: string): NewOtpEntry {
 
 	const secret = url.searchParams.get('secret')
 	if (!secret) {
-		throw new Error('Missing required query parameter: secret')
+		return err(new Error('Missing required parameter: secret'))
 	}
 
 	const entry: NewOtpEntry = {
@@ -40,5 +41,5 @@ export function parseOtpauthUrl(raw: string): NewOtpEntry {
 		entry.period = Number.parseInt(period, 10)
 	}
 
-	return entry
+	return ok(entry)
 }

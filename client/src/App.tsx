@@ -1,8 +1,7 @@
-import { client } from './api'
-import type { OtpDisplayInfo } from '../../shared/src/types'
 import { createResource, createSignal, For, Show } from 'solid-js'
+import type { NewOtpEntry, OtpDisplayInfo } from '../../shared/src/types'
+import { client } from './api'
 import { parseOtpauthUrl } from './otpauth_url'
-import type { NewOtpEntry } from '../../shared/src/types'
 
 function App() {
 	const [otps, { refetch }] = createResource(fetch_otps)
@@ -26,22 +25,21 @@ function App() {
 			return
 		}
 
-		let payload: NewOtpEntry
-		try {
-			payload = parseOtpauthUrl(raw)
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to parse otpauth URL')
+		const payload_res = parseOtpauthUrl(raw)
+		if (payload_res.error) {
+			setError(payload_res.error.message)
 			return
 		}
 
 		setSubmitting(true)
 		try {
-			const res = await client.otp.$post({ json: payload })
+			const res = await client.otp.$post({ json: payload_res.value })
 			if (!res.ok) {
 				const data = await res.json().catch(() => null)
-				const msg = typeof data === 'object' && data && 'error' in data
-					? String((data as { error: unknown }).error)
-					: `Failed to add OTP entry (${res.status})`
+				const msg =
+					typeof data === 'object' && data && 'error' in data
+						? String((data as { error: unknown }).error)
+						: `Failed to add OTP entry (${res.status})`
 				setError(msg)
 				return
 			}
@@ -59,9 +57,10 @@ function App() {
 		const res = await client.otp[':id'].$get({ param: { id } })
 		if (!res.ok) {
 			const data = await res.json().catch(() => null)
-			const msg = typeof data === 'object' && data && 'error' in data
-				? String((data as { error: unknown }).error)
-				: `Failed to fetch OTP code (${res.status})`
+			const msg =
+				typeof data === 'object' && data && 'error' in data
+					? String((data as { error: unknown }).error)
+					: `Failed to fetch OTP code (${res.status})`
 			setError(msg)
 			return
 		}
@@ -97,15 +96,15 @@ function App() {
 				<div>{error()}</div>
 			</Show>
 
-			<Show
-				when={!otps.loading}
-				fallback={<div>Loading...</div>}
-			>
+			<Show when={!otps.loading} fallback={<div>Loading...</div>}>
 				<ul>
 					<For each={otps()}>
 						{(otp) => (
 							<li>
-								<button type="button" onClick={() => void showAndCopyOtpCode(otp.id)}>
+								<button
+									type="button"
+									onClick={() => void showAndCopyOtpCode(otp.id)}
+								>
 									{otp.issuer}: {otp.label}
 								</button>
 							</li>

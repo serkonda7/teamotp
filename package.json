@@ -25,7 +25,8 @@
   "packageManager": "bun@1.3.11",
   "catalog": {
     "hono": "~4.12.9",
-    "otplib": "~13.4.0"
+    "otplib": "~13.4.0",
+    "@serkonda7/ts-result": "~1.0.1"
   },
   "devDependencies": {
     "turbo": "~2.8.20",
