@@ -3,6 +3,7 @@
   "version": "0.0.0-dev",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
     "check": "tsgo"
   },
   "dependencies": {
