@@ -1,7 +1,7 @@
 import { render } from 'solid-js/web'
 
 import App from './App'
-import './styles.css'
+import './css/styles.css'
 
 const root = document.getElementById('root')
 
