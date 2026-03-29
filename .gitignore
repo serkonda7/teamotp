@@ -7,3 +7,6 @@ node_modules/
 
 # caches
 .turbo/
+
+# editor files
+.vscode/
