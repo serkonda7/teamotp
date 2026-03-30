@@ -1,0 +1,12 @@
+# build output
+data/
+dist/
+
+# dependencies
+node_modules/
+
+# caches
+.turbo/
+
+# editor files
+.vscode/
