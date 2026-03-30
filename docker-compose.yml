@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: infra/server.Dockerfile
+    volumes:
+      - ./server/data:/app/data
     ports:
       - "3000:3000"
 
