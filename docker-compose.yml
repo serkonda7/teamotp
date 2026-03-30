@@ -1,0 +1,17 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: infra/server.Dockerfile
+    ports:
+      - "3000:3000"
+
+  client:
+    build:
+      context: .
+      dockerfile: infra/client.Dockerfile
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
