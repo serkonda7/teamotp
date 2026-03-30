@@ -15,16 +15,18 @@ COPY client ./client
 RUN cd client && bun run build
 
 
-FROM nginx:alpine
+FROM caddy:2-alpine
 
-# Generate self-signed certificates for HTTPS
+# Generate a self-signed cert for local HTTPS.
 RUN apk add --no-cache openssl && \
-    mkdir -p /etc/nginx/certs && \
-    openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/certs/key.pem -out /etc/nginx/certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+		mkdir -p /etc/caddy/certs && \
+		openssl req -x509 -newkey rsa:4096 \
+			-keyout /etc/caddy/certs/key.pem \
+			-out /etc/caddy/certs/cert.pem \
+			-days 365 -nodes -subj "/CN=localhost" \
+			-addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:0.0.0.0"
 
-COPY --from=builder /app/client/dist /usr/share/nginx/html
-COPY infra/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/client/dist /usr/share/caddy
+COPY infra/Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 80 443
-
-ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
