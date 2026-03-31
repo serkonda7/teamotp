@@ -7,6 +7,7 @@ services:
       - ./server/data:/app/data
     ports:
       - "3000:3000"
+    restart: unless-stopped
 
   client:
     build:
@@ -17,3 +18,4 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    restart: unless-stopped

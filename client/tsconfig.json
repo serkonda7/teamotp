@@ -3,12 +3,12 @@
   "compilerOptions": {
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["bun"],
 
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler"
   },
+  "references": [{ "path": "../server" }, { "path": "../shared" }],
   "include": ["src"]
 }

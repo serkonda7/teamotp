@@ -5,10 +5,7 @@ import type { NewOtpEntry, OtpDisplayInfo } from '../../shared/src/types'
 import type { OtpEntry, UpdateOtpEntry } from './types'
 
 const data_dir = path.join(process.cwd(), 'data')
-if (!fs.existsSync(data_dir)) {
-	fs.mkdirSync(data_dir, { recursive: true })
-}
-
+fs.mkdirSync(data_dir, { recursive: true })
 // TODO use orm, e.g. drizzle
 // TODO enrypt entire DB
 
