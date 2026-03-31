@@ -13,6 +13,8 @@
     "solid-devtools": "~0.34.3"
   },
   "dependencies": {
+    "shared": "workspace:*",
+    "server": "workspace:*",
     "hono": "catalog:",
     "@serkonda7/ts-result": "catalog:",
     "solid-js": "~1.9.12"

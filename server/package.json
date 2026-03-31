@@ -8,6 +8,7 @@
     "check": "tsgo"
   },
   "dependencies": {
+    "shared": "workspace:*",
     "hono": "catalog:",
     "otplib": "catalog:"
   }
