@@ -7,8 +7,8 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["bun", "node"]
   },
-  "references": [{ "path": "../server" }, { "path": "../shared" }],
   "include": ["src"]
 }

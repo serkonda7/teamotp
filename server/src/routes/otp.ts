@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import type { HashAlgorithm } from 'otplib'
 import { generate } from 'otplib'
-import type { NewOtpEntry } from '../../../shared/src/types'
+import type { NewOtpEntry } from 'shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
 
 function getHashAlgorithm(algorithm: string): HashAlgorithm {

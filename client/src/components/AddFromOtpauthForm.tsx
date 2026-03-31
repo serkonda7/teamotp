@@ -1,5 +1,5 @@
+import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
-import type { OtpDisplayInfo } from '../../../shared/src/types'
 import { client } from '../api'
 import { parseOtpauthUrl } from '../otpauth_url'
 

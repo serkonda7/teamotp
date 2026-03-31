@@ -1,6 +1,6 @@
+import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component, Resource } from 'solid-js'
 import { For, Show } from 'solid-js'
-import type { OtpDisplayInfo } from '../../../shared/src/types'
 import { client } from '../api'
 
 type Props = {

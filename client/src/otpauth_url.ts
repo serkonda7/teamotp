@@ -1,5 +1,5 @@
 import { err, ok, type Result } from '@serkonda7/ts-result'
-import type { NewOtpEntry } from '../../shared/src/types'
+import type { NewOtpEntry } from 'shared/src/types'
 
 export function parseOtpauthUrl(raw: string): Result<NewOtpEntry, Error> {
 	const url = new URL(raw)

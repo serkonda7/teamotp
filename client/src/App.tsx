@@ -1,5 +1,5 @@
+import type { OtpDisplayInfo } from 'shared/src/types'
 import { createResource, createSignal, Show } from 'solid-js'
-import type { OtpDisplayInfo } from '../../shared/src/types'
 import { client } from './api'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import OtpList from './components/OtpList'
