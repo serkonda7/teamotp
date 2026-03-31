@@ -1,9 +1,11 @@
+import type { HashAlgorithm } from 'otplib'
+
 export interface OtpEntry {
 	id: string
 	label: string
 	issuer: string
 	secret: string
-	algorithm: string
+	algorithm: HashAlgorithm
 	digits: number
 	period: number
 }

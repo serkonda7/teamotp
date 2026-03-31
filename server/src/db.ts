@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
+import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
 import type { OtpEntry, UpdateOtpEntry } from './types'
 
@@ -32,13 +33,14 @@ export function listEntries(): OtpDisplayInfo[] {
 
 export function createEntry(obj: NewOtpEntry): OtpEntry {
 	const id = crypto.randomUUID()
+	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
 
 	const entry: OtpEntry = {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
-		secret: obj.secret,
-		algorithm: obj.algorithm ?? 'SHA1',
+		secret: obj.secret.toLowerCase(),
+		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
 	}
