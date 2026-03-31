@@ -7,6 +7,5 @@
     "declarationDir": "dist/types",
     "types": ["bun"]
   },
-  "references": [{ "path": "../shared" }],
   "include": ["src"]
 }

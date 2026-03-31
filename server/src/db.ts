@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { NewOtpEntry, OtpDisplayInfo } from '../../shared/src/types'
+import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
 import type { OtpEntry, UpdateOtpEntry } from './types'
 
 const data_dir = path.join(process.cwd(), 'data')
