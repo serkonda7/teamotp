@@ -5,7 +5,8 @@
     "dev": "bun run --watch src/index.ts",
     "build": "bun build ./src/index.ts --outdir ./dist --target bun",
     "compile": "bun build ./src/index.ts --compile --outfile ./dist/server",
-    "check": "tsgo"
+    "check": "tsgo",
+    "test": "bun test"
   },
   "dependencies": {
     "shared": "workspace:*",
