@@ -10,7 +10,13 @@ fs.mkdirSync(data_dir, { recursive: true })
 // TODO use orm, e.g. drizzle
 // TODO enrypt entire DB
 
-const db_path = path.join(data_dir, 'teamotp.db')
+// Precedence for DB file path:
+// 1. TEAMOTP_DB_PATH env var
+// 2. if test: teamotp.test.db
+// 3. teamotp.db
+const is_test_run = Bun.argv.includes('test')
+const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
+const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
 export const db = new Database(db_path, { create: true, strict: true })
 
 db.run(`
