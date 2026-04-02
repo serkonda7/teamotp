@@ -26,17 +26,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
       - name: Validate compose file
         run: docker compose config -q
       - name: Build images
         run: docker compose build --pull
       - name: Start stack
         run: docker compose up -d
-      - name: Wait for API and web endpoints
-        run: |
-          curl --insecure --fail --silent --show-error --head \
-               --retry 10 --retry-all-errors --retry-delay 3 --max-time 5 \
-               https://localhost > /dev/null
+      - name: Smoke test OTP API
+        run: bun run test:smoke
       - name: Show container status
         if: always()
         run: docker compose ps

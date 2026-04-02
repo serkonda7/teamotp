@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: infra/server.Dockerfile
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./server/data:/app/data
     ports:
