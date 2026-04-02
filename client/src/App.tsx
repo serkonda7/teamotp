@@ -1,7 +1,9 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
 import { createResource, createSignal, Show } from 'solid-js'
 import { client } from './api'
+import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
+import AppHeader from './components/AppHeader'
 import OtpList from './components/OtpList'
 import { makeArrayRefetch } from './util/resource_helpers'
 
@@ -12,6 +14,7 @@ function App() {
 	const [otpauthUrl, setOtpauthUrl] = createSignal('')
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
+	const [aboutOpen, setAboutOpen] = createSignal(false)
 
 	async function fetch_otps(): Promise<OtpDisplayInfo[]> {
 		const res = await client.otp.$get()
@@ -21,7 +24,8 @@ function App() {
 
 	return (
 		<div>
-			<h1>TeamOTP</h1>
+			<AppHeader onOpenAbout={() => setAboutOpen(true)} />
+			<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 			<AddFromOtpauthForm
 				otpauthUrl={otpauthUrl}
