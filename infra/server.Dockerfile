@@ -19,12 +19,7 @@ FROM debian:stable-slim
 
 WORKDIR /app
 
-RUN useradd -r -s /bin/false teamotp_user
-
 COPY --from=builder /app/server/dist/server ./
-RUN chown teamotp_user:teamotp_user ./server
-
-USER teamotp_user
 
 EXPOSE 3000
 
