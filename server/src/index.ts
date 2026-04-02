@@ -1,9 +1,16 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { requireAuth } from './middleware/requireAuth'
+import { handleCallback, handleLogin, handleLogout, handleMe } from './routes/auth'
 import { handleCreateOtp, handleGetOtpCode, handleListOtp, handleUpdateOtp } from './routes/otp'
 
 export const app = new Hono()
 	.use('/*', cors())
+	.get('/auth/login', handleLogin)
+	.get('/auth/callback', handleCallback)
+	.post('/auth/logout', handleLogout)
+	.get('/auth/me', handleMe)
+	.use('/otp*', requireAuth)
 	.get('/otp', handleListOtp)
 	.post('/otp', handleCreateOtp)
 	.get('/otp/:id', handleGetOtpCode)

@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "jose": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "otplib": "catalog:",
