@@ -21,7 +21,13 @@ function App() {
 
 	return (
 		<div>
-			<h1>TeamOTP</h1>
+			<header class="app-header">
+				<div class="app-title">TeamOTP</div>
+				<input disabled type="search" placeholder="Search coming soon" aria-label="Search OTP entries" />
+				<button type="button" class="info-button" onClick={() => window.alert('Version 0.0.1\nhttps://github.com/serkonda7/teamotp')}>
+					About
+				</button>
+			</header>
 
 			<AddFromOtpauthForm
 				otpauthUrl={otpauthUrl}
