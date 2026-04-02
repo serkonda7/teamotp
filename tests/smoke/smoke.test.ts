@@ -2,10 +2,12 @@
 
 import { beforeAll, describe, expect, test } from 'bun:test'
 
-const API_BASE = process.env.SMOKE_API_BASE_URL ?? 'http://localhost:3000'
-const WEB_BASE = process.env.SMOKE_WEB_BASE_URL ?? 'https://localhost'
+const API_BASE = 'http://localhost:3000'
+const WEB_BASE = 'https://localhost'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+async function fetch_https(url: string): Promise<Response> {
+	return await fetch(url, { tls: { rejectUnauthorized: false } })
+}
 
 function apiUrl(path: string): string {
 	return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
@@ -20,7 +22,7 @@ type GetOtpCodeResponse = { code: string }
 
 describe('OTP API smoke test', () => {
 	beforeAll(async () => {
-		const webRes = await fetch(webUrl('/'))
+		const webRes = await fetch_https(webUrl('/'))
 		expect(webRes.ok).toBe(true)
 
 		const apiRes = await fetch(apiUrl('/otp'))
