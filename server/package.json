@@ -9,8 +9,9 @@
     "test": "bun test"
   },
   "dependencies": {
-    "shared": "workspace:*",
+    "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "otplib": "catalog:"
+    "otplib": "catalog:",
+    "shared": "workspace:*"
   }
 }
