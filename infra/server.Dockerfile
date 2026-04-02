@@ -20,6 +20,7 @@ FROM debian:stable-slim
 WORKDIR /app
 
 COPY --from=builder /app/server/dist/server ./
+COPY --from=builder /app/server/drizzle ./drizzle
 
 EXPOSE 3000
 

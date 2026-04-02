@@ -20,7 +20,12 @@ fs.mkdirSync(data_dir, { recursive: true })
 const is_test_run = Bun.env.NODE_ENV === 'test'
 const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
 const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
-const migrations_folder = path.join(import.meta.dir, '../drizzle')
+
+// Create or open the database file and run migrations
+const migrations_folder = path.join(process.cwd(), 'drizzle')
+if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
+	throw new Error(`Drizzle migrations not found at ${migrations_folder}.`)
+}
 const sqlite = new Database(db_path, { create: true, strict: true })
 
 export const db = drizzle(sqlite)
