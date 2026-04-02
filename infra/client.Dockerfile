@@ -9,7 +9,7 @@ COPY client/package.json ./client/package.json
 COPY server/package.json ./server/package.json
 COPY shared/package.json ./shared/package.json
 
-RUN bun install --frozen-lockfile --filter client
+RUN bun install --frozen-lockfile --production --filter client
 COPY shared ./shared
 COPY client ./client
 RUN cd client && bun run build
