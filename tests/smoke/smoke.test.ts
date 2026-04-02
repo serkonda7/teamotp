@@ -5,6 +5,32 @@ import { beforeAll, describe, expect, test } from 'bun:test'
 const API_BASE = 'http://localhost:3000'
 const WEB_BASE = 'https://localhost'
 
+async function wait_for_fetch(
+	fn: () => Promise<Response>,
+	retries = 3,
+	delayMs = 3000,
+): Promise<Response> {
+	let lastError: unknown
+
+	for (let i = 0; i < retries; i++) {
+		try {
+			const res = await fn()
+			if (res.ok) {
+				return res
+			}
+			lastError = new Error(`HTTP ${res.status}`)
+		} catch (err) {
+			lastError = err
+		}
+
+		if (i < retries - 1) {
+			await new Promise((r) => setTimeout(r, delayMs))
+		}
+	}
+
+	throw lastError
+}
+
 async function fetch_https(url: string): Promise<Response> {
 	return await fetch(url, { tls: { rejectUnauthorized: false } })
 }
@@ -22,10 +48,10 @@ type GetOtpCodeResponse = { code: string }
 
 describe('OTP API smoke test', () => {
 	beforeAll(async () => {
-		const webRes = await fetch_https(webUrl('/'))
+		const webRes = await wait_for_fetch(() => fetch_https(webUrl('/')))
 		expect(webRes.ok).toBe(true)
 
-		const apiRes = await fetch(apiUrl('/otp'))
+		const apiRes = await wait_for_fetch(() => fetch(apiUrl('/otp')))
 		expect(apiRes.ok).toBe(true)
 	})
 
