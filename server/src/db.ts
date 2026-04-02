@@ -38,7 +38,7 @@ export function listEntries(): OtpDisplayInfo[] {
 }
 
 export function createEntry(obj: NewOtpEntry): OtpEntry {
-	const id = crypto.randomUUID()
+	const id = Bun.randomUUIDv7()
 	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
 
 	const entry: OtpEntry = {
