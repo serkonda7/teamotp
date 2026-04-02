@@ -19,12 +19,7 @@ FROM debian:stable-slim
 
 WORKDIR /app
 
-RUN useradd -r -s /bin/false teamotp_user
-RUN mkdir -p /app/data
-RUN chown teamotp_user:teamotp_user /app/data
-
 COPY --from=builder /app/server/dist/server ./
-RUN chmod 755 ./server
 
 EXPOSE 3000
 
