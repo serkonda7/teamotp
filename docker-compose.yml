@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: infra/server.Dockerfile
+    environment:
+      TEAMOTP_DB_PATH: "/app/data/teamotp.test.db"
     volumes:
       - ./server/data:/app/data
     ports:
