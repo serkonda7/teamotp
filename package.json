@@ -23,6 +23,7 @@
     "check": "turbo run check",
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "test": "turbo run test",
     "test:smoke": "bun test tests/smoke --timeout 10000"
   },
   "packageManager": "bun@1.3.11",
