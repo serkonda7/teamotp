@@ -1,13 +1,14 @@
 import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 import { db, getEntryById } from '../db'
 import { app } from '../index'
+import { entries } from '../schema'
 
 beforeEach(() => {
-	db.run('DELETE FROM entries')
+	db.delete(entries).run()
 })
 
 afterAll(() => {
-	db.close()
+	db.$client.close()
 })
 
 describe('OTP routes', () => {

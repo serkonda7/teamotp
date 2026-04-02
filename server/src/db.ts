@@ -1,13 +1,15 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
+import { eq } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/bun-sqlite'
 import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
+import { entries } from './schema'
 import type { OtpEntry, UpdateOtpEntry } from './types'
 
 const data_dir = path.join(process.cwd(), 'data')
 fs.mkdirSync(data_dir, { recursive: true })
-// TODO use orm, e.g. drizzle
 // TODO enrypt entire DB
 
 // Precedence for DB file path:
@@ -17,9 +19,9 @@ fs.mkdirSync(data_dir, { recursive: true })
 const is_test_run = Bun.argv.includes('test')
 const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
 const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
-export const db = new Database(db_path, { create: true, strict: true })
+const sqlite = new Database(db_path, { create: true, strict: true })
 
-db.run(`
+sqlite.run(`
 CREATE TABLE IF NOT EXISTS entries (
 	id TEXT PRIMARY KEY,
 	label TEXT NOT NULL,
@@ -31,10 +33,13 @@ CREATE TABLE IF NOT EXISTS entries (
 )
 `)
 
+export const db = drizzle(sqlite)
+
 export function listEntries(): OtpDisplayInfo[] {
-	const query = db.query('SELECT id, label, issuer FROM entries')
-	const rows = query.all()
-	return rows as OtpDisplayInfo[]
+	return db
+		.select({ id: entries.id, label: entries.label, issuer: entries.issuer })
+		.from(entries)
+		.all()
 }
 
 export function createEntry(obj: NewOtpEntry): OtpEntry {
@@ -51,19 +56,13 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		period: obj.period ?? 30,
 	}
 
-	db.run(
-		'INSERT INTO entries (id, label, issuer, secret, algorithm, digits, period) VALUES (?, ?, ?, ?, ?, ?, ?)',
-		[id, entry.label, entry.issuer, entry.secret, entry.algorithm, entry.digits, entry.period],
-	)
+	db.insert(entries).values(entry).run()
 
 	return entry
 }
 
 export function getEntryById(id: string): OtpEntry | null {
-	const query = db.query(
-		'SELECT id, label, issuer, secret, algorithm, digits, period FROM entries WHERE id = ?',
-	)
-	const row = query.get(id)
+	const row = db.select().from(entries).where(eq(entries.id, id)).get()
 	return (row as OtpEntry | null) ?? null
 }
 
