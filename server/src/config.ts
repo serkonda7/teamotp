@@ -3,8 +3,6 @@ import path from 'node:path'
 
 export interface AuthConfig {
 	jwtSecret: string
-	initialAdminEmail?: string
-	initialAdminPassword?: string
 }
 
 export interface AppConfig {
@@ -38,8 +36,6 @@ if (is_test_run) {
 		config = {
 			auth: {
 				jwtSecret: parsed.auth.jwtSecret,
-				initialAdminEmail: parsed.auth.initialAdminEmail,
-				initialAdminPassword: parsed.auth.initialAdminPassword,
 			},
 		}
 	} catch (e: unknown) {
