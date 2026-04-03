@@ -30,6 +30,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Validate compose file
         run: docker compose config -q
+      - name: Setup initial config
+        run: cp server/config.example.toml server/config.toml
       - name: Build images
         run: docker compose build --pull
       - name: Start stack
