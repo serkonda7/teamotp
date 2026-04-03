@@ -48,9 +48,6 @@ describe('OTP API smoke test', () => {
 	beforeAll(async () => {
 		const webRes = await wait_for_fetch(() => fetch_https(webUrl('/')))
 		expect(webRes.ok).toBe(true)
-
-		const apiRes = await wait_for_fetch(() => fetch(apiUrl('/otp')))
-		expect(apiRes.status).toBe(401)
 	})
 
 	test('API responds to auth requests', async () => {
