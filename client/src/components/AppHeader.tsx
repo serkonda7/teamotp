@@ -1,5 +1,6 @@
 type AppHeaderProps = {
 	onOpenAbout: () => void
+	onLogout: () => void
 }
 
 function AppHeader(props: AppHeaderProps) {
@@ -12,9 +13,14 @@ function AppHeader(props: AppHeaderProps) {
 				placeholder="Search coming soon"
 				aria-label="Search OTP entries"
 			/>
-			<button type="button" class="info-button" onClick={props.onOpenAbout}>
-				About
-			</button>
+			<div class="header-actions">
+				<button type="button" class="info-button" onClick={props.onOpenAbout}>
+					About
+				</button>
+				<button type="button" class="logout-button" onClick={props.onLogout}>
+					Logout
+				</button>
+			</div>
 		</header>
 	)
 }

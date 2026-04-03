@@ -1,0 +1,2 @@
+- Biome.js is used as linter. It must be run after changes via `bun run lint`
+- tsgo is used as type checker. It must be run after changes via `bun run check`

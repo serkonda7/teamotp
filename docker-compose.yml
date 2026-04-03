@@ -4,9 +4,10 @@ services:
       context: .
       dockerfile: infra/server.Dockerfile
     environment:
-      TEAMOTP_DB_PATH: "/app/data/teamotp.test.db"
+      TEAMOTP_DB_PATH: "/app/data/teamotp.db"
     volumes:
       - ./server/data:/app/data
+      - ./server/config.toml:/app/config.toml
     ports:
       - "3000:3000"
     restart: unless-stopped

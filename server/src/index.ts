@@ -1,13 +1,16 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { authMiddleware } from './middleware/auth'
+import { authApp } from './routes/auth'
 import { handleCreateOtp, handleGetOtpCode, handleListOtp, handleUpdateOtp } from './routes/otp'
 
 export const app = new Hono()
 	.use('/*', cors())
-	.get('/otp', handleListOtp)
-	.post('/otp', handleCreateOtp)
-	.get('/otp/:id', handleGetOtpCode)
-	.post('/otp/:id', handleUpdateOtp)
+	.route('/auth', authApp)
+	.get('/otp', authMiddleware, handleListOtp)
+	.post('/otp', authMiddleware, handleCreateOtp)
+	.get('/otp/:id', authMiddleware, handleGetOtpCode)
+	.post('/otp/:id', authMiddleware, handleUpdateOtp)
 
 export type AppType = typeof app
 
