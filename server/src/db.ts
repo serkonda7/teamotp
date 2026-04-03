@@ -6,10 +6,11 @@ import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
-import { entries } from './schema'
-import type { OtpEntry, UpdateOtpEntry } from './types'
+import { entries, users } from './schema'
+import type { OtpEntry, UpdateOtpEntry, User } from './types'
 
-const data_dir = path.join(process.cwd(), 'data')
+const server_dir = path.join(import.meta.dir, '..')
+const data_dir = path.join(server_dir, 'data')
 fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
 
@@ -22,7 +23,7 @@ const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
 const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
 
 // Create or open the database file and run migrations
-const migrations_folder = path.join(process.cwd(), 'drizzle')
+const migrations_folder = path.join(server_dir, 'drizzle')
 if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
 	throw new Error(`Drizzle migrations not found at ${migrations_folder}.`)
 }
@@ -64,4 +65,9 @@ export function getEntryById(id: string): OtpEntry | null {
 
 export function updateEntry(_id: string, _updated: UpdateOtpEntry): void {
 	// TODO implement updateEntry
+}
+
+export function getUserByEmail(email: string): User | null {
+	const row = db.select().from(users).where(eq(users.email, email)).get()
+	return (row as User | null) ?? null
 }

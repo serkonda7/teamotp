@@ -9,3 +9,9 @@ export const entries = sqliteTable('entries', {
 	digits: integer('digits').notNull(),
 	period: integer('period').notNull(),
 })
+
+export const users = sqliteTable('users', {
+	id: text('id').primaryKey(),
+	email: text('email').notNull().unique(),
+	password_hash: text('password_hash').notNull(),
+})

@@ -15,3 +15,9 @@ export interface UpdateOtpEntry {
 	label?: string
 	issuer?: string
 }
+
+export interface User {
+	id: string
+	email: string
+	password_hash: string
+}
