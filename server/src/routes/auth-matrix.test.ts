@@ -2,6 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { app } from '../index'
 
+import { createSessionId } from '../sessions'
+
 const TEST_SECRET = 'test_secret'
 
 enum Role {
@@ -10,7 +12,6 @@ enum Role {
 }
 
 // Access profiles
-const PUBLIC = [Role.unauthenticated, Role.authenticated]
 const RESTRICTED = [Role.authenticated]
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -36,11 +37,13 @@ async function getAuthCookie(role: Role): Promise<string | undefined> {
 		return undefined
 	}
 
+	const sid = createSessionId()
 	const token = await sign(
-		{ sub: 'test_user_id', email: 'test@example.com' },
+		{ sub: 'test_user_id', email: 'test@example.com', sid },
 		TEST_SECRET,
 		'HS256',
 	)
+
 	return `auth_token=${token}`
 }
 

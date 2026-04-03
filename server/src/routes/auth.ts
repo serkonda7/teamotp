@@ -4,6 +4,7 @@ import { sign } from 'hono/jwt'
 import { config } from '../config'
 import { getUserByEmail } from '../db'
 import { authMiddleware } from '../middleware/auth'
+import { createSessionId, invalidateSession } from '../sessions'
 
 export const authApp = new Hono()
 
@@ -25,9 +26,12 @@ authApp.post('/login', async (c) => {
 
 	const secret = config.auth.jwtSecret
 
+	const sid = createSessionId()
+
 	const payload = {
 		sub: user.id,
 		email: user.email,
+		sid,
 		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 1 week
 	}
 
@@ -44,7 +48,12 @@ authApp.post('/login', async (c) => {
 	return c.json({ success: true })
 })
 
-authApp.post('/logout', async (c) => {
+authApp.post('/logout', authMiddleware, async (c) => {
+	const payload = c.get('jwtPayload')
+	if (payload.sid) {
+		invalidateSession(payload.sid)
+	}
+
 	deleteCookie(c, 'auth_token', {
 		path: '/',
 	})

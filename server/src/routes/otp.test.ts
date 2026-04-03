@@ -3,11 +3,17 @@ import { sign } from 'hono/jwt'
 import { db, getEntryById } from '../db'
 import { app } from '../index'
 import { entries } from '../schema'
+import { createSessionId } from '../sessions'
 
 const TEST_SECRET = 'test_secret'
 
 async function getAuthHeaders() {
-	const token = await sign({ sub: 'user_id', email: 'test@example.com' }, TEST_SECRET, 'HS256')
+	const sid = createSessionId()
+	const token = await sign(
+		{ sub: 'user_id', email: 'test@example.com', sid },
+		TEST_SECRET,
+		'HS256',
+	)
 	return {
 		cookie: `auth_token=${token}`,
 	}
