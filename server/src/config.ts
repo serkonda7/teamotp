@@ -11,6 +11,8 @@ export interface AppConfig {
 
 const is_test_run = Bun.env.NODE_ENV === 'test'
 
+import { findServerDir } from './paths'
+
 let config: AppConfig
 
 if (is_test_run) {
@@ -20,7 +22,7 @@ if (is_test_run) {
 		},
 	}
 } else {
-	const server_dir = path.join(import.meta.dir, '..')
+	const server_dir = findServerDir()
 	const config_path = path.join(server_dir, 'config.toml')
 
 	if (!fs.existsSync(config_path)) {

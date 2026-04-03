@@ -6,10 +6,11 @@ import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
+import { findServerDir } from './paths'
 import { entries, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 
-const server_dir = path.join(import.meta.dir, '..')
+const server_dir = findServerDir()
 const data_dir = path.join(server_dir, 'data')
 fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
