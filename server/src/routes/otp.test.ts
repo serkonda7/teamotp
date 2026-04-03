@@ -5,7 +5,6 @@ import { app } from '../index'
 import { entries } from '../schema'
 
 const TEST_SECRET = 'test_secret'
-process.env.JWT_SECRET = TEST_SECRET
 
 async function getAuthHeaders() {
 	const token = await sign({ sub: 'user_id', email: 'test@example.com' }, TEST_SECRET, 'HS256')

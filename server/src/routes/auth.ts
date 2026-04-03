@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 import { sign } from 'hono/jwt'
+import { config } from '../config'
 import { getUserByEmail } from '../db'
 import { authMiddleware } from '../middleware/auth'
 
@@ -22,10 +23,7 @@ authApp.post('/login', async (c) => {
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
-	const secret = process.env.JWT_SECRET
-	if (!secret) {
-		return c.json({ error: 'Server misconfiguration: JWT_SECRET missing' }, 500)
-	}
+	const secret = config.auth.jwtSecret
 
 	const payload = {
 		sub: user.id,

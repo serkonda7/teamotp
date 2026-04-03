@@ -1,0 +1,4 @@
+[auth]
+jwtSecret = "your-supper-secret-change-me"
+initialAdminEmail = "admin@example.com"
+initialAdminPassword = "password123"

@@ -1,6 +1,7 @@
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { verify } from 'hono/jwt'
+import { config } from '../config'
 
 export type JwtPayload = { sub: string; email: string; exp: number }
 
@@ -11,10 +12,7 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
-		const secret = process.env.JWT_SECRET
-		if (!secret) {
-			return c.json({ error: 'Server misconfiguration: JWT_SECRET missing' }, 500)
-		}
+		const secret = config.auth.jwtSecret
 
 		try {
 			const payload = await verify(token, secret, 'HS256')

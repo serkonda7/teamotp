@@ -3,9 +3,6 @@ import { db } from '../db'
 import { app } from '../index'
 import { users } from '../schema'
 
-const TEST_SECRET = 'test_secret'
-process.env.JWT_SECRET = TEST_SECRET
-
 beforeEach(async () => {
 	db.delete(users).run()
 })

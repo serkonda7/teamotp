@@ -15,11 +15,6 @@ export const app = new Hono()
 export type AppType = typeof app
 
 if (import.meta.main) {
-	if (!process.env.JWT_SECRET) {
-		console.error('FATAL Error: JWT_SECRET environment variable is completely missing.')
-		process.exit(1)
-	}
-
 	// TODO read port from config file or env variable
 	const server = Bun.serve({
 		hostname: '0.0.0.0',
