@@ -7,8 +7,8 @@ const WEB_BASE = 'https://localhost'
 
 async function wait_for_fetch(
 	fn: () => Promise<Response>,
-	retries = 3,
-	delayMs = 3000,
+	retries = 10,
+	delayMs = 2000,
 ): Promise<Response> {
 	let lastError: unknown
 
