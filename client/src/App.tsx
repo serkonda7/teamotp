@@ -11,12 +11,16 @@ import { makeArrayRefetch } from './util/resource_helpers'
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
 
-	const [otps, { refetch }] = createResource(isLoggedIn, async (loggedIn) => {
-		if (!loggedIn) {
-			return []
-		}
-		return await fetch_otps()
-	}, { initialValue: [] })
+	const [otps, { refetch }] = createResource(
+		isLoggedIn,
+		async (loggedIn) => {
+			if (!loggedIn) {
+				return []
+			}
+			return await fetch_otps()
+		},
+		{ initialValue: [] },
+	)
 	const refetchTyped = makeArrayRefetch<OtpDisplayInfo>(refetch)
 
 	const [otpauthUrl, setOtpauthUrl] = createSignal('')
