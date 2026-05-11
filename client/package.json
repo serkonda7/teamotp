@@ -8,8 +8,8 @@
     "check": "tsgo"
   },
   "devDependencies": {
-    "vite": "~8.0.3",
-    "vite-plugin-solid": "~2.11.8",
+    "vite": "~8.0.12",
+    "vite-plugin-solid": "~2.11.12",
     "solid-devtools": "~0.34.3"
   },
   "dependencies": {
