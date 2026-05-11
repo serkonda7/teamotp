@@ -1,0 +1,16 @@
+{
+  "name": "server-cli",
+  "version": "0.0.0-dev",
+  "scripts": {
+    "compile": "bun build ./src/cli.ts --compile --outfile ./dist/cli",
+    "check": "tsgo"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "server": "workspace:*",
+    "shared": "workspace:*"
+  },
+  "devDependencies": {
+    "drizzle-kit": "catalog:"
+  }
+}

@@ -41,6 +41,18 @@
         "drizzle-kit": "catalog:",
       },
     },
+    "server-cli": {
+      "name": "server-cli",
+      "version": "0.0.0-dev",
+      "dependencies": {
+        "drizzle-orm": "catalog:",
+        "server": "workspace:*",
+        "shared": "workspace:*",
+      },
+      "devDependencies": {
+        "drizzle-kit": "catalog:",
+      },
+    },
     "shared": {
       "name": "shared",
       "version": "0.0.0-dev",
@@ -473,6 +485,8 @@
     "seroval-plugins": ["seroval-plugins@1.5.1", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-4FbuZ/TMl02sqv0RTFexu0SP6V+ywaIe5bAWCCEik0fk17BhALgwvUDVF7e3Uvf9pxmwCEJsRPmlkUE6HdzLAw=="],
 
     "server": ["server@workspace:server"],
+
+    "server-cli": ["server-cli@workspace:server-cli"],
 
     "shared": ["shared@workspace:shared"],
 
