@@ -32,6 +32,7 @@
       "name": "server",
       "version": "0.0.0-dev",
       "dependencies": {
+        "@serkonda7/ts-result": "catalog:",
         "drizzle-orm": "catalog:",
         "hono": "catalog:",
         "otplib": "catalog:",
@@ -45,6 +46,7 @@
       "name": "server-cli",
       "version": "0.0.0-dev",
       "dependencies": {
+        "@serkonda7/ts-result": "catalog:",
         "drizzle-orm": "catalog:",
         "server": "workspace:*",
         "shared": "workspace:*",
