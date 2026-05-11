@@ -55,11 +55,11 @@ const LoginPage: Component<Props> = (props) => {
 						<input
 							type="email"
 							id="email"
-							placeholder="admin@example.com"
 							value={email()}
 							onInput={(e) => setEmail(e.currentTarget.value)}
 							disabled={isSubmitting()}
 							required
+							autofocus
 						/>
 					</div>
 					<div class="form-group">
@@ -67,7 +67,6 @@ const LoginPage: Component<Props> = (props) => {
 						<input
 							type="password"
 							id="password"
-							placeholder="••••••••"
 							value={password()}
 							onInput={(e) => setPassword(e.currentTarget.value)}
 							disabled={isSubmitting()}
