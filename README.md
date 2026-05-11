@@ -1,4 +1,18 @@
 # teamotp
+## Getting started
+```sh
+docker compose up
+```
+
+
+### Admin activities
+```sh
+# Manually create user
+docker compose exec server ./cli create-user user@example.com mypassword
+bun server-cli/src/cli.ts create-user user@user.de user
+```
+
+
 ## Database migrations
 The server uses Drizzle ORM with SQLite migrations stored in `server/drizzle/`.
 

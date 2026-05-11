@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY package.json bun.lock ./
 COPY tsconfig.json ./
-RUN mkdir -p client server shared
+RUN mkdir -p client server server-cli shared
 COPY client/package.json ./client/package.json
 COPY server/package.json ./server/package.json
+COPY server-cli/package.json ./server-cli/package.json
 COPY shared/package.json ./shared/package.json
 
 RUN bun install --frozen-lockfile --filter client

@@ -14,6 +14,7 @@
   },
   "workspaces": [
     "server",
+    "server-cli",
     "client",
     "shared"
   ],
