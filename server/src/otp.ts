@@ -1,6 +1,6 @@
+import { err, ok, type Result } from '@serkonda7/ts-result'
 import * as OTPAuth from 'otpauth'
 import type { OtpEntry } from './types'
-import { err, ok, Result } from '@serkonda7/ts-result'
 
 export function generateTotpCode(entry: OtpEntry, timestamp = Date.now()): Result<string> {
 	try {

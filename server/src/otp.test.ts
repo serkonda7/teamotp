@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
+import { unwrap } from '@serkonda7/ts-result'
 import { generateTotpCode } from './otp'
 import type { OtpEntry } from './types'
-import { unwrap } from '@serkonda7/ts-result'
 
 describe('generateTotpCode', () => {
 	test('generates a code for a 10-byte secret', () => {
