@@ -1,17 +1,7 @@
 import type { Context } from 'hono'
-import * as OTPAuth from 'otpauth'
 import type { NewOtpEntry } from 'shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
-import type { OtpEntry } from '../types'
-
-function generateTotpCode(entry: OtpEntry): string {
-	return new OTPAuth.TOTP({
-		secret: entry.secret,
-		algorithm: entry.algorithm,
-		digits: entry.digits,
-		period: entry.period,
-	}).generate()
-}
+import { generateTotpCode } from '../otp'
 
 function json(data: unknown, status = 200): Response {
 	return Response.json(data, { status })
