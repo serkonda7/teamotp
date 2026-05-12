@@ -4,7 +4,6 @@ import path from 'node:path'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
-import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
 import { findServerDir } from './paths'
 import { entries, users } from './schema'
@@ -42,14 +41,14 @@ export function listEntries(): OtpDisplayInfo[] {
 
 export function createEntry(obj: NewOtpEntry): OtpEntry {
 	const id = Bun.randomUUIDv7()
-	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
+	const algo = obj.algorithm?.toUpperCase() ?? 'SHA1'
 
 	const entry: OtpEntry = {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
 		secret: obj.secret.toUpperCase(),
-		algorithm: algo as HashAlgorithm,
+		algorithm: algo,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
 	}

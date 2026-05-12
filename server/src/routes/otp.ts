@@ -1,23 +1,16 @@
 import type { Context } from 'hono'
-import * as otplib from 'otplib'
+import * as OTPAuth from 'otpauth'
 import type { NewOtpEntry } from 'shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
 import type { OtpEntry } from '../types'
-import { err, ok, type Result } from '@serkonda7/ts-result'
 
-async function generateTotpCode(entry: OtpEntry): Promise<Result<string>> {
-	try {
-		const code = await otplib.generate({
-			secret: entry.secret,
-			algorithm: entry.algorithm,
-			digits: entry.digits,
-			period: entry.period,
-			strategy: 'totp',
-		})
-		return ok(code)
-	} catch (e) {
-		return err(e instanceof Error ? e : new Error('Failed to generate OTP code'))
-	}
+function generateTotpCode(entry: OtpEntry): string {
+	return new OTPAuth.TOTP({
+		secret: entry.secret,
+		algorithm: entry.algorithm,
+		digits: entry.digits,
+		period: entry.period,
+	}).generate()
 }
 
 function json(data: unknown, status = 200): Response {
@@ -63,11 +56,8 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 		return json({ error: 'OTP entry not found' }, 404)
 	}
 
-	const code_res = await generateTotpCode(entry)
-	if (code_res.error) {
-		return json({ error: code_res.error.message }, 500)
-	}
-	return json({ code: code_res.value })
+	const code = generateTotpCode(entry)
+	return json({ code })
 }
 
 // POST /api/otp/:id — update an existing entry

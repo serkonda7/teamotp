@@ -13,7 +13,7 @@
   "dependencies": {
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "otplib": "catalog:",
+    "otpauth": "catalog:",
     "shared": "workspace:*"
   },
   "devDependencies": {

@@ -54,7 +54,7 @@ describe('OTP routes', () => {
 
 		const stored = getEntryById(createBody.id)
 		expect(stored).not.toBeNull()
-		expect(stored?.algorithm).toBe('sha1')
+		expect(stored?.algorithm).toBe('SHA1')
 		expect(stored?.digits).toBe(6)
 		expect(stored?.period).toBe(30)
 		expect(stored?.secret).toBe('jbswy3dpehpk3pxpjbswy3dpehpk3pxp')
