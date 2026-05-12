@@ -34,7 +34,7 @@
     "drizzle-kit": "~0.31.10",
     "drizzle-orm": "~0.45.2",
     "hono": "~4.12.18",
-    "otpauth": "~9.5.1",
+    "otplib": "~13.4.0",
     "@serkonda7/ts-result": "~1.0.4"
   },
   "devDependencies": {

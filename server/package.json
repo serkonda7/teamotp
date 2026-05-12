@@ -13,7 +13,7 @@
   "dependencies": {
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "otpauth": "catalog:",
+    "otplib": "catalog:",
     "shared": "workspace:*",
     "@serkonda7/ts-result": "catalog:"
   },
