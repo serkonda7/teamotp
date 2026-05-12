@@ -46,8 +46,11 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 		return json({ error: 'OTP entry not found' }, 404)
 	}
 
-	const code = generateTotpCode(entry)
-	return json({ code })
+	const code_res = generateTotpCode(entry)
+	if (code_res.error) {
+		return json({ error: code_res.error.message }, 500)
+	}
+	return json({ code: code_res.value })
 }
 
 // POST /api/otp/:id — update an existing entry
