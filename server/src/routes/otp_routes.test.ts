@@ -57,7 +57,7 @@ describe('OTP routes', () => {
 		expect(stored?.algorithm).toBe('sha1')
 		expect(stored?.digits).toBe(6)
 		expect(stored?.period).toBe(30)
-		expect(stored?.secret).toBe('jbswy3dpehpk3pxpjbswy3dpehpk3pxp')
+		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
 
 		const listResponse = await app.request('/otp', {
 			headers: { ...headers },

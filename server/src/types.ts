@@ -1,5 +1,4 @@
 import type { HashAlgorithm } from 'otplib'
-
 export interface OtpEntry {
 	id: string
 	label: string

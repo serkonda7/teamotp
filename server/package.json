@@ -14,7 +14,8 @@
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "otplib": "catalog:",
-    "shared": "workspace:*"
+    "shared": "workspace:*",
+    "@serkonda7/ts-result": "catalog:"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"

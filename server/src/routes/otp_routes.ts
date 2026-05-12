@@ -1,18 +1,7 @@
 import type { Context } from 'hono'
-import { generate } from 'otplib'
 import type { NewOtpEntry } from 'shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
-import type { OtpEntry } from '../types'
-
-async function generateTotpCode(entry: OtpEntry): Promise<string> {
-	return await generate({
-		secret: entry.secret,
-		algorithm: entry.algorithm,
-		digits: entry.digits,
-		period: entry.period,
-		strategy: 'totp',
-	})
-}
+import { generateTotpCode } from '../otp'
 
 function json(data: unknown, status = 200): Response {
 	return Response.json(data, { status })
@@ -57,13 +46,11 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 		return json({ error: 'OTP entry not found' }, 404)
 	}
 
-	try {
-		const code = await generateTotpCode(entry)
-		return json({ code })
-	} catch (err) {
-		const message = err instanceof Error ? err.message : 'Failed to generate OTP code'
-		return json({ error: message }, 400)
+	const code_res = generateTotpCode(entry)
+	if (code_res.error) {
+		return json({ error: code_res.error.message }, 500)
 	}
+	return json({ code: code_res.value })
 }
 
 // POST /api/otp/:id — update an existing entry
