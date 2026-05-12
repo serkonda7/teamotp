@@ -1,6 +1,5 @@
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
-import { Writable } from 'node:stream'
 import { err, ok, type Result } from '@serkonda7/ts-result'
 
 async function createUserDb(email: string, password: string): Promise<Result<void>> {
@@ -34,30 +33,15 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 }
 
 async function askPassword(): Promise<string> {
-	let muted = false
-
-	// Forward readline output to stdout
-	const mutedOutput = new Writable({
-		write(chunk, _encoding, callback) {
-			if (!muted) {
-				output.write(chunk)
-			}
-			callback()
-		},
-	})
-
 	// Create readline interface
 	const rl = createInterface({
 		input,
-		output: mutedOutput,
+		output,
 		terminal: true,
 	})
 
 	try {
-		// Hide typed characters
-		muted = true
 		const password = await rl.question('Password: ')
-		output.write('\n')
 		return password
 	} finally {
 		rl.close()
@@ -66,14 +50,11 @@ async function askPassword(): Promise<string> {
 
 function printUsage(): void {
 	console.log(`
-Usage: cli [command] [options]
+Usage: cli.bin [command] [options]
 
 Commands:
-	create-user <email>               Create a new user
-  help                              Show this help message
-
-Examples:
-	cli create-user user@example.com
+  create-user <email>    Create a new user (password is prompted interactively)
+  help                   Show this help message
 `)
 }
 
@@ -87,7 +68,7 @@ async function main(args: string[]): Promise<Result<void>> {
 
 	if (command === 'create-user') {
 		if (args.length !== 2) {
-			return err(new Error('create-user requires argument: <email>'))
+			return err(new Error('Usage: create-user <email>'))
 		}
 
 		// Always collect password interactively to avoid shell history leaks.
