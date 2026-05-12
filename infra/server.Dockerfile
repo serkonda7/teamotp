@@ -22,7 +22,7 @@ FROM debian:stable-slim
 WORKDIR /app
 
 COPY --from=builder /app/server/dist/backend.bin ./
-COPY --from=builder /app/server-cli/dist/cli ./cli
+COPY --from=builder /app/server-cli/dist/cli.bin ./cli.bin
 COPY --from=builder /app/server/drizzle ./drizzle
 
 EXPOSE 3000
