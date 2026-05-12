@@ -48,7 +48,7 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
-		secret: obj.secret.toLowerCase(),
+		secret: obj.secret.toUpperCase(),
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
