@@ -11,11 +11,12 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@azure/msal-node": "catalog:",
+    "@serkonda7/ts-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "otplib": "catalog:",
-    "shared": "workspace:*",
-    "@serkonda7/ts-result": "catalog:"
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"
