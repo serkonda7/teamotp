@@ -35,7 +35,8 @@
     "drizzle-orm": "~0.45.2",
     "hono": "~4.12.18",
     "otplib": "~13.4.0",
-    "@serkonda7/ts-result": "~1.0.4"
+    "@serkonda7/ts-result": "~1.0.4",
+    "@azure/msal-node": "~5.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "~2.4.15",
