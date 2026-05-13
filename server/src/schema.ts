@@ -13,5 +13,7 @@ export const entries = sqliteTable('entries', {
 export const users = sqliteTable('users', {
 	id: text('id').primaryKey(),
 	email: text('email').notNull().unique(),
-	password_hash: text('password_hash').notNull(),
+	password_hash: text('password_hash'),
+	provider: text('provider').notNull().default('local'),
+	provider_id: text('provider_id').unique(),
 })

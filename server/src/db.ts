@@ -72,3 +72,26 @@ export function getUserByEmail(email: string): User | null {
 	const row = db.select().from(users).where(eq(users.email, email)).get()
 	return (row as User | null) ?? null
 }
+
+export function getUserByProviderId(providerId: string): User | null {
+	const row = db.select().from(users).where(eq(users.provider_id, providerId)).get()
+	return (row as User | null) ?? null
+}
+
+export function upsertMicrosoftUser(params: { providerId: string; email: string }): User {
+	const existing = getUserByProviderId(params.providerId)
+	if (existing) {
+		return existing
+	}
+
+	const id = Bun.randomUUIDv7()
+	const user: User = {
+		id,
+		email: params.email,
+		password_hash: null,
+		provider: 'microsoft',
+		provider_id: params.providerId,
+	}
+	db.insert(users).values(user).run()
+	return user
+}

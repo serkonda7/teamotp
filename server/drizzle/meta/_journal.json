@@ -15,6 +15,13 @@
       "when": 1775224094964,
       "tag": "0001_misty_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1778620295849,
+      "tag": "0002_daily_tempest",
+      "breakpoints": true
     }
   ]
 }
