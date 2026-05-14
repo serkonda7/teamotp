@@ -6,12 +6,11 @@ import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
 import type { NewOtpEntry, OtpDisplayInfo } from 'shared/src/types'
-import { findServerDir } from './paths'
 import { entries, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
+import { SERVER_ROOT } from './util/server_root'
 
-const server_dir = findServerDir()
-const data_dir = path.join(server_dir, 'data')
+const data_dir = path.join(SERVER_ROOT, 'data')
 fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
 
@@ -24,7 +23,7 @@ const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
 const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
 
 // Create or open the database file and run migrations
-const migrations_folder = path.join(server_dir, 'drizzle')
+const migrations_folder = path.join(SERVER_ROOT, 'drizzle')
 if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
 	throw new Error(`Drizzle migrations not found at ${migrations_folder}.`)
 }

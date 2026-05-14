@@ -1,2 +1,9 @@
 [auth]
-jwtSecret = "your-supper-secret-change-me"
+jwtSecret = "your-super-secret-change-me"
+
+# Optional: enable Microsoft 365 / Entra ID login
+# [auth.microsoft]
+# clientId    = "<Azure app registration client ID>"
+# tenantId    = "<tenant ID or 'common'>"
+# clientSecret = "<client secret value>"
+# redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
