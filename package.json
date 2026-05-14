@@ -35,6 +35,7 @@
     "hono": "~4.12.18",
     "otplib": "~13.4.0",
     "@serkonda7/ts-result": "~1.0.4",
+    "better-result": "~2.9.2",
     "@azure/msal-node": "~5.2.1"
   },
   "devDependencies": {
