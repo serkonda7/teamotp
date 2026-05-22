@@ -27,6 +27,7 @@ export interface AuthConfig {
 
 export interface AppConfig {
 	auth: AuthConfig
+	frontendUrl?: string
 }
 
 // --------
@@ -72,6 +73,7 @@ if (is_test_run) {
 				jwtSecret: auth.jwtSecret,
 				...(microsoft ? { microsoft } : {}),
 			},
+			...(parsed.frontendUrl ? { frontendUrl: parsed.frontendUrl as string } : {}),
 		}
 	} catch (e: unknown) {
 		const errorMessage = e instanceof Error ? e.message : String(e)

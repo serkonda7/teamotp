@@ -1,3 +1,8 @@
+/**
+ * Logic for finding the server root directory to locate config, DB and migration files.
+ * This is required as working directory might differ across local development, docker and server-cli.
+ */
+
 import fs from 'node:fs'
 import path from 'node:path'
 import { Result } from 'better-result'
