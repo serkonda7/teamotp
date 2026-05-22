@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { unwrap } from '@serkonda7/ts-result'
+import { Result } from 'better-result'
 import { generateTotpCode } from './otp'
 import type { OtpEntry } from './types'
 
@@ -15,6 +15,6 @@ describe('generateTotpCode', () => {
 			period: 30,
 		}
 
-		expect(unwrap(generateTotpCode(entry))).toHaveLength(6)
+		expect(Result.unwrap(generateTotpCode(entry))).toHaveLength(6)
 	})
 })

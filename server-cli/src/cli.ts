@@ -1,14 +1,14 @@
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
-import { err, ok, type Result } from '@serkonda7/ts-result'
+import { Result } from 'better-result'
 
-async function createUserDb(email: string, password: string): Promise<Result<void>> {
+async function createUserDb(email: string, password: string): Promise<Result<void, Error>> {
 	// Import db and users schema only when actually creating user
 	const { db } = await import('server/src/db')
 	const { users } = await import('server/src/schema')
 
 	if (!email || !password) {
-		return err(new Error('Email and password are required.'))
+		return Result.err(new Error('Email and password are required.'))
 	}
 
 	try {
@@ -25,10 +25,10 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 			.run()
 
 		console.log('ok')
-		return ok(undefined)
+		return Result.ok(undefined)
 	} catch (error: unknown) {
 		const msg = error instanceof Error ? error.message : String(error)
-		return err(new Error(`Failed to create user: ${msg}`))
+		return Result.err(new Error(`Failed to create user: ${msg}`))
 	}
 }
 
@@ -58,23 +58,23 @@ Commands:
 `)
 }
 
-async function main(args: string[]): Promise<Result<void>> {
+async function main(args: string[]): Promise<Result<void, Error>> {
 	if (args.length === 0) {
 		printUsage()
-		return ok(undefined)
+		return Result.ok(undefined)
 	}
 
 	const command = args[0]
 
 	if (command === 'create-user') {
 		if (args.length !== 2) {
-			return err(new Error('Usage: create-user <email>'))
+			return Result.err(new Error('Usage: create-user <email>'))
 		}
 
 		// Always collect password interactively to avoid shell history leaks.
 		const password = await askPassword()
 		if (!password) {
-			return err(new Error('Password cannot be empty'))
+			return Result.err(new Error('Password cannot be empty'))
 		}
 
 		return await createUserDb(args[1], password)
@@ -82,16 +82,16 @@ async function main(args: string[]): Promise<Result<void>> {
 
 	if (command === 'help' || command === '-h' || command === '--help') {
 		printUsage()
-		return ok(undefined)
+		return Result.ok(undefined)
 	}
 
-	return err(new Error(`Unknown command: ${command}`))
+	return Result.err(new Error(`Unknown command: ${command}`))
 }
 
 if (import.meta.main) {
 	const result = await main(Bun.argv.slice(2))
 
-	if (result.error) {
+	if (Result.isError(result)) {
 		console.error(`Error: ${result.error.message}`)
 		process.exit(1)
 	}

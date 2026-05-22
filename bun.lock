@@ -16,7 +16,7 @@
       "name": "client",
       "version": "0.0.0-dev",
       "dependencies": {
-        "@serkonda7/ts-result": "catalog:",
+        "better-result": "catalog:",
         "hono": "catalog:",
         "server": "workspace:*",
         "shared": "workspace:*",
@@ -33,7 +33,6 @@
       "version": "0.0.0-dev",
       "dependencies": {
         "@azure/msal-node": "catalog:",
-        "@serkonda7/ts-result": "catalog:",
         "better-result": "catalog:",
         "drizzle-orm": "catalog:",
         "hono": "catalog:",
@@ -48,7 +47,7 @@
       "name": "server-cli",
       "version": "0.0.0-dev",
       "dependencies": {
-        "@serkonda7/ts-result": "catalog:",
+        "better-result": "catalog:",
         "drizzle-orm": "catalog:",
         "server": "workspace:*",
         "shared": "workspace:*",
@@ -64,7 +63,6 @@
   },
   "catalog": {
     "@azure/msal-node": "~5.2.2",
-    "@serkonda7/ts-result": "~1.0.4",
     "better-result": "~2.9.2",
     "drizzle-kit": "~0.31.10",
     "drizzle-orm": "~0.45.2",
@@ -311,8 +309,6 @@
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.60.0", "", { "os": "win32", "cpu": "x64" }, "sha512-PrsWNQ8BuE00O3Xsx3ALh2Df8fAj9+cvvX9AIA6o4KpATR98c9mud4XtDWVvsEuyia5U4tVSTKygawyJkjm60w=="],
 
     "@scure/base": ["@scure/base@2.2.0", "", {}, "sha512-b8XEupJibegiXV+tDUseI8oLQc8ei3d/4Jkb2RpbHh3MfE054ov3uIz2dhFkB3FI8iwYkEh0gGCApkrYggkPNg=="],
-
-    "@serkonda7/ts-result": ["@serkonda7/ts-result@1.0.4", "", {}, "sha512-XDJAep1KU1KFeCAn3ehONqtjTktDdtXp6x3HAMJBtOMtdEYVioKL8Qda8LqMIsNhnNp61r2pH+6kwmWb3SWZpQ=="],
 
     "@solid-devtools/debugger": ["@solid-devtools/debugger@0.28.1", "", { "dependencies": { "@nothing-but/utils": "~0.17.0", "@solid-devtools/shared": "^0.20.0", "@solid-primitives/bounds": "^0.1.1", "@solid-primitives/event-listener": "^2.4.1", "@solid-primitives/keyboard": "^1.3.1", "@solid-primitives/rootless": "^1.5.1", "@solid-primitives/scheduled": "^1.5.1", "@solid-primitives/static-store": "^0.1.1", "@solid-primitives/utils": "^6.3.1" }, "peerDependencies": { "solid-js": "^1.9.0" } }, "sha512-6qIUI6VYkXoRnL8oF5bvh2KgH71qlJ18hNw/mwSyY6v48eb80ZR48/5PDXufUa3q+MBSuYa1uqTMwLewpay9eg=="],
 

@@ -1,4 +1,20 @@
 # teamotp
+## Configuration
+```toml
+# Optional: frontend base URL if app runs on different port, default: `/`
+frontendUrl = "http://localhost:5371"
+
+[auth]
+jwtSecret = "your-super-secret-change-me" # Required
+
+# Optional: enable M365 login via Entra IP App
+[auth.microsoft]
+clientId     = "<client ID>"
+tenantId     = "<tenant ID>"
+clientSecret = "<client secret value>"
+redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
+```
+
 ## Getting started
 ```sh
 # Run
@@ -12,8 +28,8 @@ docker compose up --build
 ### Admin activities
 ```sh
 # Manually create user (password prompted interactively)
-docker compose exec server ./cli.bin create-user user@example.com
-bun server-cli/src/cli.ts create-user user@user.de
+docker compose exec server ./cli.bin create-user max@muster.de
+bun server-cli/src/cli.ts create-user max@muster.de
 ```
 
 

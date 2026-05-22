@@ -1,7 +1,7 @@
 {
   "name": "teamotp",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2-dev",
   "license": "MPL-2.0",
   "author": "Lukas Neubert (serkonda7)",
   "homepage": "https://github.com/serkonda7/teamotp",
@@ -34,7 +34,6 @@
     "drizzle-orm": "~0.45.2",
     "hono": "~4.12.22",
     "otplib": "~13.4.0",
-    "@serkonda7/ts-result": "~1.0.4",
     "better-result": "~2.9.2",
     "@azure/msal-node": "~5.2.2",
     "vite": "~8.0.14",

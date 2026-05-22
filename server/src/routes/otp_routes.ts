@@ -1,3 +1,4 @@
+import { Result } from 'better-result'
 import type { Context } from 'hono'
 import type { NewOtpEntry } from 'shared/src/types'
 import { createEntry, getEntryById, listEntries } from '../db'
@@ -47,10 +48,10 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 	}
 
 	const code_res = generateTotpCode(entry)
-	if (code_res.error) {
+	if (Result.isError(code_res)) {
 		return json({ error: code_res.error.message }, 500)
 	}
-	return json({ code: code_res.value })
+	return json({ code: Result.unwrap(code_res) })
 }
 
 // POST /api/otp/:id — update an existing entry
