@@ -78,11 +78,33 @@ export function getUserByProviderId(providerId: string): User | null {
 }
 
 export function upsertMicrosoftUser(params: { providerId: string; email: string }): User {
+	// User exists
 	const existing = getUserByProviderId(params.providerId)
 	if (existing) {
 		return existing
 	}
 
+	// Local user with mail exists. Link Microsoft provider to existing user
+	const existingByEmail = getUserByEmail(params.email)
+	if (existingByEmail) {
+		db.update(users)
+			.set({ provider: 'microsoft', provider_id: params.providerId })
+			.where(eq(users.id, existingByEmail.id))
+			.run()
+
+		const updated = getUserByProviderId(params.providerId)
+		if (updated) {
+			return updated
+		}
+
+		return {
+			...existingByEmail,
+			provider: 'microsoft',
+			provider_id: params.providerId,
+		}
+	}
+
+	// Create new user with Microsoft provider
 	const id = Bun.randomUUIDv7()
 	const user: User = {
 		id,
