@@ -10,7 +10,7 @@ import path from 'node:path'
 import { SERVER_ROOT } from './util/server_root'
 
 // --------
-// Config field definitions (see also config.example.toml)
+// Config field definitions
 // --------
 
 export interface MicrosoftAuthConfig {
