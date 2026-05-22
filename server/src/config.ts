@@ -7,6 +7,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
+import * as v from 'valibot'
 import { SERVER_ROOT } from './util/server_root'
 
 // --------
@@ -30,6 +31,21 @@ export interface AppConfig {
 	frontendUrl?: string
 }
 
+const configSchema = v.object({
+	auth: v.object({
+		jwtSecret: v.string(),
+		microsoft: v.optional(
+			v.object({
+				clientId: v.string(),
+				clientSecret: v.string(),
+				tenantId: v.string(),
+				redirectUri: v.string(),
+			}),
+		),
+	}),
+	frontendUrl: v.optional(v.string()),
+})
+
 // --------
 // Config parsing logic
 // --------
@@ -39,11 +55,12 @@ const is_test_run = Bun.env.NODE_ENV === 'test'
 let config: AppConfig
 
 if (is_test_run) {
-	config = {
+	// Note: test config is hardcoded here for simplicity. Schema validation can just crash if invalid
+	config = v.parse(configSchema, {
 		auth: {
 			jwtSecret: 'test_secret',
 		},
-	}
+	})
 } else {
 	const config_path = path.join(SERVER_ROOT, 'data', 'config.toml')
 
@@ -53,27 +70,9 @@ if (is_test_run) {
 	}
 
 	const file_content = fs.readFileSync(config_path, 'utf8')
+	let parsed: object
 	try {
-		const parsed = Bun.TOML.parse(file_content) as AppConfig
-		const auth = parsed.auth
-		const rawMicrosoft = (auth as AuthConfig & { microsoft?: Record<string, unknown> })
-			.microsoft
-		const microsoft = rawMicrosoft
-			? {
-					clientId: rawMicrosoft.clientId as string,
-					clientSecret: rawMicrosoft.clientSecret as string,
-					tenantId: rawMicrosoft.tenantId as string,
-					redirectUri: rawMicrosoft.redirectUri as string,
-				}
-			: undefined
-
-		config = {
-			auth: {
-				jwtSecret: auth.jwtSecret,
-				...(microsoft ? { microsoft } : {}),
-			},
-			...(parsed.frontendUrl ? { frontendUrl: parsed.frontendUrl as string } : {}),
-		}
+		parsed = Bun.TOML.parse(file_content)
 	} catch (e: unknown) {
 		const errorMessage = e instanceof Error ? e.message : String(e)
 		console.error(
@@ -82,6 +81,15 @@ if (is_test_run) {
 		)
 		process.exit(1)
 	}
+
+	const result = v.safeParse(configSchema, parsed)
+	if (!result.success) {
+		console.error(`FATAL Error: Invalid configuration at ${config_path}`)
+		console.error(result.issues)
+		process.exit(1)
+	}
+
+	config = result.output
 }
 
 export { config }
