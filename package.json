@@ -25,7 +25,6 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "db:generate": "bun run --cwd server db:generate",
-    "db:migrate": "bun run --cwd server db:migrate",
     "test": "turbo run test",
     "test:smoke": "bun test tests/smoke --timeout 20000"
   },
@@ -35,7 +34,9 @@
     "drizzle-orm": "~0.45.2",
     "hono": "~4.12.18",
     "otplib": "~13.4.0",
-    "@serkonda7/ts-result": "~1.0.4"
+    "@serkonda7/ts-result": "~1.0.4",
+    "better-result": "~2.9.2",
+    "@azure/msal-node": "~5.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "~2.4.15",

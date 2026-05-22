@@ -7,15 +7,16 @@
     "compile": "bun build ./src/index.ts --compile --outfile ./dist/backend.bin",
     "check": "tsgo",
     "test": "bun test",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@azure/msal-node": "catalog:",
+    "@serkonda7/ts-result": "catalog:",
+    "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "otplib": "catalog:",
-    "shared": "workspace:*",
-    "@serkonda7/ts-result": "catalog:"
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"

@@ -1,17 +1,40 @@
+/**
+ * `config.toml` handling
+ * - defines supported fields
+ * - handles parsing
+ * - Exposes a test fallback
+ */
+
 import fs from 'node:fs'
 import path from 'node:path'
+import { SERVER_ROOT } from './util/server_root'
+
+// --------
+// Config field definitions (see also config.example.toml)
+// --------
+
+export interface MicrosoftAuthConfig {
+	clientId: string
+	clientSecret: string
+	tenantId: string
+	redirectUri: string
+}
 
 export interface AuthConfig {
 	jwtSecret: string
+	microsoft?: MicrosoftAuthConfig
 }
 
 export interface AppConfig {
 	auth: AuthConfig
+	frontendUrl?: string
 }
 
-const is_test_run = Bun.env.NODE_ENV === 'test'
+// --------
+// Config parsing logic
+// --------
 
-import { findServerDir } from './paths'
+const is_test_run = Bun.env.NODE_ENV === 'test'
 
 let config: AppConfig
 
@@ -22,8 +45,7 @@ if (is_test_run) {
 		},
 	}
 } else {
-	const server_dir = findServerDir()
-	const config_path = path.join(server_dir, 'config.toml')
+	const config_path = path.join(SERVER_ROOT, 'config.toml')
 
 	if (!fs.existsSync(config_path)) {
 		console.error(`FATAL Error: Configuration file missing at ${config_path}`)
@@ -34,11 +56,24 @@ if (is_test_run) {
 	const file_content = fs.readFileSync(config_path, 'utf8')
 	try {
 		const parsed = Bun.TOML.parse(file_content) as AppConfig
+		const auth = parsed.auth
+		const rawMicrosoft = (auth as AuthConfig & { microsoft?: Record<string, unknown> })
+			.microsoft
+		const microsoft = rawMicrosoft
+			? {
+					clientId: rawMicrosoft.clientId as string,
+					clientSecret: rawMicrosoft.clientSecret as string,
+					tenantId: rawMicrosoft.tenantId as string,
+					redirectUri: rawMicrosoft.redirectUri as string,
+				}
+			: undefined
 
 		config = {
 			auth: {
-				jwtSecret: parsed.auth.jwtSecret,
+				jwtSecret: auth.jwtSecret,
+				...(microsoft ? { microsoft } : {}),
 			},
+			...(parsed.frontendUrl ? { frontendUrl: parsed.frontendUrl as string } : {}),
 		}
 	} catch (e: unknown) {
 		const errorMessage = e instanceof Error ? e.message : String(e)

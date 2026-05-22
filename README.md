@@ -1,7 +1,11 @@
 # teamotp
 ## Getting started
 ```sh
+# Run
 docker compose up
+
+# Update or initial install
+docker compose up --build
 ```
 
 
@@ -13,11 +17,11 @@ bun server-cli/src/cli.ts create-user user@user.de
 ```
 
 
-## Database migrations
+## Development
+### Database migrations
 The server uses Drizzle ORM with SQLite migrations stored in `server/drizzle/`.
+Pending migrations run automatically on startup.
 
+#### Generate migrations
 - Update the schema in `server/src/schema.ts`
 - Generate a migration with `bun run db:generate`
-- Apply migrations with `bun run db:migrate`
-
-The server also runs pending migrations automatically on startup.
