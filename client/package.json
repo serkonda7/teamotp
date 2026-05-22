@@ -16,7 +16,7 @@
     "shared": "workspace:*",
     "server": "workspace:*",
     "hono": "catalog:",
-    "@serkonda7/ts-result": "catalog:",
+    "better-result": "catalog:",
     "solid-js": "catalog:"
   }
 }

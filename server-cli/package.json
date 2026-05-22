@@ -6,7 +6,7 @@
     "check": "tsgo"
   },
   "dependencies": {
-    "@serkonda7/ts-result": "catalog:",
+    "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "server": "workspace:*",
     "shared": "workspace:*"

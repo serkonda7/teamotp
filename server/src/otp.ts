@@ -1,10 +1,10 @@
-import { err, ok, type Result } from '@serkonda7/ts-result'
+import { Result } from 'better-result'
 import { createGuardrails, generateSync } from 'otplib'
 import type { OtpEntry } from './types'
 
 const compatibility_guardrails = createGuardrails({ MIN_SECRET_BYTES: 10 })
 
-export function generateTotpCode(entry: OtpEntry): Result<string> {
+export function generateTotpCode(entry: OtpEntry): Result<string, Error> {
 	try {
 		const code = generateSync({
 			strategy: 'totp',
@@ -14,8 +14,8 @@ export function generateTotpCode(entry: OtpEntry): Result<string> {
 			period: entry.period,
 			guardrails: compatibility_guardrails,
 		})
-		return ok(code)
+		return Result.ok(code)
 	} catch (e) {
-		return err(e instanceof Error ? e : new Error('Unknown error generating TOTP code'))
+		return Result.err(e instanceof Error ? e : new Error('Unknown error generating TOTP code'))
 	}
 }

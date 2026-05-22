@@ -1,3 +1,4 @@
+import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { client } from '../api'
@@ -24,14 +25,14 @@ const AddFromOtpauthForm: Component<Props> = (props) => {
 		}
 
 		const payload_res = parseOtpauthUrl(raw)
-		if (payload_res.error) {
+		if (Result.isError(payload_res)) {
 			props.setError(payload_res.error.message)
 			return
 		}
 
 		props.setSubmitting(true)
 		try {
-			const res = await client.otp.$post({ json: payload_res.value })
+			const res = await client.otp.$post({ json: Result.unwrap(payload_res) })
 			if (!res.ok) {
 				const data = await res.json().catch(() => null)
 				const msg =
