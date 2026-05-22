@@ -17,7 +17,7 @@ function AboutDialog(props: AboutDialogProps) {
 				/>
 				<div class="modal-card" role="dialog" aria-modal="true" aria-label="About TeamOTP">
 					<h2>About TeamOTP</h2>
-					<p>Version 0.0.1</p>
+					<p>Version 0.0.2-dev</p>
 					<a href="https://github.com/serkonda7/teamotp" target="_blank" rel="noreferrer">
 						github.com/serkonda7/teamotp
 					</a>
