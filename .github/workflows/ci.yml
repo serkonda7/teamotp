@@ -31,7 +31,9 @@ jobs:
       - name: Validate compose file
         run: docker compose config -q
       - name: Setup initial config
-        run: cp ci/config.smoke.toml server/data/config.toml
+        run: |
+          mkdir -p server/data
+          cp ci/config.smoke.toml server/data/config.toml
       - name: Build images
         run: docker compose build --pull
       - name: Start stack
