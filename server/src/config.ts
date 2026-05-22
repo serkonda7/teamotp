@@ -1,8 +1,7 @@
 /**
  * `data/config.toml` handling
- * - defines supported fields
- * - handles parsing
- * - Exposes a test fallback
+ * - Schema definition and validation
+ * - Expose a test fallback
  */
 
 import fs from 'node:fs'
@@ -11,25 +10,8 @@ import * as v from 'valibot'
 import { SERVER_ROOT } from './util/server_root'
 
 // --------
-// Config field definitions
+// Config Schema
 // --------
-
-export interface MicrosoftAuthConfig {
-	clientId: string
-	clientSecret: string
-	tenantId: string
-	redirectUri: string
-}
-
-export interface AuthConfig {
-	jwtSecret: string
-	microsoft?: MicrosoftAuthConfig
-}
-
-export interface AppConfig {
-	auth: AuthConfig
-	frontendUrl?: string
-}
 
 const configSchema = v.object({
 	auth: v.object({
@@ -45,6 +27,8 @@ const configSchema = v.object({
 	}),
 	frontendUrl: v.optional(v.string()),
 })
+
+export type AppConfig = v.InferOutput<typeof configSchema>
 
 // --------
 // Config parsing logic
@@ -69,6 +53,7 @@ if (is_test_run) {
 		process.exit(1)
 	}
 
+	// Parse TOML file content
 	const file_content = fs.readFileSync(config_path, 'utf8')
 	let parsed: object
 	try {
@@ -82,6 +67,7 @@ if (is_test_run) {
 		process.exit(1)
 	}
 
+	// Validate schema
 	const result = v.safeParse(configSchema, parsed)
 	if (!result.success) {
 		console.error(`FATAL Error: Invalid configuration at ${config_path}`)
