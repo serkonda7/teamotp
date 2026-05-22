@@ -1,0 +1,13 @@
+# Optional: frontend base URL if app runs on different port, default: `/`
+# frontendUrl = "http://localhost:5371"
+
+[auth]
+
+jwtSecret = "your-super-secret-change-me" # Required
+
+# Optional: enable M365 login via Entra IP App
+[auth.microsoft]
+clientId     = "<client ID>"
+tenantId     = "<tenant ID>"
+clientSecret = "<client secret value>"
+redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"

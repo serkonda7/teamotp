@@ -1,5 +1,5 @@
 /**
- * `config.toml` handling
+ * `data/config.toml` handling
  * - defines supported fields
  * - handles parsing
  * - Exposes a test fallback
@@ -45,11 +45,10 @@ if (is_test_run) {
 		},
 	}
 } else {
-	const config_path = path.join(SERVER_ROOT, 'config.toml')
+	const config_path = path.join(SERVER_ROOT, 'data', 'config.toml')
 
 	if (!fs.existsSync(config_path)) {
 		console.error(`FATAL Error: Configuration file missing at ${config_path}`)
-		console.error('Please copy config.example.toml to config.toml and configure your secrets.')
 		process.exit(1)
 	}
 
