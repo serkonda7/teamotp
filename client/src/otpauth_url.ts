@@ -8,21 +8,24 @@ export function parseOtpauthUrl(raw: string): ResultType<NewOtpEntry, Error> {
 		return Result.err(new Error('URL must start with otpauth://totp/...'))
 	}
 
-	const path_label = decodeURIComponent(url.pathname).replace(/^\//, '')
+	const full_label_path = decodeURIComponent(url.pathname).replace(/^\//, '').replace(/\+/g, ' ')
 
-	const [issuerFromPath, labelFromPath] = path_label.includes(':')
-		? path_label.split(':', 2)
-		: ['', path_label]
+	const [issuer_from_label, label] = full_label_path.includes(':')
+		? full_label_path.split(':', 2)
+		: ['', full_label_path]
 
 	const secret = url.searchParams.get('secret')
 	if (!secret) {
 		return Result.err(new Error('Missing required parameter: secret'))
 	}
 
+	const issuer = url.searchParams.get('issuer') ?? issuer_from_label
+
 	const entry: NewOtpEntry = {
-		label: labelFromPath,
+		label,
 		secret,
-		issuer: url.searchParams.get('issuer') ?? issuerFromPath,
+		issuer,
+		issuer_second: issuer_from_label === issuer ? '' : issuer_from_label,
 	}
 
 	const algorithm = url.searchParams.get('algorithm')

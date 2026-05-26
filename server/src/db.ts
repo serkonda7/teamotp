@@ -47,6 +47,7 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
+		issuer_second: obj.issuer_second ?? '',
 		secret: obj.secret.toUpperCase(),
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,

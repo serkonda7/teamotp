@@ -4,6 +4,7 @@ export const entries = sqliteTable('entries', {
 	id: text('id').primaryKey(),
 	label: text('label').notNull(),
 	issuer: text('issuer').notNull(),
+	issuer_second: text('issuer_second').notNull().default(''),
 	secret: text('secret').notNull(),
 	algorithm: text('algorithm').notNull(),
 	digits: integer('digits').notNull(),

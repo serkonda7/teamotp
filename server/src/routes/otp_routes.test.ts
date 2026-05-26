@@ -58,6 +58,7 @@ describe('OTP routes', () => {
 		expect(stored?.digits).toBe(6)
 		expect(stored?.period).toBe(30)
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+		expect(stored?.issuer_second).toBe('')
 
 		const listResponse = await app.request('/otp', {
 			headers: { ...headers },
@@ -70,6 +71,29 @@ describe('OTP routes', () => {
 				issuer: 'example.com',
 			},
 		])
+	})
+
+	test('stores issuer_second when provided', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'test@firma.onmicrosoft.com',
+				issuer: 'Microsoft',
+				issuer_second: 'Test Firma',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+
+		expect(createResponse.status).toBe(201)
+		const createBody = (await createResponse.json()) as { id: string }
+
+		const stored = getEntryById(createBody.id)
+		expect(stored).not.toBeNull()
+		expect(stored?.issuer).toBe('Microsoft')
+		expect(stored?.issuer_second).toBe('Test Firma')
+		expect(stored?.label).toBe('test@firma.onmicrosoft.com')
 	})
 
 	test('returns 404 for unknown OTP id', async () => {
