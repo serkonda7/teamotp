@@ -52,8 +52,8 @@ function fatal(msg: string): never {
 // --------
 
 async function assert_command_available(cmd: string): Promise<void> {
-	const result = await $`command -v ${cmd}`.quiet().nothrow()
-	if (result.exitCode !== 0) {
+	const cmd_path = Bun.which(cmd)
+	if (!cmd_path) {
 		fatal(`Missing required command: ${cmd}`)
 	}
 }
@@ -141,7 +141,7 @@ async function main(): Promise<void> {
 
 	// Fetch latest refs/tags
 	const current_ref = await get_current_ref()
-	await $`git -C fetch --all --tags --prune`.quiet()
+	await $`git fetch --all --tags --prune`.quiet()
 	const target_ref = await resolve_ref(args.ref)
 
 	console.log(`Current ref: ${current_ref}`)
@@ -155,10 +155,11 @@ async function main(): Promise<void> {
 
 	// Get new version and rebuild
 	console.log('Updating...')
-	await $`git checkout ${target_ref}`
-	await $`bun install --frozen-lockfile`
-	await $`docker compose up -d --build --remove-orphans`
+	await $`git checkout ${target_ref}`.quiet()
+	await $`bun install --frozen-lockfile`.quiet()
+	await $`docker compose up -d --build --remove-orphans`.quiet()
 	await $`docker compose ps`
+	console.log('Done.')
 }
 
 main().catch((err: unknown) => {
