@@ -15,4 +15,5 @@ export interface OtpDisplayInfo {
 	id: string
 	label: string
 	issuer: string
+	issuer_second: string
 }

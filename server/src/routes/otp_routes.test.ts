@@ -69,6 +69,7 @@ describe('OTP routes', () => {
 				id: createBody.id,
 				label: 'Personal account',
 				issuer: 'example.com',
+				issuer_second: '',
 			},
 		])
 	})

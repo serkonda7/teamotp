@@ -34,7 +34,12 @@ migrate(db, { migrationsFolder: migrations_folder })
 
 export function listEntries(): OtpDisplayInfo[] {
 	return db
-		.select({ id: entries.id, label: entries.label, issuer: entries.issuer })
+		.select({
+			id: entries.id,
+			label: entries.label,
+			issuer: entries.issuer,
+			issuer_second: entries.issuer_second,
+		})
 		.from(entries)
 		.all()
 }

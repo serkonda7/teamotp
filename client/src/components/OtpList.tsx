@@ -41,18 +41,26 @@ const OtpList: Component<Props> = (props) => {
 		<Show when={!props.otps.loading} fallback={<div>Loading...</div>}>
 			<ul class={`otp-list otp-list--${layoutMode()}`}>
 				<For each={props.otps()}>
-					{(otp: OtpDisplayInfo) => (
-						<li class="otp-list__item">
-							<button
-								type="button"
-								class="otp-list__entry"
-								onClick={() => void showAndCopyOtpCode(otp.id)}
-							>
-								<span class="otp-list__issuer">{otp.issuer}</span>
-								<span class="otp-list__label">{otp.label}</span>
-							</button>
-						</li>
-					)}
+					{(otp: OtpDisplayInfo) => {
+						const issuerSecond = otp.issuer_second.trim()
+						const issuerText =
+							issuerSecond.length > 0 && issuerSecond !== otp.issuer
+								? `${otp.issuer} (${issuerSecond})`
+								: otp.issuer
+
+						return (
+							<li class="otp-list__item">
+								<button
+									type="button"
+									class="otp-list__entry"
+									onClick={() => void showAndCopyOtpCode(otp.id)}
+								>
+									<span class="otp-list__issuer">{issuerText}</span>
+									<span class="otp-list__label">{otp.label}</span>
+								</button>
+							</li>
+						)
+					}}
 				</For>
 			</ul>
 		</Show>
