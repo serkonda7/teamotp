@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["bun", "node"]
   },
-  "include": ["updater.ts"]
+  "include": ["*.ts"]
 }

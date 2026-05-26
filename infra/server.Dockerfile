@@ -1,21 +1,34 @@
+#
+# Stage 1: Prune
+#
+
+FROM oven/bun:1-slim AS pruner
+
+WORKDIR /app
+
+COPY . .
+RUN bunx turbo prune server server-cli --docker --out-dir /tmp/pruned
+
+#
+# Stage 2: Build
+#
+
 FROM oven/bun:1-slim AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lock ./
-COPY tsconfig.json ./
-RUN mkdir -p client server server-cli shared
-COPY client/package.json ./client/package.json
-COPY server/package.json ./server/package.json
-COPY server-cli/package.json ./server-cli/package.json
-COPY shared/package.json ./shared/package.json
-
+COPY --from=pruner /tmp/pruned/json/ ./
+COPY --from=pruner /app/infra/prune-workspaces.ts ./infra/prune-workspaces.ts
+RUN bun infra/prune-workspaces.ts
 RUN bun install --frozen-lockfile --filter server --filter server-cli
-COPY shared ./shared
-COPY server ./server
-COPY server-cli ./server-cli
+
+COPY --from=pruner /tmp/pruned/full/ ./
+COPY --from=pruner /app/tsconfig.json ./tsconfig.json
 RUN bun run --filter server compile && bun run --filter server-cli compile
 
+#
+# Stage 3: Run backend
+#
 
 FROM debian:stable-slim
 
