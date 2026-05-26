@@ -1,5 +1,7 @@
 # Changelog
-## 0.0.2 - 2026-05-26
+## 0.0.3 - 2026-05-26
+> Re-release of 0.0.2 with updater fixes
+
 ### Breaking Changes
 - Change config load path to `server/data/config.toml` (previous: `server/config.toml`)
 
