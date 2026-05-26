@@ -3,9 +3,9 @@
 ### Breaking Changes
 - Change config load path to `server/data/config.toml` (previous: `server/config.toml`)
 
-
 ### Other Changes
-**Technical**
+- ops: Add update script (`bun run infra/updater.ts`)
+- backend/config: Add schema validation
 - deps(all): replace ts-result with better-result
 
 
