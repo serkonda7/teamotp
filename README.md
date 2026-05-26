@@ -15,6 +15,7 @@ clientSecret = "<client secret value>"
 redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
 ```
 
+
 ## Getting started
 ```sh
 # Run
@@ -22,6 +23,9 @@ docker compose up
 
 # Update or initial install
 docker compose up --build
+
+# Update via script
+bun run infra/updater.ts
 ```
 
 
