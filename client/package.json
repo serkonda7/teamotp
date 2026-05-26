@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "check": "tsgo"
+    "check": "tsgo",
+    "test": "bun test"
   },
   "devDependencies": {
     "vite": "catalog:",
