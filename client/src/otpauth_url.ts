@@ -8,7 +8,8 @@ export function parseOtpauthUrl(raw: string): ResultType<NewOtpEntry, Error> {
 		return Result.err(new Error('URL must start with otpauth://totp/...'))
 	}
 
-	const full_label_path = decodeURIComponent(url.pathname).replace(/^\//, '').replace(/\+/g, ' ')
+	const url_path = url.pathname.replace(/\+/g, ' ')
+	const full_label_path = decodeURIComponent(url_path).replace(/^\//, '')
 
 	const [issuer_from_label, label] = full_label_path.includes(':')
 		? full_label_path.split(':', 2)
