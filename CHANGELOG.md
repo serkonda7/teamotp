@@ -1,5 +1,5 @@
 # Changelog
-## 0.0.2 - unreleased
+## 0.0.2 - 2026-05-26
 ### Breaking Changes
 - Change config load path to `server/data/config.toml` (previous: `server/config.toml`)
 
@@ -7,7 +7,9 @@
 - ui: improve OTP list visuals
   - Bigger text size
   - Separate lines for issuer and label
+- Store and display both TOTP entry issuers if they are different
 - ops: Add update script (`bun run infra/updater.ts`)
+- readme: Mention Chrome extension to scan QRs on desktop
 - backend/config: Add schema validation
 - deps(all): replace ts-result with better-result
 
