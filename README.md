@@ -1,4 +1,8 @@
 # teamotp
+## Scanning QR codes
+On desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore]
+
+
 ## Configuration
 ```toml
 # Optional: frontend base URL if app runs on different port, default: `/`
@@ -45,3 +49,7 @@ Pending migrations run automatically on startup.
 #### Generate migrations
 - Update the schema in `server/src/schema.ts`
 - Generate a migration with `bun run db:generate`
+
+
+<!-- links -->
+[ext-webstore]: https://chromewebstore.google.com/detail/image-qr-scanner/moeefnhmhiflglcmjnbnoeijpinjgoop
