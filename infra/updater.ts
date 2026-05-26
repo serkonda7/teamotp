@@ -140,8 +140,8 @@ async function main(): Promise<void> {
 	await assert_clean_worktree()
 
 	// Fetch latest refs/tags
-	await $`git -C fetch --all --tags --prune`.quiet()
 	const current_ref = await get_current_ref()
+	await $`git -C fetch --all --tags --prune`.quiet()
 	const target_ref = await resolve_ref(args.ref)
 
 	console.log(`Current ref: ${current_ref}`)
