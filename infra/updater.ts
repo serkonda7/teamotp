@@ -28,6 +28,8 @@ const BACKUP_ROOT = path.join(ROOT_DIR, 'backups')
 // CLI
 // --------
 
+$.cwd(ROOT_DIR)
+
 const { values: args } = parseArgs({
 	args: process.argv.slice(2),
 	options: {
@@ -63,7 +65,7 @@ async function require_commands(cmds: string[]): Promise<void> {
 }
 
 async function assert_clean_worktree(): Promise<void> {
-	const status = await $`git status --porcelain`.cwd(ROOT_DIR).quiet().text()
+	const status = await $`git status --porcelain`.text()
 	if (status.trim().length > 0) {
 		fatal('Working tree has uncommitted changes.')
 	}
@@ -78,7 +80,7 @@ async function resolve_ref(ref: string | undefined): Promise<string> {
 		return ref
 	}
 
-	const tags = await $`git tag --sort=-v:refname`.cwd(ROOT_DIR).quiet().text()
+	const tags = await $`git tag --sort=-v:refname`.text()
 	const latest = tags.split('\n').find((t) => t.trim().length > 0)
 	if (!latest) {
 		fatal('No tags found. Provide --ref <git-ref>.')
@@ -87,11 +89,11 @@ async function resolve_ref(ref: string | undefined): Promise<string> {
 }
 
 async function get_current_ref(): Promise<string> {
-	const resolved = await $`git describe --tags --always --dirty`.cwd(ROOT_DIR).quiet().text()
+	const resolved = await $`git describe --tags --always --dirty`.text()
 	return resolved.trim()
 }
 
-async function ask_confirmation(current_ref: string, target_ref: string): Promise<void> {
+async function ask_confirm(current_ref: string, target_ref: string): Promise<void> {
 	if (!stdin.isTTY || !stdout.isTTY) {
 		fatal('Cannot prompt for confirmation in a non-interactive terminal.')
 	}
@@ -138,24 +140,24 @@ async function main(): Promise<void> {
 	await assert_clean_worktree()
 
 	// Fetch latest refs/tags
-	await $`git -C fetch --all --tags --prune`.cwd(ROOT_DIR).quiet()
+	await $`git -C fetch --all --tags --prune`.quiet()
 	const current_ref = await get_current_ref()
 	const target_ref = await resolve_ref(args.ref)
 
 	console.log(`Current ref: ${current_ref}`)
 	console.log(`Target ref : ${target_ref}`)
-	await ask_confirmation(current_ref, target_ref)
+	await ask_confirm(current_ref, target_ref)
 
 	// Backup current data
 	console.log('Creating data backup...')
-	await $`docker compose down`.cwd(ROOT_DIR).quiet() // Stop containers for data consistency
+	await $`docker compose down`.quiet() // Stop containers for data consistency
 	await create_backup(current_ref)
 
 	// Get new version and rebuild
 	console.log('Updating...')
-	await $`git checkout ${target_ref}`.cwd(ROOT_DIR)
-	await $`bun install --frozen-lockfile`.cwd(ROOT_DIR)
-	await $`docker compose up -d --build --remove-orphans`.cwd(ROOT_DIR)
+	await $`git checkout ${target_ref}`
+	await $`bun install --frozen-lockfile`
+	await $`docker compose up -d --build --remove-orphans`
 	await $`docker compose ps`
 }
 
