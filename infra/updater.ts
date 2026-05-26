@@ -145,13 +145,9 @@ async function main(): Promise<void> {
 	console.log('Creating data backup...')
 	await create_backup(current_ref)
 
-	// Get new version
+	// Get new version and rebuild
 	console.log('Updating...')
 	await $`git -C ${ROOT_DIR} checkout ${target_ref}`
-
-	// Restart services
-	console.log('Restarting services...')
-	await $`docker compose down`
 	await $`docker compose up -d --build --remove-orphans`
 	await $`docker compose ps`
 }
