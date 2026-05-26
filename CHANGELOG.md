@@ -3,12 +3,12 @@
 ### Breaking Changes
 - Change config load path to `server/data/config.toml` (previous: `server/config.toml`)
 
-
 ### Other Changes
 - ui: improve OTP list visuals
   - Bigger text size
   - Separate lines for issuer and label
-**Technical**
+- ops: Add update script (`bun run infra/updater.ts`)
+- backend/config: Add schema validation
 - deps(all): replace ts-result with better-result
 
 

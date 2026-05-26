@@ -1,20 +1,34 @@
+#
+# Stage 1: Prune
+#
+
+FROM oven/bun:1-slim AS pruner
+
+WORKDIR /app
+
+COPY . .
+RUN bunx turbo prune client --docker --out-dir /tmp/pruned
+
+#
+# Stage 2: Build
+#
+
 FROM oven/bun:1-slim AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lock ./
-COPY tsconfig.json ./
-RUN mkdir -p client server server-cli shared
-COPY client/package.json ./client/package.json
-COPY server/package.json ./server/package.json
-COPY server-cli/package.json ./server-cli/package.json
-COPY shared/package.json ./shared/package.json
-
+COPY --from=pruner /tmp/pruned/json/ ./
+COPY --from=pruner /app/infra/prune-workspaces.ts ./infra/prune-workspaces.ts
+RUN bun infra/prune-workspaces.ts
 RUN bun install --frozen-lockfile --filter client
-COPY shared ./shared
-COPY client ./client
-RUN cd client && bun run build
 
+COPY --from=pruner /tmp/pruned/full/ ./
+COPY --from=pruner /app/tsconfig.json ./tsconfig.json
+RUN bun run --filter client build
+
+#
+# Stage 3: Serve with Caddy
+#
 
 FROM caddy:2-alpine
 
