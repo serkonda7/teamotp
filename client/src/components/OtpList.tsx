@@ -6,9 +6,12 @@ import { client } from '../api'
 type Props = {
 	otps: Resource<OtpDisplayInfo[]>
 	setError: (e: string | null) => void
+	layoutMode?: 'list' | 'grid'
 }
 
 const OtpList: Component<Props> = (props) => {
+	const layoutMode = () => props.layoutMode ?? 'list'
+
 	async function showAndCopyOtpCode(id: string): Promise<void> {
 		props.setError(null)
 
@@ -36,12 +39,17 @@ const OtpList: Component<Props> = (props) => {
 
 	return (
 		<Show when={!props.otps.loading} fallback={<div>Loading...</div>}>
-			<ul>
+			<ul class={`otp-list otp-list--${layoutMode()}`}>
 				<For each={props.otps()}>
 					{(otp: OtpDisplayInfo) => (
-						<li>
-							<button type="button" onClick={() => void showAndCopyOtpCode(otp.id)}>
-								{otp.issuer}: {otp.label}
+						<li class="otp-list__item">
+							<button
+								type="button"
+								class="otp-list__entry"
+								onClick={() => void showAndCopyOtpCode(otp.id)}
+							>
+								<span class="otp-list__issuer">{otp.issuer}</span>
+								<span class="otp-list__label">{otp.label}</span>
 							</button>
 						</li>
 					)}
