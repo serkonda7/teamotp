@@ -4,7 +4,7 @@
  * Update a running teamotp instance to a new release.
  *
  * Usage:
- *   bun run infra/update.ts [--ref <git-ref>]
+ *   bun run infra/updater.ts [--ref <git-ref>]
  *
  * Default to latest tag when --ref is omitted.
  */
@@ -49,10 +49,16 @@ function fatal(msg: string): never {
 // Pre-flight checks
 // --------
 
-async function require_command(cmd: string): Promise<void> {
-	const result = await $`which ${cmd}`.quiet().nothrow()
+async function assert_command_available(cmd: string): Promise<void> {
+	const result = await $`command -v ${cmd}`.quiet().nothrow()
 	if (result.exitCode !== 0) {
 		fatal(`Missing required command: ${cmd}`)
+	}
+}
+
+async function require_commands(cmds: string[]): Promise<void> {
+	for (const cmd of cmds) {
+		await assert_command_available(cmd)
 	}
 }
 
@@ -128,8 +134,7 @@ async function create_backup(current_version: string): Promise<void> {
 
 async function main(): Promise<void> {
 	// pre-flight checks
-	await require_command('git')
-	await require_command('docker')
+	await require_commands(['git', 'docker', 'bun'])
 	await assert_clean_worktree()
 
 	// Fetch latest refs/tags
@@ -148,6 +153,7 @@ async function main(): Promise<void> {
 	// Get new version and rebuild
 	console.log('Updating...')
 	await $`git -C ${ROOT_DIR} checkout ${target_ref}`
+	await $`bun install --frozen-lockfile`
 	await $`docker compose up -d --build --remove-orphans`
 	await $`docker compose ps`
 }
