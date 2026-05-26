@@ -14,13 +14,13 @@ const data_dir = path.join(SERVER_ROOT, 'data')
 fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
 
-// Precedence for DB file path:
+// Precedence for DB path:
 // 1. TEAMOTP_DB_PATH env var
-// 2. if test: teamotp.test.db
+// 2. if test: in-memory DB
 // 3. teamotp.db
 const is_test_run = Bun.env.NODE_ENV === 'test'
-const default_db_file = is_test_run ? 'teamotp.test.db' : 'teamotp.db'
-const db_path = Bun.env.TEAMOTP_DB_PATH ?? path.join(data_dir, default_db_file)
+const default_db_path = is_test_run ? ':memory:' : path.join(data_dir, 'teamotp.db')
+const db_path = Bun.env.TEAMOTP_DB_PATH ?? default_db_path
 
 // Create or open the database file and run migrations
 const migrations_folder = path.join(SERVER_ROOT, 'drizzle')
@@ -34,7 +34,12 @@ migrate(db, { migrationsFolder: migrations_folder })
 
 export function listEntries(): OtpDisplayInfo[] {
 	return db
-		.select({ id: entries.id, label: entries.label, issuer: entries.issuer })
+		.select({
+			id: entries.id,
+			label: entries.label,
+			issuer: entries.issuer,
+			issuer_second: entries.issuer_second,
+		})
 		.from(entries)
 		.all()
 }
@@ -47,6 +52,7 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
+		issuer_second: obj.issuer_second ?? '',
 		secret: obj.secret.toUpperCase(),
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,

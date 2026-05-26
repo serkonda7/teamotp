@@ -1,6 +1,6 @@
 # teamotp
 ## Scanning QR codes
-On desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore]
+For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore]
 
 
 ## Configuration
