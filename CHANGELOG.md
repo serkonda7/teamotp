@@ -5,6 +5,9 @@
 
 
 ### Other Changes
+- ui: improve OTP list visuals
+  - Bigger text size
+  - Separate lines for issuer and label
 **Technical**
 - deps(all): replace ts-result with better-result
 
