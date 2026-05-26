@@ -1,8 +1,8 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component, Resource } from 'solid-js'
 import { For, Show } from 'solid-js'
+import { showAndCopyOtpCode } from '../showAndCopyOtpCode'
 import OtpListItem from './OtpListItem'
-import { showAndCopyOtpCode } from './showAndCopyOtpCode'
 
 type Props = {
 	otps: Resource<OtpDisplayInfo[]>
