@@ -5,7 +5,7 @@
 	padding: 0;
 	margin: 0;
 	display: grid;
-	gap: theme.$space-1;
+	gap: theme.$gap-small;
 }
 
 .otp-list--list {
@@ -22,9 +22,9 @@
 
 .otp-list__entry {
 	width: 100%;
-	padding: theme.$space-1 theme.$space-2;
+	padding: theme.$gap-small calc(theme.$gap-small * 2);
 	border: 1px solid theme.$color-border;
-	border-radius: theme.$radius-md;
+	border-radius: theme.$corner-radius;
 	background: theme.$color-bg;
 	text-align: left;
 	display: grid;

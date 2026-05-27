@@ -6,14 +6,12 @@ $palette-blue: #0b6bcb;
 $palette-red: #b42318;
 $palette-black: #000000;
 
+// Spacing
+$corner-radius: 5px;
+$gap-small: 0.5rem;
+
 // Other settings
 $font-family-base: system-ui, -apple-system, "Segoe UI", sans-serif;
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 10px;
-$space-1: 0.5rem;
-$space-2: 0.75rem;
-$space-3: 1rem;
 $shadow-card: 0 4px 6px rgba($palette-black, 0.1);
 $shadow-modal: 0 14px 34px rgba($palette-black, 0.25);
 

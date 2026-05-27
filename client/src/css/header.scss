@@ -20,7 +20,7 @@
 
 .header-actions {
 	display: flex;
-	gap: theme.$space-1;
+	gap: theme.$gap-small;
 	justify-self: end;
 }
 
@@ -28,7 +28,7 @@
 	background-color: theme.$color-danger-bg;
 	color: theme.$color-danger;
 	border: 1px solid theme.$color-danger;
-	border-radius: theme.$radius-sm;
+	border-radius: theme.$corner-radius;
 	padding: 0.4rem 0.8rem;
 	cursor: pointer;
 

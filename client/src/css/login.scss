@@ -11,7 +11,7 @@
 .login-card {
 	background: theme.$color-bg;
 	padding: 2rem;
-	border-radius: theme.$radius-md;
+	border-radius: theme.$corner-radius;
 	box-shadow: theme.$shadow-card;
 	width: 100%;
 	max-width: 400px;
@@ -26,13 +26,13 @@
 .login-form {
 	display: flex;
 	flex-direction: column;
-	gap: theme.$space-3;
+	gap: theme.$gap-small;
 }
 
 .form-group {
 	display: flex;
 	flex-direction: column;
-	gap: theme.$space-1;
+	gap: theme.$gap-small;
 
 	& label {
 		font-weight: 600;
@@ -40,19 +40,19 @@
 	}
 
 	& input {
-		padding: theme.$space-2;
+		padding: theme.$gap-small;
 		border: 1px solid #ccc;
-		border-radius: theme.$radius-sm;
+		border-radius: theme.$corner-radius;
 		font-size: 1rem;
 	}
 }
 
 .login-button {
-	padding: theme.$space-2;
+	padding: theme.$gap-small;
 	background-color: theme.$color-primary;
 	color: #fff;
 	border: none;
-	border-radius: theme.$radius-sm;
+	border-radius: theme.$corner-radius;
 	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -71,8 +71,8 @@
 .login-error {
 	color: theme.$color-danger;
 	background-color: theme.$color-danger-bg;
-	padding: theme.$space-1;
-	border-radius: theme.$radius-sm;
+	padding: theme.$gap-small;
+	border-radius: theme.$corner-radius;
 	font-size: 0.9rem;
 	text-align: center;
 }
