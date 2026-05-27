@@ -1,4 +1,4 @@
-@import "./theme_tokens.css";
+@import "./_base_theme.css";
 @import "./header.css";
 @import "./otp-list.css";
 @import "./login.css";
