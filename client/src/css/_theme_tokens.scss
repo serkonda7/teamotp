@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // Color palette
 $palette-white: #ffffff;
 $palette-ink: #0f172a;
@@ -12,21 +14,21 @@ $gap-small: 0.5rem;
 
 // Other settings
 $font-family-base: system-ui, -apple-system, "Segoe UI", sans-serif;
-$shadow-card: 0 4px 6px rgba($palette-black, 0.1);
-$shadow-modal: 0 14px 34px rgba($palette-black, 0.25);
+$shadow-card: 0 4px 6px color.change($palette-black, $alpha: 0.1);
+$shadow-modal: 0 14px 34px color.change($palette-black, $alpha: 0.25);
 
 // Dervived colors
 $color-bg: $palette-white;
-$color-bg-muted: mix($palette-white, $palette-slate, 92%);
-$color-surface-hover: mix($palette-white, $palette-slate, 88%);
-$color-border: mix($palette-white, $palette-slate, 72%);
-$color-border-strong: mix($palette-white, $palette-slate, 56%);
+$color-bg-muted: color.mix($palette-white, $palette-slate, $weight: 92%);
+$color-surface-hover: color.mix($palette-white, $palette-slate, $weight: 88%);
+$color-border: color.mix($palette-white, $palette-slate, $weight: 72%);
+$color-border-strong: color.mix($palette-white, $palette-slate, $weight: 56%);
 $color-text: $palette-ink;
-$color-text-muted: mix($palette-ink, $palette-white, 72%);
+$color-text-muted: color.mix($palette-ink, $palette-white, $weight: 72%);
 $color-focus: $palette-blue;
 $color-danger: $palette-red;
-$color-danger-bg: mix($palette-white, $palette-red, 88%);
-$color-danger-bg-hover: mix($palette-white, $palette-red, 78%);
+$color-danger-bg: color.mix($palette-white, $palette-red, $weight: 88%);
+$color-danger-bg-hover: color.mix($palette-white, $palette-red, $weight: 78%);
 $color-primary: $palette-blue;
-$color-primary-hover: mix($palette-blue, $palette-ink, 72%);
-$color-primary-disabled: mix($palette-white, $palette-blue, 38%);
+$color-primary-hover: color.mix($palette-blue, $palette-ink, $weight: 72%);
+$color-primary-disabled: color.mix($palette-white, $palette-blue, $weight: 38%);
