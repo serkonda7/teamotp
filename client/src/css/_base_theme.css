@@ -1,6 +1,7 @@
 :root {
-	/* Color palette */
+	/* Primary colors */
 	--palette-white: #ffffff;
+	--white-100: hsl(0, 0%, 96%);
 	--palette-ink: #0f172a;
 	--palette-slate: #64748b;
 	--palette-blue: #0b6bcb;
@@ -17,13 +18,8 @@
 	--shadow-card: 0 4px 6px rgb(0 0 0 / 10%);
 	--shadow-modal: 0 14px 34px rgb(0 0 0 / 25%);
 
-	/* Derived colors */
-	--color-bg: var(--palette-white);
-	--color-bg-muted: color-mix(
-		in srgb,
-		var(--palette-white) 92%,
-		var(--palette-slate)
-	);
+	/* Semantic colors */
+	--color-bg: var(--white-100);
 	--color-surface-hover: color-mix(
 		in srgb,
 		var(--palette-white) 88%,
