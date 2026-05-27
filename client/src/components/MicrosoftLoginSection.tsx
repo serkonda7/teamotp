@@ -1,6 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 import msLogo from '../img/ms-symbollockup_mssymbol_19.svg'
-import '../css/microsoft-login.css'
+import '../css/microsoft-login.scss'
 
 type Props = {
 	localLoginForm: JSX.Element

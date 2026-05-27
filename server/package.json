@@ -10,13 +10,13 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@azure/msal-node": "catalog:",
+    "shared": "workspace:*",
     "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "otplib": "catalog:",
-    "valibot": "catalog:",
-    "shared": "workspace:*"
+    "@azure/msal-node": "~5.2.2",
+    "otplib": "~13.4.0",
+    "valibot": "~1.4.0"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"
