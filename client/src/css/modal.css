@@ -1,0 +1,39 @@
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgb(0 0 0 / 45%);
+	display: grid;
+	place-items: center;
+	padding: 1rem;
+	z-index: 10;
+}
+
+.modal-dismiss {
+	position: absolute;
+	inset: 0;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	cursor: default;
+}
+
+.modal-card {
+	background: var(--color-bg);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-modal);
+	padding: 1rem;
+	width: min(28rem, 100%);
+	display: grid;
+	gap: 0.7rem;
+
+	& h2,
+	& p {
+		margin: 0;
+	}
+}
+
+.modal-actions {
+	display: flex;
+	justify-content: flex-end;
+}
