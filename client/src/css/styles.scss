@@ -1,5 +1,37 @@
-@use './base_theme';
+@use './theme_tokens' as theme;
 @use './header';
 @use './otp-list';
 @use './login';
 @use './modal';
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: theme.$font-family-base;
+	margin: 0;
+	padding: 10px;
+	background-color: theme.$color-bg;
+	color: theme.$color-text;
+}
+
+form {
+	display: flex;
+	align-items: center;
+	gap: theme.$space-1;
+	margin: 0.75rem 0 1rem;
+}
+
+input[type="text"] {
+	width: min(100%, 38rem);
+	padding: 0.45rem 0.6rem;
+}
+
+input[type="search"] {
+	width: 100%;
+	padding: 0.45rem 0.6rem;
+	justify-self: center;
+}

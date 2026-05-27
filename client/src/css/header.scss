@@ -1,3 +1,5 @@
+@use './theme_tokens' as theme;
+
 .app-header {
 	display: grid;
 	grid-template-columns: 1fr minmax(14rem, 24rem) 1fr;
@@ -18,19 +20,19 @@
 
 .header-actions {
 	display: flex;
-	gap: var(--space-1);
+	gap: theme.$space-1;
 	justify-self: end;
 }
 
 .logout-button {
-	background-color: var(--color-danger-bg);
-	color: var(--color-danger);
-	border: 1px solid var(--color-danger);
-	border-radius: var(--radius-sm);
+	background-color: theme.$color-danger-bg;
+	color: theme.$color-danger;
+	border: 1px solid theme.$color-danger;
+	border-radius: theme.$radius-sm;
 	padding: 0.4rem 0.8rem;
 	cursor: pointer;
 
 	&:hover {
-		background-color: var(--color-danger-bg-hover);
+		background-color: theme.$color-danger-bg-hover;
 	}
 }

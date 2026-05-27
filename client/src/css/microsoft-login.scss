@@ -3,49 +3,49 @@ This file follows Microsoft's visual guidance docs:
 https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps#visual-guidance-for-sign-in
 */
 
-.microsoft-login-section {
-	--ms-button-height: 41px;
-	--ms-button-padding-x: 12px;
-	--ms-gap: 1rem;
-	--ms-border-radius: 4px;
-	--ms-border-color: #8c8c8c;
-	--ms-button-text: #5e5e5e;
-	--ms-button-bg: #ffffff;
-	--ms-button-hover: #f8f8f8;
-	--ms-panel-border: #ddd;
-	--ms-panel-bg: #fafafa;
-	--ms-summary-text: #444;
+$ms-button-height: 41px;
+$ms-button-padding-x: 12px;
+$ms-gap: 1rem;
+$ms-border-radius: 4px;
+$ms-border-color: #8c8c8c;
+$ms-button-text: #5e5e5e;
+$ms-button-bg: #ffffff;
+$ms-button-hover: #f8f8f8;
+$ms-panel-border: #ddd;
+$ms-panel-bg: #fafafa;
+$ms-summary-text: #444;
 
+.microsoft-login-section {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--ms-gap);
+	gap: $ms-gap;
 }
 
 .login-button-microsoft {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: var(--ms-button-height);
-	padding: 0 var(--ms-button-padding-x);
+	height: $ms-button-height;
+	padding: 0 $ms-button-padding-x;
 	text-decoration: none;
 	font-family: "Segoe UI", Arial, sans-serif;
 	font-size: 15px;
 	font-weight: 600;
-	color: var(--ms-button-text);
-	background-color: var(--ms-button-bg);
-	border-radius: var(--ms-border-radius);
-	border: 1px solid var(--ms-border-color);
+	color: $ms-button-text;
+	background-color: $ms-button-bg;
+	border-radius: $ms-border-radius;
+	border: 1px solid $ms-border-color;
 	margin-top: 0;
 
 	&:hover {
-		background-color: var(--ms-button-hover);
+		background-color: $ms-button-hover;
 	}
 
 	& .ms-logo {
 		display: inline-flex;
 		align-items: center;
-		margin-right: var(--ms-button-padding-x);
+		margin-right: $ms-button-padding-x;
 	}
 
 	& .ms-text {
@@ -56,15 +56,15 @@ https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-
 .local-login-details {
 	width: 100%;
 	margin-top: 0;
-	border: 1px solid var(--ms-panel-border);
+	border: 1px solid $ms-panel-border;
 	border-radius: 6px;
 	padding: 0.5rem 0.75rem;
-	background-color: var(--ms-panel-bg);
+	background-color: $ms-panel-bg;
 
 	& summary {
 		cursor: pointer;
 		font-weight: 600;
-		color: var(--ms-summary-text);
+		color: $ms-summary-text;
 		text-align: center;
 		list-style-position: inside;
 		user-select: none;

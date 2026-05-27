@@ -1,16 +1,18 @@
+@use './theme_tokens' as theme;
+
 .login-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	background-color: var(--color-bg-muted);
+	background-color: theme.$color-bg-muted;
 }
 
 .login-card {
-	background: var(--color-bg);
+	background: theme.$color-bg;
 	padding: 2rem;
-	border-radius: var(--radius-md);
-	box-shadow: var(--shadow-card);
+	border-radius: theme.$radius-md;
+	box-shadow: theme.$shadow-card;
 	width: 100%;
 	max-width: 400px;
 }
@@ -18,59 +20,59 @@
 .login-title {
 	text-align: center;
 	margin-bottom: 1.5rem;
-	color: var(--color-text);
+	color: theme.$color-text;
 }
 
 .login-form {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-3);
+	gap: theme.$space-3;
 }
 
 .form-group {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-1);
+	gap: theme.$space-1;
 
 	& label {
 		font-weight: 600;
-		color: var(--color-text-muted);
+		color: theme.$color-text-muted;
 	}
 
 	& input {
-		padding: var(--space-2);
+		padding: theme.$space-2;
 		border: 1px solid #ccc;
-		border-radius: var(--radius-sm);
+		border-radius: theme.$radius-sm;
 		font-size: 1rem;
 	}
 }
 
 .login-button {
-	padding: var(--space-2);
-	background-color: var(--color-primary);
+	padding: theme.$space-2;
+	background-color: theme.$color-primary;
 	color: #fff;
 	border: none;
-	border-radius: var(--radius-sm);
+	border-radius: theme.$radius-sm;
 	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
 	margin-top: 1rem;
 
 	&:hover {
-		background-color: var(--color-primary-hover);
+		background-color: theme.$color-primary-hover;
 	}
 
 	&:disabled {
-		background-color: var(--color-primary-disabled);
+		background-color: theme.$color-primary-disabled;
 		cursor: not-allowed;
 	}
 }
 
 .login-error {
-	color: var(--color-danger);
-	background-color: var(--color-danger-bg);
-	padding: var(--space-1);
-	border-radius: var(--radius-sm);
+	color: theme.$color-danger;
+	background-color: theme.$color-danger-bg;
+	padding: theme.$space-1;
+	border-radius: theme.$radius-sm;
 	font-size: 0.9rem;
 	text-align: center;
 }
