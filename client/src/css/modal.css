@@ -1,5 +1,3 @@
-@use './theme_tokens' as theme;
-
 .modal-backdrop {
 	position: fixed;
 	inset: 0;
@@ -21,18 +19,18 @@
 }
 
 .modal-card {
-	background: theme.$color-bg;
-	border-radius: theme.$corner-radius;
-	box-shadow: theme.$shadow-modal;
+	background: var(--color-bg);
+	border-radius: var(--corner-radius);
+	box-shadow: var(--shadow-modal);
 	padding: 1rem;
 	width: min(28rem, 100%);
 	display: grid;
 	gap: 0.7rem;
+}
 
-	& h2,
-	& p {
-		margin: 0;
-	}
+.modal-card h2,
+.modal-card p {
+	margin: 0;
 }
 
 .modal-actions {

@@ -1,0 +1,71 @@
+:root {
+	/* Color palette */
+	--palette-white: #ffffff;
+	--palette-ink: #0f172a;
+	--palette-slate: #64748b;
+	--palette-blue: #0b6bcb;
+	--palette-red: #b42318;
+
+	/* Spacing */
+	--corner-radius: 5px;
+	--gap-small: 0.5rem;
+
+	/* Typography */
+	--font-family-base: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+	/* Elevation */
+	--shadow-card: 0 4px 6px rgb(0 0 0 / 10%);
+	--shadow-modal: 0 14px 34px rgb(0 0 0 / 25%);
+
+	/* Derived colors */
+	--color-bg: var(--palette-white);
+	--color-bg-muted: color-mix(
+		in srgb,
+		var(--palette-white) 92%,
+		var(--palette-slate)
+	);
+	--color-surface-hover: color-mix(
+		in srgb,
+		var(--palette-white) 88%,
+		var(--palette-slate)
+	);
+	--color-border: color-mix(
+		in srgb,
+		var(--palette-white) 72%,
+		var(--palette-slate)
+	);
+	--color-border-strong: color-mix(
+		in srgb,
+		var(--palette-white) 56%,
+		var(--palette-slate)
+	);
+	--color-text: var(--palette-ink);
+	--color-text-muted: color-mix(
+		in srgb,
+		var(--palette-ink) 72%,
+		var(--palette-white)
+	);
+	--color-focus: var(--palette-blue);
+	--color-danger: var(--palette-red);
+	--color-danger-bg: color-mix(
+		in srgb,
+		var(--palette-white) 88%,
+		var(--palette-red)
+	);
+	--color-danger-bg-hover: color-mix(
+		in srgb,
+		var(--palette-white) 78%,
+		var(--palette-red)
+	);
+	--color-primary: var(--palette-blue);
+	--color-primary-hover: color-mix(
+		in srgb,
+		var(--palette-blue) 72%,
+		var(--palette-ink)
+	);
+	--color-primary-disabled: color-mix(
+		in srgb,
+		var(--palette-white) 38%,
+		var(--palette-blue)
+	);
+}

@@ -1,8 +1,8 @@
-@use './theme_tokens' as theme;
-@use './header';
-@use './otp-list';
-@use './login';
-@use './modal';
+@import "./theme_tokens.css";
+@import "./header.css";
+@import "./otp-list.css";
+@import "./login.css";
+@import "./modal.css";
 
 *,
 *::before,
@@ -11,17 +11,17 @@
 }
 
 body {
-	font-family: theme.$font-family-base;
+	font-family: var(--font-family-base);
 	margin: 0;
 	padding: 10px;
-	background-color: theme.$color-bg;
-	color: theme.$color-text;
+	background-color: var(--color-bg);
+	color: var(--color-text);
 }
 
 form {
 	display: flex;
 	align-items: center;
-	gap: theme.$gap-small;
+	gap: var(--gap-small);
 	margin: 0.75rem 0 1rem;
 }
 
