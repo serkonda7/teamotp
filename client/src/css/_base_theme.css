@@ -5,7 +5,7 @@
 	--palette-ink: #0f172a;
 	--palette-slate: #64748b;
 	--palette-blue: #0b6bcb;
-	--palette-red: #b42318;
+	--red: hsl(4, 76%, 50%);
 
 	/* Spacing */
 	--corner-radius: 5px;
@@ -18,7 +18,10 @@
 	--shadow-card: 0 4px 6px rgb(0 0 0 / 10%);
 	--shadow-modal: 0 14px 34px rgb(0 0 0 / 25%);
 
-	/* Semantic colors */
+	/*
+	Semantic colors
+	*/
+
 	--color-bg: var(--white-100);
 	--color-surface-hover: color-mix(
 		in srgb,
@@ -42,17 +45,6 @@
 		var(--palette-white)
 	);
 	--color-focus: var(--palette-blue);
-	--color-danger: var(--palette-red);
-	--color-danger-bg: color-mix(
-		in srgb,
-		var(--palette-white) 88%,
-		var(--palette-red)
-	);
-	--color-danger-bg-hover: color-mix(
-		in srgb,
-		var(--palette-white) 78%,
-		var(--palette-red)
-	);
 	--color-primary: var(--palette-blue);
 	--color-primary-hover: color-mix(
 		in srgb,
@@ -63,5 +55,14 @@
 		in srgb,
 		var(--palette-white) 38%,
 		var(--palette-blue)
+	);
+
+	/* Highlight: warn / danger */
+	--color-danger: var(--red);
+	--color-danger-bg: color-mix(in srgb, var(--palette-white) 88%, var(--red));
+	--color-danger-bg-hover: color-mix(
+		in srgb,
+		var(--palette-white) 78%,
+		var(--red)
 	);
 }

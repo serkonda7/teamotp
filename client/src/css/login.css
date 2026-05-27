@@ -7,14 +7,12 @@
 
 	/* vertical */
 	align-items: flex-start;
-	padding: clamp(1rem, 20vh, 6rem) 1rem 2rem;
+	padding: clamp(1rem, 20vh, 10rem) 1rem 2rem;
 }
 
 .login-card {
-	background: var(--color-bg);
-	padding: 2rem;
 	width: 100%;
-	max-width: 400px;
+	max-width: 350px;
 }
 
 .login-title {
@@ -48,7 +46,7 @@
 }
 
 .login-button {
-	padding: var(--gap-small);
+	padding: var(--gap-small) calc(var(--gap-small) * 2);
 	background-color: var(--color-primary);
 	color: #fff;
 	border: none;
@@ -56,7 +54,7 @@
 	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
-	margin-top: 1rem;
+	margin-top: 0.5rem;
 }
 
 .login-button:hover {

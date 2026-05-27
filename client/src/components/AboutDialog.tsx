@@ -5,31 +5,32 @@ type AboutDialogProps = {
 	onClose: () => void
 }
 
-function AboutDialog(props: AboutDialogProps) {
-	return (
-		<Show when={props.open}>
-			<div class="modal-backdrop" role="presentation">
+const AboutDialog = (props: AboutDialogProps) => (
+	<Show when={props.open}>
+		<div class="modal-backdrop" role="presentation">
+			<button
+				type="button"
+				class="modal-dismiss"
+				aria-label="Close about dialog"
+				onClick={props.onClose}
+			/>
+			<div class="modal-card" role="dialog" aria-modal="true" aria-label="About TeamOTP">
 				<button
 					type="button"
-					class="modal-dismiss"
+					class="modal-close"
 					aria-label="Close about dialog"
 					onClick={props.onClose}
-				/>
-				<div class="modal-card" role="dialog" aria-modal="true" aria-label="About TeamOTP">
-					<h2>About TeamOTP</h2>
-					<p>Version 0.0.3</p>
-					<a href="https://github.com/serkonda7/teamotp" target="_blank" rel="noreferrer">
-						github.com/serkonda7/teamotp
-					</a>
-					<div class="modal-actions">
-						<button type="button" onClick={props.onClose}>
-							Close
-						</button>
-					</div>
-				</div>
+				>
+					<span aria-hidden="true">X</span>
+				</button>
+				<h2>About TeamOTP</h2>
+				<p>Version 0.0.3</p>
+				<a href="https://github.com/serkonda7/teamotp" target="_blank" rel="noreferrer">
+					Source code on GitHub
+				</a>
 			</div>
-		</Show>
-	)
-}
+		</div>
+	</Show>
+)
 
 export default AboutDialog

@@ -21,12 +21,11 @@
 .otp-list__entry {
 	width: 100%;
 	padding: var(--gap-small) calc(var(--gap-small) * 2);
-	border: 1px solid var(--color-border);
+	border: 2px solid var(--color-border);
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
 	text-align: left;
 	display: grid;
-	gap: 0.2rem;
 	cursor: pointer;
 }
 
@@ -41,14 +40,14 @@
 }
 
 .otp-list__issuer {
-	font-size: 1.1rem;
+	font-size: 1rem;
 	font-weight: 700;
 	line-height: 1.3;
 	color: var(--color-text);
 }
 
 .otp-list__label {
-	font-size: 0.95rem;
+	font-size: 1rem;
 	line-height: 1.35;
 	color: var(--color-text-muted);
 	word-break: break-word;

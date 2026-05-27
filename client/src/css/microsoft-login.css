@@ -56,7 +56,7 @@ https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-
 .local-login-details {
 	width: 100%;
 	margin-top: 0;
-	border: 1px solid var(--ms-panel-border);
+	border: 2px solid var(--ms-panel-border);
 	border-radius: 6px;
 	padding: 0.5rem 0.75rem;
 	background-color: var(--ms-panel-bg);
