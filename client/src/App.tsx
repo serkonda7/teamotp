@@ -8,6 +8,25 @@ import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
 import { makeArrayRefetch } from './util/resource_helpers'
 
+const OTP_LAYOUT_MODE_STORAGE_KEY = 'teamotp:otp-layout-mode'
+
+function readStoredLayoutMode(): 'list' | 'grid' {
+	try {
+		const value = localStorage.getItem(OTP_LAYOUT_MODE_STORAGE_KEY)
+		return value === 'list' || value === 'grid' ? value : 'grid'
+	} catch {
+		return 'grid'
+	}
+}
+
+function persistLayoutMode(mode: 'list' | 'grid') {
+	try {
+		localStorage.setItem(OTP_LAYOUT_MODE_STORAGE_KEY, mode)
+	} catch {
+		// ignore storage write failures (e.g. privacy mode)
+	}
+}
+
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
 
@@ -27,7 +46,7 @@ function App() {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>('grid')
+	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>(readStoredLayoutMode())
 
 	onMount(async () => {
 		try {
@@ -57,6 +76,11 @@ function App() {
 		}
 	}
 
+	function handleLayoutModeChange(mode: 'list' | 'grid') {
+		setOtpLayoutMode(mode)
+		persistLayoutMode(mode)
+	}
+
 	return (
 		<Show when={isLoggedIn() !== null} fallback={<div>Loading...</div>}>
 			<Show
@@ -68,7 +92,7 @@ function App() {
 						onOpenAbout={() => setAboutOpen(true)}
 						onLogout={handleLogout}
 						layoutMode={otpLayoutMode()}
-						onLayoutModeChange={setOtpLayoutMode}
+						onLayoutModeChange={handleLayoutModeChange}
 					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
