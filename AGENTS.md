@@ -1,4 +1,2 @@
-- Linter Biome.js: `bun run lint`
-  - run after changes except CSS-only
-- Type checker tsgo: `bun run check`
-  - run after changes except CSS-only
+- Biome.js is used as linter. It must be run after changes via `bun run lint`
+- tsgo is used as type checker. It must be run after changes via `bun run check`
