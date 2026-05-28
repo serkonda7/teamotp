@@ -6,7 +6,7 @@ type Props = {
 	localLoginForm: JSX.Element
 }
 
-const MicrosoftSignInButton: Component<Props> = (props) => (
+const MicrosoftSignInSection: Component<Props> = (props) => (
 	<div class="microsoft-login-section">
 		<a href="/api/auth/login/microsoft" class="login-button-microsoft">
 			<span class="ms-logo" aria-hidden="true">
@@ -21,4 +21,4 @@ const MicrosoftSignInButton: Component<Props> = (props) => (
 	</div>
 )
 
-export default MicrosoftSignInButton
+export default MicrosoftSignInSection

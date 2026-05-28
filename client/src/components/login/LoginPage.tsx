@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
-import MicrosoftSignInButton from './MicrosoftSignInButton'
+import MicrosoftSignInSection from './MicrosoftSignInSection'
 
 type Props = {
 	onLoginSuccess: () => void
@@ -101,7 +101,7 @@ const LoginPage: Component<Props> = (props) => {
 			<div class="login-card">
 				<h1 class="login-title">TeamOTP</h1>
 				<Show when={hasMicrosoftProvider()} fallback={localLoginForm()}>
-					<MicrosoftSignInButton localLoginForm={localLoginForm()} />
+					<MicrosoftSignInSection localLoginForm={localLoginForm()} />
 				</Show>
 			</div>
 		</div>
