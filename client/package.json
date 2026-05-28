@@ -9,9 +9,10 @@
     "test": "bun test"
   },
   "devDependencies": {
+    "solid-devtools": "~0.34.3",
     "vite": "~8.0.14",
-    "vite-plugin-solid": "~2.11.12",
-    "solid-devtools": "~0.34.3"
+    "vite-plugin-entry-shaking": "~0.5.2",
+    "vite-plugin-solid": "~2.11.12"
   },
   "dependencies": {
     "better-result": "catalog:",
