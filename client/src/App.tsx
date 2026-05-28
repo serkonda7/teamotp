@@ -27,7 +27,7 @@ function App() {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [otpLayoutMode] = createSignal<'list' | 'grid'>('list')
+	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>('list')
 
 	onMount(async () => {
 		try {
@@ -64,7 +64,12 @@ function App() {
 				fallback={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />}
 			>
 				<div>
-					<AppHeader onOpenAbout={() => setAboutOpen(true)} onLogout={handleLogout} />
+					<AppHeader
+						onOpenAbout={() => setAboutOpen(true)}
+						onLogout={handleLogout}
+						layoutMode={otpLayoutMode()}
+						onLayoutModeChange={setOtpLayoutMode}
+					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 					<AddFromOtpauthForm
