@@ -27,7 +27,7 @@ function App() {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>('list')
+	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>('grid')
 
 	onMount(async () => {
 		try {

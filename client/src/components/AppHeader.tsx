@@ -17,6 +17,7 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 				type="button"
 				class="layout-toggle__button"
 				aria-label="Use grid layout"
+				title="Grid layout"
 				aria-pressed={props.layoutMode === 'grid'}
 				onClick={() => props.onLayoutModeChange('grid')}
 			>
@@ -26,6 +27,7 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 				type="button"
 				class="layout-toggle__button"
 				aria-label="Use list layout"
+				title="List layout"
 				aria-pressed={props.layoutMode === 'list'}
 				onClick={() => props.onLayoutModeChange('list')}
 			>

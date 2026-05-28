@@ -11,7 +11,7 @@ type Props = {
 }
 
 const OtpList: Component<Props> = (props) => {
-	const layoutMode = () => props.layoutMode ?? 'list'
+	const layoutMode = () => props.layoutMode ?? 'grid'
 
 	return (
 		<Show when={!props.otps.loading} fallback={<div>Loading...</div>}>
