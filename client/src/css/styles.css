@@ -1,27 +1,28 @@
+@import "./_base_theme.css";
+@import "./header.css";
+@import "./otp-list.css";
+@import "./login.css";
+@import "./modal.css";
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 body {
-	font-family: Arial, sans-serif;
+	height: 100vh;
+	font-family: var(--font-family-base);
 	margin: 0;
 	padding: 10px;
-}
-
-.app-header {
-	display: grid;
-	grid-template-columns: 1fr minmax(14rem, 24rem) 1fr;
-	align-items: center;
-	column-gap: 1rem;
-	margin-bottom: 1rem;
-}
-
-.app-title {
-	font-size: 2rem;
-	font-weight: 700;
-	justify-self: start;
+	background-color: var(--color-bg);
+	color: var(--color-text);
 }
 
 form {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--gap-small);
 	margin: 0.75rem 0 1rem;
 }
 
@@ -34,204 +35,4 @@ input[type="search"] {
 	width: 100%;
 	padding: 0.45rem 0.6rem;
 	justify-self: center;
-}
-
-.otp-list {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: grid;
-	gap: 0.5rem;
-}
-
-.otp-list--list {
-	grid-template-columns: 1fr;
-}
-
-.otp-list--grid {
-	grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-}
-
-.otp-list__item {
-	min-width: 0;
-}
-
-.otp-list__entry {
-	width: 100%;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid #d0d7de;
-	border-radius: 8px;
-	background: #fff;
-	text-align: left;
-	display: grid;
-	gap: 0.2rem;
-	cursor: pointer;
-}
-
-.otp-list__entry:hover {
-	background: #f8fafc;
-	border-color: #a9b7c9;
-}
-
-.otp-list__entry:focus-visible {
-	outline: 2px solid #2f81f7;
-	outline-offset: 2px;
-}
-
-.otp-list__issuer {
-	font-size: 1.1rem;
-	font-weight: 700;
-	line-height: 1.3;
-	color: #0f172a;
-}
-
-.otp-list__label {
-	font-size: 0.95rem;
-	line-height: 1.35;
-	color: #475569;
-	word-break: break-word;
-}
-
-.info-button {
-	justify-self: end;
-}
-
-.header-actions {
-	display: flex;
-	gap: 0.5rem;
-	justify-self: end;
-}
-
-.logout-button {
-	background-color: #fce4e4;
-	color: #cc0000;
-	border: 1px solid #cc0000;
-	border-radius: 4px;
-	padding: 0.4rem 0.8rem;
-	cursor: pointer;
-}
-
-.logout-button:hover {
-	background-color: #f8caca;
-}
-
-/* Login Page Styles */
-.login-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	background-color: #f7f9fa;
-}
-
-.login-card {
-	background: white;
-	padding: 2rem;
-	border-radius: 8px;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	width: 100%;
-	max-width: 400px;
-}
-
-.login-title {
-	text-align: center;
-	margin-bottom: 1.5rem;
-	color: #333;
-}
-
-.login-form {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.form-group label {
-	font-weight: 600;
-	color: #555;
-}
-
-.form-group input {
-	padding: 0.75rem;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	font-size: 1rem;
-}
-
-.login-button {
-	padding: 0.75rem;
-	background-color: #007bff;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	margin-top: 1rem;
-}
-
-.login-button:hover {
-	background-color: #0056b3;
-}
-
-.login-button:disabled {
-	background-color: #a0cbf5;
-	cursor: not-allowed;
-}
-
-.login-error {
-	color: #cc0000;
-	background-color: #fce4e4;
-	padding: 0.5rem;
-	border-radius: 4px;
-	font-size: 0.9rem;
-	text-align: center;
-}
-
-.modal-backdrop {
-	position: fixed;
-	inset: 0;
-	background: rgb(0 0 0 / 45%);
-	display: grid;
-	place-items: center;
-	padding: 1rem;
-	z-index: 10;
-}
-
-.modal-dismiss {
-	position: absolute;
-	inset: 0;
-	border: 0;
-	padding: 0;
-	margin: 0;
-	background: transparent;
-	cursor: default;
-}
-
-.modal-card {
-	background: #fff;
-	border-radius: 10px;
-	box-shadow: 0 14px 34px rgb(0 0 0 / 25%);
-	padding: 1rem;
-	width: min(28rem, 100%);
-	display: grid;
-	gap: 0.7rem;
-}
-
-.modal-card h2 {
-	margin: 0;
-}
-
-.modal-card p {
-	margin: 0;
-}
-
-.modal-actions {
-	display: flex;
-	justify-content: flex-end;
 }

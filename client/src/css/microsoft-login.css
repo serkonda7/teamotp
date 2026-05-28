@@ -4,37 +4,49 @@ https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-
 */
 
 .microsoft-login-section {
+	--ms-button-height: 41px;
+	--ms-button-padding-x: 12px;
+	--ms-gap: 1rem;
+	--ms-border-radius: 4px;
+	--ms-border-color: #8c8c8c;
+	--ms-button-text: #5e5e5e;
+	--ms-button-bg: #ffffff;
+	--ms-button-hover: #f8f8f8;
+	--ms-panel-border: #ddd;
+	--ms-panel-bg: #fafafa;
+	--ms-summary-text: #444;
+
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 1rem;
+	gap: var(--ms-gap);
 }
 
 .login-button-microsoft {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 41px;
-	padding: 0 12px;
+	height: var(--ms-button-height);
+	padding: 0 var(--ms-button-padding-x);
 	text-decoration: none;
 	font-family: "Segoe UI", Arial, sans-serif;
 	font-size: 15px;
 	font-weight: 600;
-	color: #5e5e5e;
-	background-color: #ffffff;
-	border-radius: 4px;
-	border: 1px solid #8c8c8c;
+	color: var(--ms-button-text);
+	background-color: var(--ms-button-bg);
+	border-radius: var(--ms-border-radius);
+	border: 1px solid var(--ms-border-color);
 	margin-top: 0;
 }
 
 .login-button-microsoft:hover {
-	background-color: #f8f8f8;
+	background-color: var(--ms-button-hover);
 }
 
 .login-button-microsoft .ms-logo {
 	display: inline-flex;
 	align-items: center;
-	margin-right: 12px;
+	margin-right: var(--ms-button-padding-x);
 }
 
 .login-button-microsoft .ms-text {
@@ -44,16 +56,16 @@ https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-
 .local-login-details {
 	width: 100%;
 	margin-top: 0;
-	border: 1px solid #ddd;
+	border: 2px solid var(--ms-panel-border);
 	border-radius: 6px;
 	padding: 0.5rem 0.75rem;
-	background-color: #fafafa;
+	background-color: var(--ms-panel-bg);
 }
 
 .local-login-details summary {
 	cursor: pointer;
 	font-weight: 600;
-	color: #444;
+	color: var(--ms-summary-text);
 	text-align: center;
 	list-style-position: inside;
 	user-select: none;

@@ -4,7 +4,7 @@ import { client } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
-import LoginPage from './components/LoginPage'
+import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
 import { makeArrayRefetch } from './util/resource_helpers'
 

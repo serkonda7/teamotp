@@ -9,7 +9,7 @@
     "test": "bun test"
   },
   "devDependencies": {
-    "vite": "catalog:",
+    "vite": "~8.0.14",
     "vite-plugin-solid": "~2.11.12",
     "solid-devtools": "~0.34.3"
   },
@@ -18,6 +18,6 @@
     "server": "workspace:*",
     "hono": "catalog:",
     "better-result": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "~1.9.13"
   }
 }
