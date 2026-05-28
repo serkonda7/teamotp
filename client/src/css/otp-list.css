@@ -27,16 +27,16 @@
 	text-align: left;
 	display: grid;
 	cursor: pointer;
-}
 
-.otp-list__entry:hover {
-	background: var(--color-surface-hover);
-	border-color: var(--color-border-strong);
-}
+	&:hover {
+		background: var(--color-bg-hover);
+		border-color: var(--color-border-strong);
+	}
 
-.otp-list__entry:focus-visible {
-	outline: 2px solid var(--color-focus);
-	outline-offset: 2px;
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
 }
 
 .otp-list__issuer {
