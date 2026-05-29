@@ -3,7 +3,9 @@
 - New Features
   - Add grid layout and layout toggle
   - Default to grid layout due to better usage of screen space
+  - Add button to show / hide code of single entries
 - UI Improvements
+  - Show notification toast on copy
   - login: no more layout shifts with M365 on expanding local login
   - improve about dialog close button
   - Add app icon and favicon
