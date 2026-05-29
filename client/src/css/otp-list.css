@@ -21,6 +21,7 @@
 
 .otp-list__entry {
 	width: 100%;
+	min-width: 0;
 	padding: var(--gap-small) calc(var(--gap-small) * 2);
 	border: 2px solid var(--color-border);
 	border-radius: var(--corner-radius);
@@ -41,6 +42,11 @@
 }
 
 .otp-list__issuer {
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 1rem;
 	font-weight: 700;
 	line-height: 1.3;
@@ -48,8 +54,12 @@
 }
 
 .otp-list__label {
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 1rem;
 	line-height: 1.3;
 	color: var(--color-text-muted);
-	word-break: break-word;
 }
