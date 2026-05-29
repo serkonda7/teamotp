@@ -7,6 +7,7 @@ import OtpListItem from './OtpListItem'
 type Props = {
 	otps: Resource<OtpDisplayInfo[]>
 	setError: (e: string | null) => void
+	setToast: (message: string) => void
 	layoutMode?: OtpLayoutMode
 }
 
@@ -17,7 +18,13 @@ const OtpList: Component<Props> = (props) => {
 		<Show when={!props.otps.loading} fallback={<div>Loading...</div>}>
 			<ul class={`otp-list otp-list--${layoutMode()}`}>
 				<For each={props.otps()}>
-					{(otp: OtpDisplayInfo) => <OtpListItem otp={otp} setError={props.setError} />}
+					{(otp: OtpDisplayInfo) => (
+						<OtpListItem
+							otp={otp}
+							setError={props.setError}
+							setToast={props.setToast}
+						/>
+					)}
 				</For>
 			</ul>
 		</Show>

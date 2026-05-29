@@ -1,5 +1,5 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
-import { createResource, createSignal, onMount, Show } from 'solid-js'
+import { createResource, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { client } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
@@ -27,8 +27,10 @@ function App() {
 	const [otpauthUrl, setOtpauthUrl] = createSignal('')
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
+	const [toast, setToast] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
 	const [otpLayoutMode, setOtpLayoutMode] = createSignal<OtpLayoutMode>(readStoredLayoutMode())
+	let toastTimer: ReturnType<typeof setTimeout> | undefined
 
 	onMount(async () => {
 		try {
@@ -36,6 +38,12 @@ function App() {
 			setIsLoggedIn(res.ok)
 		} catch {
 			setIsLoggedIn(false)
+		}
+	})
+
+	onCleanup(() => {
+		if (toastTimer !== undefined) {
+			clearTimeout(toastTimer)
 		}
 	})
 
@@ -61,6 +69,16 @@ function App() {
 	function handleLayoutModeChange(mode: OtpLayoutMode) {
 		setOtpLayoutMode(mode)
 		persistLayoutMode(mode)
+	}
+
+	function showToast(message: string) {
+		setToast(message)
+		if (toastTimer !== undefined) {
+			clearTimeout(toastTimer)
+		}
+		toastTimer = setTimeout(() => {
+			setToast(null)
+		}, 1800)
 	}
 
 	return (
@@ -91,7 +109,18 @@ function App() {
 						<div>{error()}</div>
 					</Show>
 
-					<OtpList otps={otps} setError={setError} layoutMode={otpLayoutMode()} />
+					<OtpList
+						otps={otps}
+						setError={setError}
+						setToast={showToast}
+						layoutMode={otpLayoutMode()}
+					/>
+
+					<Show when={toast()}>
+						<div class="toast" role="status" aria-live="polite">
+							{toast()}
+						</div>
+					</Show>
 				</div>
 			</Show>
 		</Show>

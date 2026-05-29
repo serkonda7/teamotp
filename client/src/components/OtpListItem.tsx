@@ -7,6 +7,7 @@ import { fetchOtpCode } from '../showAndCopyOtpCode'
 type Props = {
 	otp: OtpDisplayInfo
 	setError: (e: string | null) => void
+	setToast: (message: string) => void
 }
 
 const OtpListItem: Component<Props> = (props) => {
@@ -41,9 +42,34 @@ const OtpListItem: Component<Props> = (props) => {
 		}
 	}
 
+	async function copyCodeFromCard() {
+		const value = code() ?? (await fetchOtpCode(props.otp.id, props.setError))
+		if (value === null) {
+			return
+		}
+
+		if (code() === null) {
+			setCode(value)
+		}
+
+		try {
+			await navigator.clipboard.writeText(value)
+			props.setToast('OTP code copied to clipboard')
+		} catch {
+			props.setError('Failed to copy OTP code to clipboard')
+		}
+	}
+
 	return (
 		<li class="otp-list__item">
 			<div class="otp-list__entry">
+				<button
+					type="button"
+					class="otp-list__copy"
+					onClick={() => void copyCodeFromCard()}
+					aria-label={`Copy OTP code for ${issuerText}`}
+					title="Copy OTP code"
+				/>
 				<div class="otp-list__row">
 					<div class="otp-list__content">
 						<span class="otp-list__issuer">{issuerText}</span>
@@ -56,7 +82,10 @@ const OtpListItem: Component<Props> = (props) => {
 					<button
 						type="button"
 						class="otp-list__toggle"
-						onClick={() => void toggleCodeVisibility()}
+						onClick={(event) => {
+							event.stopPropagation()
+							void toggleCodeVisibility()
+						}}
 						aria-label={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
 						title={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
 						disabled={isLoadingCode()}
