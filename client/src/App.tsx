@@ -6,20 +6,23 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
+import {
+	DEFAULT_OTP_LAYOUT_MODE,
+	OTP_LAYOUT_MODE_STORAGE_KEY,
+	type OtpLayoutMode,
+} from './layout_mode'
 import { makeArrayRefetch } from './util/resource_helpers'
 
-const OTP_LAYOUT_MODE_STORAGE_KEY = 'teamotp:otp-layout-mode'
-
-function readStoredLayoutMode(): 'list' | 'grid' {
+function readStoredLayoutMode(): OtpLayoutMode {
 	try {
 		const value = localStorage.getItem(OTP_LAYOUT_MODE_STORAGE_KEY)
-		return value === 'list' || value === 'grid' ? value : 'grid'
+		return value === 'list' || value === 'grid' ? value : DEFAULT_OTP_LAYOUT_MODE
 	} catch {
-		return 'grid'
+		return DEFAULT_OTP_LAYOUT_MODE
 	}
 }
 
-function persistLayoutMode(mode: 'list' | 'grid') {
+function persistLayoutMode(mode: OtpLayoutMode) {
 	try {
 		localStorage.setItem(OTP_LAYOUT_MODE_STORAGE_KEY, mode)
 	} catch {
@@ -36,7 +39,7 @@ function App() {
 			if (!loggedIn) {
 				return []
 			}
-			return await fetch_otps()
+			return await fetchOtps()
 		},
 		{ initialValue: [] },
 	)
@@ -46,7 +49,7 @@ function App() {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [otpLayoutMode, setOtpLayoutMode] = createSignal<'list' | 'grid'>(readStoredLayoutMode())
+	const [otpLayoutMode, setOtpLayoutMode] = createSignal<OtpLayoutMode>(readStoredLayoutMode())
 
 	onMount(async () => {
 		try {
@@ -57,7 +60,7 @@ function App() {
 		}
 	})
 
-	async function fetch_otps(): Promise<OtpDisplayInfo[]> {
+	async function fetchOtps(): Promise<OtpDisplayInfo[]> {
 		const res = await client.otp.$get()
 		if (res.status === 401) {
 			setIsLoggedIn(false)
@@ -76,7 +79,7 @@ function App() {
 		}
 	}
 
-	function handleLayoutModeChange(mode: 'list' | 'grid') {
+	function handleLayoutModeChange(mode: OtpLayoutMode) {
 		setOtpLayoutMode(mode)
 		persistLayoutMode(mode)
 	}

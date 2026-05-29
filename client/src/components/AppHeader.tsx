@@ -1,11 +1,12 @@
 import { IconLayoutGrid, IconList } from '@tabler/icons-solidjs'
 import type { Component } from 'solid-js'
+import type { OtpLayoutMode } from '../layout_mode'
 
 type AppHeaderProps = {
 	onOpenAbout: () => void
 	onLogout: () => void
-	layoutMode: 'list' | 'grid'
-	onLayoutModeChange: (mode: 'list' | 'grid') => void
+	layoutMode: OtpLayoutMode
+	onLayoutModeChange: (mode: OtpLayoutMode) => void
 }
 
 const AppHeader: Component<AppHeaderProps> = (props) => (
