@@ -11,8 +11,8 @@
 }
 
 .otp-list--grid {
-	/* TODO dynamically adjust for different screen sizes */
-	grid-template-columns: repeat(3, 1fr);
+	--min-entry-width: 400px;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min-entry-width)), 1fr));
 }
 
 .otp-list__item {
