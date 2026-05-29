@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
 import { readApiErrorMessage } from '../../util/api_error'
+import TeamOtpLogo from '../TeamOtpLogo'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
 
 type Props = {
@@ -99,7 +100,9 @@ const LoginPage: Component<Props> = (props) => {
 	return (
 		<div class="login-container">
 			<div class="login-card">
-				<h1 class="login-title">TeamOTP</h1>
+				<h1 class="login-title">
+					<TeamOtpLogo class="login-title__logo" />
+				</h1>
 				<Show when={hasMicrosoftProvider()} fallback={localLoginForm()}>
 					<MicrosoftSignInSection localLoginForm={localLoginForm()} />
 				</Show>

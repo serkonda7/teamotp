@@ -6,6 +6,7 @@
 - UI Improvements
   - login: no more layout shifts with M365 on expanding local login
   - improve about dialog close button
+  - Add app icon and favicon
 - Fixes
   - About dialog: link can be selected
 

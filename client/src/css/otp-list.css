@@ -12,7 +12,10 @@
 
 .otp-list--grid {
 	--min-entry-width: 400px;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min-entry-width)), 1fr));
+	grid-template-columns: repeat(
+			auto-fit,
+			minmax(min(100%, var(--min-entry-width)), 1fr)
+		);
 }
 
 .otp-list__item {

@@ -36,3 +36,21 @@ input[type="search"] {
 	padding: 0.45rem 0.6rem;
 	justify-self: center;
 }
+
+.teamotp-logo {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	line-height: 1;
+}
+
+.teamotp-logo__icon {
+	width: 1.05em;
+	height: 1.05em;
+	flex: none;
+}
+
+.teamotp-logo__text {
+	font: inherit;
+	letter-spacing: 0.01em;
+}
