@@ -1,19 +1,20 @@
 import { IconEye, IconEyeOff } from '@tabler/icons-solidjs'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
-import { createSignal, Show } from 'solid-js'
+import { createSignal, onCleanup, Show } from 'solid-js'
 import { fetchOtpCode } from '../showAndCopyOtpCode'
 
 type Props = {
 	otp: OtpDisplayInfo
 	setError: (e: string | null) => void
-	setToast: (message: string) => void
 }
 
 const OtpListItem: Component<Props> = (props) => {
 	const [code, setCode] = createSignal<string | null>(null)
 	const [isCodeVisible, setIsCodeVisible] = createSignal(false)
 	const [isLoadingCode, setIsLoadingCode] = createSignal(false)
+	const [showCopyToast, setShowCopyToast] = createSignal(false)
+	let copyToastTimer: ReturnType<typeof setTimeout> | undefined
 
 	const issuerSecond = props.otp.issuer_second.trim()
 	const issuerText =
@@ -42,6 +43,22 @@ const OtpListItem: Component<Props> = (props) => {
 		}
 	}
 
+	onCleanup(() => {
+		if (copyToastTimer !== undefined) {
+			clearTimeout(copyToastTimer)
+		}
+	})
+
+	function triggerCopyToast() {
+		setShowCopyToast(true)
+		if (copyToastTimer !== undefined) {
+			clearTimeout(copyToastTimer)
+		}
+		copyToastTimer = setTimeout(() => {
+			setShowCopyToast(false)
+		}, 1400)
+	}
+
 	async function copyCodeFromCard() {
 		const value = code() ?? (await fetchOtpCode(props.otp.id, props.setError))
 		if (value === null) {
@@ -54,7 +71,7 @@ const OtpListItem: Component<Props> = (props) => {
 
 		try {
 			await navigator.clipboard.writeText(value)
-			props.setToast('OTP code copied to clipboard')
+			triggerCopyToast()
 		} catch {
 			props.setError('Failed to copy OTP code to clipboard')
 		}
@@ -92,6 +109,11 @@ const OtpListItem: Component<Props> = (props) => {
 					<IconEyeOff size={18} />
 				</Show>
 			</button>
+			<Show when={showCopyToast()}>
+				<div class="otp-list__copy-toast" role="status" aria-live="polite">
+					Copied!
+				</div>
+			</Show>
 		</li>
 	)
 }

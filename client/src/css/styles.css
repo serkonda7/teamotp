@@ -54,32 +54,3 @@ input[type="search"] {
 	font: inherit;
 	letter-spacing: 0.01em;
 }
-
-.toast {
-	position: fixed;
-	left: 50%;
-	bottom: 1rem;
-	transform: translateX(-50%);
-	padding: 0.55rem 0.9rem;
-	border-radius: var(--corner-radius);
-	border: 1px solid var(--color-border-strong);
-	background: var(--color-bg-hover);
-	color: var(--color-text);
-	font-size: 0.95rem;
-	font-weight: 600;
-	box-shadow: 0 8px 20px rgb(0 0 0 / 16%);
-	z-index: 20;
-	pointer-events: none;
-	animation: toast-in 130ms ease-out;
-}
-
-@keyframes toast-in {
-	from {
-		opacity: 0;
-		transform: translateX(-50%) translateY(6px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(-50%) translateY(0);
-	}
-}
