@@ -24,7 +24,9 @@ const AboutDialog = (props: AboutDialogProps) => (
 				>
 					<span aria-hidden="true">X</span>
 				</button>
-				<h2><TeamOtpLogo /></h2>
+				<h2>
+					<TeamOtpLogo />
+				</h2>
 				<p>Version 0.0.3</p>
 				<a href="https://github.com/serkonda7/teamotp" target="_blank" rel="noreferrer">
 					Source code on GitHub
