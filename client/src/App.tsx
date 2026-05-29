@@ -6,29 +6,8 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
-import {
-	DEFAULT_OTP_LAYOUT_MODE,
-	OTP_LAYOUT_MODE_STORAGE_KEY,
-	type OtpLayoutMode,
-} from './layout_mode'
+import { type OtpLayoutMode, persistLayoutMode, readStoredLayoutMode } from './layout_mode'
 import { makeArrayRefetch } from './util/resource_helpers'
-
-function readStoredLayoutMode(): OtpLayoutMode {
-	try {
-		const value = localStorage.getItem(OTP_LAYOUT_MODE_STORAGE_KEY)
-		return value === 'list' || value === 'grid' ? value : DEFAULT_OTP_LAYOUT_MODE
-	} catch {
-		return DEFAULT_OTP_LAYOUT_MODE
-	}
-}
-
-function persistLayoutMode(mode: OtpLayoutMode) {
-	try {
-		localStorage.setItem(OTP_LAYOUT_MODE_STORAGE_KEY, mode)
-	} catch {
-		// ignore storage write failures (e.g. privacy mode)
-	}
-}
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
