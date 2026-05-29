@@ -14,23 +14,35 @@ const data_dir = path.join(SERVER_ROOT, 'data')
 fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
 
-// Precedence for DB path:
-// 1. TEAMOTP_DB_PATH env var
-// 2. if test: in-memory DB
-// 3. teamotp.db
 const is_test_run = Bun.env.NODE_ENV === 'test'
-const default_db_path = is_test_run ? ':memory:' : path.join(data_dir, 'teamotp.db')
-const db_path = Bun.env.TEAMOTP_DB_PATH ?? default_db_path
 
 // Create or open the database file and run migrations
 const migrations_folder = path.join(SERVER_ROOT, 'drizzle')
 if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
 	throw new Error(`Drizzle migrations not found at ${migrations_folder}.`)
 }
+const db_path = resolve_db_path()
+console.log(`Using DB: ${db_path}`)
 const sqlite = new Database(db_path, { create: true, strict: true })
 
 export const db = drizzle(sqlite)
 migrate(db, { migrationsFolder: migrations_folder })
+
+// Precedence for DB path:
+// 1. TEAMOTP_DB_PATH env var
+// 2. if test: in-memory DB
+// 3. teamotp.db
+function resolve_db_path(): string {
+	if (Bun.env.TEAMOTP_DB_PATH) {
+		return path.join(data_dir, Bun.env.TEAMOTP_DB_PATH)
+	}
+
+	if (is_test_run) {
+		return ':memory:'
+	}
+
+	return path.join(data_dir, 'teamotp.db')
+}
 
 export function listEntries(): OtpDisplayInfo[] {
 	return db

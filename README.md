@@ -42,6 +42,12 @@ bun server-cli/src/cli.ts create-user max@muster.de
 
 
 ## Development
+### Environment Variables
+| Var             | Value                        | Purpose              |
+| --------------- | ---------------------------- | -------------------- |
+| TEAMOTP_DB_PATH | Path relative to server/data | Use specific DB file |
+
+
 ### Database migrations
 The server uses Drizzle ORM with SQLite migrations stored in `server/drizzle/`.
 Pending migrations run automatically on startup.

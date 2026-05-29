@@ -1,5 +1,4 @@
 # build output
-data/
 dist/
 
 # dependencies
@@ -11,7 +10,9 @@ node_modules/
 
 # editor files
 .vscode/
+!.vscode/extensions.json
 
-# config
+# config and app data
+data/
 config.toml
 backups/
