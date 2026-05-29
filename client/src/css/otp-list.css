@@ -19,10 +19,6 @@
 }
 
 .otp-list__item {
-	min-width: 0;
-}
-
-.otp-list__entry {
 	position: relative;
 	width: 100%;
 	min-width: 0;
@@ -30,8 +26,10 @@
 	border: 2px solid var(--color-border);
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
-	display: grid;
-	gap: calc(var(--gap-small) * 0.75);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--gap-small);
 
 	&:hover {
 		background: var(--color-bg-hover);
@@ -42,16 +40,6 @@
 		outline: 2px solid var(--color-focus);
 		outline-offset: 2px;
 	}
-}
-
-.otp-list__row {
-	position: relative;
-	z-index: 2;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--gap-small);
-	pointer-events: none;
 }
 
 .otp-list__copy {
@@ -75,6 +63,10 @@
 }
 
 .otp-list__content {
+	position: relative;
+	z-index: 2;
+	pointer-events: none;
+	flex: 1;
 	min-width: 0;
 	display: grid;
 	gap: 2px;

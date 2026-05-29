@@ -62,40 +62,36 @@ const OtpListItem: Component<Props> = (props) => {
 
 	return (
 		<li class="otp-list__item">
-			<div class="otp-list__entry">
-				<button
-					type="button"
-					class="otp-list__copy"
-					onClick={() => void copyCodeFromCard()}
-					aria-label={`Copy OTP code for ${issuerText}`}
-					title="Copy OTP code"
-				/>
-				<div class="otp-list__row">
-					<div class="otp-list__content">
-						<span class="otp-list__issuer">{issuerText}</span>
-						<span
-							class={`otp-list__secondary ${isCodeVisible() && code() !== null ? 'otp-list__secondary--code' : ''}`}
-						>
-							{isCodeVisible() && code() !== null ? code() : props.otp.label}
-						</span>
-					</div>
-					<button
-						type="button"
-						class="otp-list__toggle"
-						onClick={(event) => {
-							event.stopPropagation()
-							void toggleCodeVisibility()
-						}}
-						aria-label={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
-						title={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
-						disabled={isLoadingCode()}
-					>
-						<Show when={isCodeVisible()} fallback={<IconEye size={18} />}>
-							<IconEyeOff size={18} />
-						</Show>
-					</button>
-				</div>
+			<button
+				type="button"
+				class="otp-list__copy"
+				onClick={() => void copyCodeFromCard()}
+				aria-label={`Copy OTP code for ${issuerText}`}
+				title="Copy OTP code"
+			/>
+			<div class="otp-list__content">
+				<span class="otp-list__issuer">{issuerText}</span>
+				<span
+					class={`otp-list__secondary ${isCodeVisible() && code() !== null ? 'otp-list__secondary--code' : ''}`}
+				>
+					{isCodeVisible() && code() !== null ? code() : props.otp.label}
+				</span>
 			</div>
+			<button
+				type="button"
+				class="otp-list__toggle"
+				onClick={(event) => {
+					event.stopPropagation()
+					void toggleCodeVisibility()
+				}}
+				aria-label={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
+				title={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
+				disabled={isLoadingCode()}
+			>
+				<Show when={isCodeVisible()} fallback={<IconEye size={18} />}>
+					<IconEyeOff size={18} />
+				</Show>
+			</button>
 		</li>
 	)
 }
