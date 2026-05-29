@@ -16,7 +16,7 @@
     "hono": "catalog:",
     "@azure/msal-node": "~5.2.2",
     "otplib": "~13.4.0",
-    "valibot": "~1.4.0"
+    "valibot": "~1.4.1"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"
