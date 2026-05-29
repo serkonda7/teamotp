@@ -30,7 +30,7 @@
 	);
 	--color-border: color-mix(
 		in srgb,
-		var(--palette-white) 72%,
+		var(--palette-white) 68%,
 		var(--palette-slate)
 	);
 	--color-border-strong: color-mix(
