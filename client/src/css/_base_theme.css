@@ -23,14 +23,14 @@
 	*/
 
 	--color-bg: var(--white-100);
-	--color-surface-hover: color-mix(
+	--color-bg-hover: color-mix(
 		in srgb,
-		var(--palette-white) 88%,
+		var(--palette-white) 84%,
 		var(--palette-slate)
 	);
 	--color-border: color-mix(
 		in srgb,
-		var(--palette-white) 72%,
+		var(--palette-white) 68%,
 		var(--palette-slate)
 	);
 	--color-border-strong: color-mix(

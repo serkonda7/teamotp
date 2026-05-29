@@ -1,4 +1,15 @@
 # Changelog
+## unreleased
+- New Features
+  - Add grid layout and layout toggle
+  - Default to grid layout due to better usage of screen space
+- UI Improvements
+  - login: no more layout shifts with M365 on expanding local login
+  - improve about dialog close button
+- Fixes
+  - About dialog: link can be selected
+
+
 ## 0.0.3 - 2026-05-26
 > Re-release of 0.0.2 with updater fixes
 

@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
+import { readApiErrorMessage } from '../../util/api_error'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
 
 type Props = {
@@ -46,8 +47,7 @@ const LoginPage: Component<Props> = (props) => {
 			})
 
 			if (!res.ok) {
-				const data = await res.json().catch(() => null)
-				setError(data?.error || 'Login failed.')
+				setError(await readApiErrorMessage(res, 'Login failed.'))
 				return
 			}
 

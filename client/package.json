@@ -9,15 +9,17 @@
     "test": "bun test"
   },
   "devDependencies": {
+    "solid-devtools": "~0.34.3",
     "vite": "~8.0.14",
-    "vite-plugin-solid": "~2.11.12",
-    "solid-devtools": "~0.34.3"
+    "vite-plugin-entry-shaking": "~0.5.2",
+    "vite-plugin-solid": "~2.11.12"
   },
   "dependencies": {
-    "shared": "workspace:*",
-    "server": "workspace:*",
-    "hono": "catalog:",
     "better-result": "catalog:",
-    "solid-js": "~1.9.13"
+    "hono": "catalog:",
+    "server": "workspace:*",
+    "shared": "workspace:*",
+    "solid-js": "~1.9.13",
+    "@tabler/icons-solidjs": "~3.44.0"
   }
 }

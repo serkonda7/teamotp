@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: infra/server.Dockerfile
     environment:
-      TEAMOTP_DB_PATH: "/app/data/teamotp.db"
+      TEAMOTP_DB_PATH: "teamotp.db"
     volumes:
       - ./server/data:/app/data
     ports:
