@@ -43,9 +43,9 @@ bun server-cli/src/cli.ts create-user max@muster.de
 
 ## Development
 ### Environment Variables
-| Var             | Value                        | Purpose              |
-| --------------- | ---------------------------- | -------------------- |
-| TEAMOTP_DB_PATH | Path relative to server/data | Use specific DB file |
+| Var             | Value                                       |
+| --------------- | ------------------------------------------- |
+| TEAMOTP_DB_PATH | Absolute path, or relative to `server/data` |
 
 
 ### Database migrations

@@ -11,7 +11,6 @@ import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { SERVER_ROOT } from './util/server_root'
 
 const data_dir = path.join(SERVER_ROOT, 'data')
-fs.mkdirSync(data_dir, { recursive: true })
 // TODO enrypt entire DB
 
 const is_test_run = Bun.env.NODE_ENV === 'test'
@@ -33,15 +32,16 @@ migrate(db, { migrationsFolder: migrations_folder })
 // 2. if test: in-memory DB
 // 3. teamotp.db
 function resolve_db_path(): string {
-	if (Bun.env.TEAMOTP_DB_PATH) {
-		return path.join(data_dir, Bun.env.TEAMOTP_DB_PATH)
+	const configured_path = Bun.env.TEAMOTP_DB_PATH?.trim()
+	if (!configured_path) {
+		return is_test_run ? ':memory:' : path.join(data_dir, 'teamotp.db')
 	}
 
-	if (is_test_run) {
-		return ':memory:'
+	if (path.isAbsolute(configured_path)) {
+		return configured_path
 	}
 
-	return path.join(data_dir, 'teamotp.db')
+	return path.join(data_dir, configured_path)
 }
 
 export function listEntries(): OtpDisplayInfo[] {
