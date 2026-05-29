@@ -3,7 +3,7 @@
 - New Features
   - Add grid layout and layout toggle
   - Default to grid layout due to better usage of screen space
-- UI Improvmenets
+- UI Improvements
   - login: no more layout shifts with M365 on expanding local login
   - improve about dialog close button
 - Fixes
