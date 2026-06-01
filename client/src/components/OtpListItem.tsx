@@ -2,7 +2,7 @@ import { IconEye, IconEyeOff } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
-import { createSignal, onCleanup, Show } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../otp_list_item'
 
 type Props = {
@@ -15,7 +15,20 @@ const OtpListItem: Component<Props> = (props) => {
 	const [isCodeVisible, setIsCodeVisible] = createSignal(false)
 	const [isLoadingCode, setIsLoadingCode] = createSignal(false)
 	const [showCopyToast, setShowCopyToast] = createSignal(false)
+	const [nowEpochMs, setNowEpochMs] = createSignal(Date.now())
+	const [lastPeriodCounter, setLastPeriodCounter] = createSignal<number | null>(null)
 	let copyToastTimer: ReturnType<typeof setTimeout> | undefined
+	let tickTimer: ReturnType<typeof setInterval> | undefined
+	let isAutoRefreshingCode = false
+
+	const periodSeconds = Math.max(1, props.otp.period)
+
+	const periodCounter = createMemo(() => Math.floor(nowEpochMs() / 1000 / periodSeconds))
+
+	const remainingRatio = createMemo(() => {
+		const elapsedInPeriod = (nowEpochMs() / 1000) % periodSeconds
+		return (periodSeconds - elapsedInPeriod) / periodSeconds
+	})
 
 	const issuerSecond = props.otp.issuer_second.trim()
 	const issuerText =
@@ -25,6 +38,7 @@ const OtpListItem: Component<Props> = (props) => {
 		if (isCodeVisible()) {
 			setCode(null)
 			setIsCodeVisible(false)
+			setLastPeriodCounter(null)
 			return
 		}
 
@@ -41,11 +55,71 @@ const OtpListItem: Component<Props> = (props) => {
 
 		setCode(code_res.value)
 		setIsCodeVisible(true)
+		setLastPeriodCounter(periodCounter())
 	}
+
+	async function refreshVisibleCode() {
+		if (!isCodeVisible() || isAutoRefreshingCode) {
+			return
+		}
+
+		isAutoRefreshingCode = true
+		const code_res = await fetch_otp_code(props.otp.id)
+		isAutoRefreshingCode = false
+
+		if (!isCodeVisible()) {
+			return
+		}
+
+		if (Result.isError(code_res)) {
+			props.setError(code_res.error.message)
+			return
+		}
+
+		setCode(code_res.value)
+	}
+
+	createEffect(() => {
+		if (tickTimer !== undefined) {
+			clearInterval(tickTimer)
+			tickTimer = undefined
+		}
+
+		if (!isCodeVisible()) {
+			return
+		}
+
+		setNowEpochMs(Date.now())
+		tickTimer = setInterval(() => {
+			setNowEpochMs(Date.now())
+		}, 100)
+	})
+
+	createEffect(() => {
+		if (!isCodeVisible()) {
+			return
+		}
+
+		const currentCounter = periodCounter()
+		const previousCounter = lastPeriodCounter()
+
+		if (previousCounter === null) {
+			setLastPeriodCounter(currentCounter)
+			return
+		}
+
+		if (currentCounter !== previousCounter) {
+			setLastPeriodCounter(currentCounter)
+			void refreshVisibleCode()
+		}
+	})
 
 	onCleanup(() => {
 		if (copyToastTimer !== undefined) {
 			clearTimeout(copyToastTimer)
+		}
+		if (tickTimer !== undefined) {
+			clearInterval(tickTimer)
 		}
 	})
 
@@ -122,6 +196,12 @@ const OtpListItem: Component<Props> = (props) => {
 					Copied!
 				</div>
 			</Show>
+			<div class="otp-list__timer-track" aria-hidden="true">
+				<div
+					class={`otp-list__timer-fill ${isCodeVisible() ? 'otp-list__timer-fill--active' : ''}`}
+					style={{ transform: `scaleX(${remainingRatio()})` }}
+				/>
+			</div>
 		</li>
 	)
 }

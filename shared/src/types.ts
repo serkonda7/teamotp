@@ -16,4 +16,5 @@ export interface OtpDisplayInfo {
 	label: string
 	issuer: string
 	issuer_second: string
+	period: number
 }
