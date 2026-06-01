@@ -13,12 +13,6 @@ export default defineConfig({
 	},
 	webServer: [
 		{
-			command: 'bun run --cwd ../server dev',
-			url: 'http://localhost:3000/auth/me',
-			reuseExistingServer: !process.env.CI,
-			timeout: 120_000,
-		},
-		{
 			command: 'bun run dev',
 			url: 'http://localhost:5371',
 			reuseExistingServer: !process.env.CI,

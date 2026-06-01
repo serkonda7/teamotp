@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { Result } from 'better-result'
-import { parse_otpauth_url } from '../src/otpauth_parse'
+import { parse_otpauth_url } from '../otpauth_parse'
 
 // Key Uri Spec recommends that both should be equal.
 // But e.g. M365 has them different. We keep both for better UX.
