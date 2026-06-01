@@ -1,5 +1,5 @@
 # Changelog
-## unreleased
+## 0.0.4 - 2026-06-01
 - New Features
   - Add grid layout and layout toggle
   - Default to grid layout due to better usage of screen space
@@ -7,10 +7,12 @@
 - UI Improvements
   - Show notification toast on copy
   - login: no more layout shifts with M365 on expanding local login
-  - improve about dialog close button
+  - Improve about dialog close button
   - Add app icon and favicon
 - Fixes
   - About dialog: link can be selected
+- Technical
+  - Add e2e tests
 
 
 ## 0.0.3 - 2026-05-26
