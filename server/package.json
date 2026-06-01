@@ -15,7 +15,7 @@
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "@azure/msal-node": "~5.2.2",
-    "otplib": "~13.4.0",
+    "otplib": "~13.4.1",
     "valibot": "~1.4.1"
   },
   "devDependencies": {
