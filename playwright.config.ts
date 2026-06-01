@@ -15,14 +15,20 @@ export default defineConfig({
 	},
 	webServer: [
 		{
-			command: 'bun run dev',
-			url: 'http://localhost:5371',
-			reuseExistingServer: !process.env.CI,
+			command: 'bun run --cwd server dev',
+			url: 'http://localhost:3000/auth/providers',
+			reuseExistingServer: false,
 			timeout: 120_000,
 			env: {
 				...process.env,
 				TEAMOTP_DB_PATH: E2E_DB_PATH,
 			},
+		},
+		{
+			command: 'bun run --cwd client dev',
+			url: 'http://localhost:5371',
+			reuseExistingServer: false,
+			timeout: 120_000,
 		},
 	],
 	projects: [
