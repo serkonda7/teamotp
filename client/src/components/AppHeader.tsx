@@ -1,6 +1,7 @@
 import { IconLayoutGrid, IconList } from '@tabler/icons-solidjs'
 import type { Component } from 'solid-js'
 import type { OtpLayoutMode } from '../layout_mode'
+import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
 	onOpenAbout: () => void
@@ -11,7 +12,9 @@ type AppHeaderProps = {
 
 const AppHeader: Component<AppHeaderProps> = (props) => (
 	<header class="app-header">
-		<div class="app-title">TeamOTP</div>
+		<div class="app-title">
+			<TeamOtpLogo class="app-title__logo" />
+		</div>
 		<fieldset class="layout-toggle">
 			<legend class="layout-toggle__legend">Layout</legend>
 			<button

@@ -2,8 +2,8 @@ import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { client } from '../api'
-import { parseOtpauthUrl } from '../otpauth_url'
-import { readApiErrorMessage } from '../util/api_error'
+import { parse_otpauth_url } from '../otpauth_parse'
+import { read_api_error } from '../util/api_error'
 
 type Props = {
 	otpauthUrl: () => string
@@ -25,7 +25,7 @@ const AddFromOtpauthForm: Component<Props> = (props) => {
 			return
 		}
 
-		const payload_res = parseOtpauthUrl(raw)
+		const payload_res = parse_otpauth_url(raw)
 		if (Result.isError(payload_res)) {
 			props.setError(payload_res.error.message)
 			return
@@ -35,10 +35,7 @@ const AddFromOtpauthForm: Component<Props> = (props) => {
 		try {
 			const res = await client.otp.$post({ json: Result.unwrap(payload_res) })
 			if (!res.ok) {
-				const msg = await readApiErrorMessage(
-					res,
-					`Failed to add OTP entry (${res.status})`,
-				)
+				const msg = await read_api_error(res, `Failed to add OTP entry (${res.status})`)
 				props.setError(msg)
 				return
 			}
