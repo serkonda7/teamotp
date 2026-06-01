@@ -20,6 +20,7 @@ jobs:
       - run: bun run check
       - run: bun run build
       - run: bun run test
+      - run: bun run test:e2e
       - run: bun run lint:ci
 
 
