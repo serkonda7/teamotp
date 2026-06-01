@@ -1,4 +1,10 @@
 # Changelog
+## unreleased
+- Improvements
+  - Add countdown bar indicating remaining time for shown codes
+  - Add auto refresh for shown codes
+
+
 ## 0.0.4 - 2026-06-01
 - New Features
   - Add grid layout and layout toggle

@@ -51,6 +51,7 @@ export function listEntries(): OtpDisplayInfo[] {
 			label: entries.label,
 			issuer: entries.issuer,
 			issuer_second: entries.issuer_second,
+			period: entries.period,
 		})
 		.from(entries)
 		.all()

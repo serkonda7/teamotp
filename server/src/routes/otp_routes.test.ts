@@ -70,6 +70,7 @@ describe('OTP routes', () => {
 				label: 'Personal account',
 				issuer: 'example.com',
 				issuer_second: '',
+				period: 30,
 			},
 		])
 	})
