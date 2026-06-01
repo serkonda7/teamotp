@@ -13,7 +13,10 @@ test('clicking the same entry again after 5 seconds copies a fresh code', async 
 	await context.grantPermissions(['clipboard-read', 'clipboard-write'])
 
 	await page.goto('/')
-	await page.getByText('Use local account').click()
+	const useLocalAccount = page.getByText('Use local account')
+	if ((await useLocalAccount.count()) > 0) {
+		await useLocalAccount.click()
+	}
 	await page.getByLabel('Email').fill('e2e@test.com')
 	await page.getByLabel('Password').fill('e2e-password')
 	await page.getByRole('button', { name: 'Sign In' }).click()
