@@ -148,15 +148,20 @@ async function main(): Promise<void> {
 	console.log(`Target ref : ${target_ref}`)
 	await ask_confirm(current_ref, target_ref)
 
+	// Stop containers for data consistency
+	console.log('Stopping app...')
+	await $`docker compose down`.quiet()
+
 	// Backup current data
-	console.log('Creating data backup...')
-	await $`docker compose down`.quiet() // Stop containers for data consistency
+	console.log('Creating backup...')
 	await create_backup(current_ref)
 
-	// Get new version and rebuild
+	// Get new version
 	console.log('Updating...')
 	await $`git checkout ${target_ref}`.quiet()
 	await $`bun install --frozen-lockfile`.quiet()
+
+	console.log('Building...')
 	await $`docker compose up -d --build --remove-orphans`.quiet()
 	await $`docker compose ps`
 	console.log('Done.')
