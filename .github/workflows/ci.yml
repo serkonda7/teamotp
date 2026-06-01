@@ -16,17 +16,24 @@ jobs:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run build
+      - run: bun run test
+      - run: bun run lint:ci
+
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
       - run: bunx playwright install chromium --with-deps
       - name: Setup initial config
         run: |
           mkdir -p server/data
           cp ci/config.smoke.toml server/data/config.toml
-      - run: bun run check
-      - run: bun run build
-      - run: bun run test
       - run: bun run test:e2e
-      - run: bun run lint:ci
-
 
   docker-smoke:
     runs-on: ubuntu-latest
