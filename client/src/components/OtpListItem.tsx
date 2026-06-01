@@ -2,7 +2,7 @@ import { IconEye, IconEyeOff } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, Show } from 'solid-js'
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../otp_list_item'
 
 type Props = {
@@ -15,20 +15,14 @@ const OtpListItem: Component<Props> = (props) => {
 	const [isCodeVisible, setIsCodeVisible] = createSignal(false)
 	const [isLoadingCode, setIsLoadingCode] = createSignal(false)
 	const [showCopyToast, setShowCopyToast] = createSignal(false)
-	const [nowEpochMs, setNowEpochMs] = createSignal(Date.now())
-	const [lastPeriodCounter, setLastPeriodCounter] = createSignal<number | null>(null)
+	const [timerAlignmentMs, setTimerAlignmentMs] = createSignal(0)
 	let copyToastTimer: ReturnType<typeof setTimeout> | undefined
-	let tickTimer: ReturnType<typeof setInterval> | undefined
+	let refreshBoundaryTimer: ReturnType<typeof setTimeout> | undefined
+	let refreshIntervalTimer: ReturnType<typeof setInterval> | undefined
 	let isAutoRefreshingCode = false
 
 	const periodSeconds = Math.max(1, props.otp.period)
-
-	const periodCounter = createMemo(() => Math.floor(nowEpochMs() / 1000 / periodSeconds))
-
-	const remainingRatio = createMemo(() => {
-		const elapsedInPeriod = (nowEpochMs() / 1000) % periodSeconds
-		return (periodSeconds - elapsedInPeriod) / periodSeconds
-	})
+	const periodMs = periodSeconds * 1000
 
 	const issuerSecond = props.otp.issuer_second.trim()
 	const issuerText =
@@ -38,7 +32,7 @@ const OtpListItem: Component<Props> = (props) => {
 		if (isCodeVisible()) {
 			setCode(null)
 			setIsCodeVisible(false)
-			setLastPeriodCounter(null)
+			setTimerAlignmentMs(0)
 			return
 		}
 
@@ -54,8 +48,8 @@ const OtpListItem: Component<Props> = (props) => {
 		}
 
 		setCode(code_res.value)
+		setTimerAlignmentMs(Date.now() % periodMs)
 		setIsCodeVisible(true)
-		setLastPeriodCounter(periodCounter())
 	}
 
 	async function refreshVisibleCode() {
@@ -80,46 +74,38 @@ const OtpListItem: Component<Props> = (props) => {
 	}
 
 	createEffect(() => {
-		if (tickTimer !== undefined) {
-			clearInterval(tickTimer)
-			tickTimer = undefined
+		if (refreshBoundaryTimer !== undefined) {
+			clearTimeout(refreshBoundaryTimer)
+			refreshBoundaryTimer = undefined
+		}
+
+		if (refreshIntervalTimer !== undefined) {
+			clearInterval(refreshIntervalTimer)
+			refreshIntervalTimer = undefined
 		}
 
 		if (!isCodeVisible()) {
 			return
 		}
 
-		setNowEpochMs(Date.now())
-		tickTimer = setInterval(() => {
-			setNowEpochMs(Date.now())
-		}, 100)
-	})
-
-	createEffect(() => {
-		if (!isCodeVisible()) {
-			return
-		}
-
-		const currentCounter = periodCounter()
-		const previousCounter = lastPeriodCounter()
-
-		if (previousCounter === null) {
-			setLastPeriodCounter(currentCounter)
-			return
-		}
-
-		if (currentCounter !== previousCounter) {
-			setLastPeriodCounter(currentCounter)
+		const msToNextPeriod = periodMs - (Date.now() % periodMs)
+		refreshBoundaryTimer = setTimeout(() => {
 			void refreshVisibleCode()
-		}
+			refreshIntervalTimer = setInterval(() => {
+				void refreshVisibleCode()
+			}, periodMs)
+		}, msToNextPeriod)
 	})
 
 	onCleanup(() => {
 		if (copyToastTimer !== undefined) {
 			clearTimeout(copyToastTimer)
 		}
-		if (tickTimer !== undefined) {
-			clearInterval(tickTimer)
+		if (refreshBoundaryTimer !== undefined) {
+			clearTimeout(refreshBoundaryTimer)
+		}
+		if (refreshIntervalTimer !== undefined) {
+			clearInterval(refreshIntervalTimer)
 		}
 	})
 
@@ -199,7 +185,7 @@ const OtpListItem: Component<Props> = (props) => {
 			<div class="otp-list__timer-track" aria-hidden="true">
 				<div
 					class={`otp-list__timer-fill ${isCodeVisible() ? 'otp-list__timer-fill--active' : ''}`}
-					style={{ transform: `scaleX(${remainingRatio()})` }}
+					style={`--otp-period-seconds:${periodSeconds}s;--otp-offset-seconds:-${timerAlignmentMs() / 1000}s;`}
 				/>
 			</div>
 		</li>
