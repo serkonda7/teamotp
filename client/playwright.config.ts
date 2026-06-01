@@ -11,12 +11,20 @@ export default defineConfig({
 		baseURL: 'http://localhost:5371',
 		trace: 'on-first-retry',
 	},
-	webServer: {
-		command: 'bun run dev',
-		url: 'http://localhost:5371',
-		reuseExistingServer: !process.env.CI,
-		timeout: 120_000,
-	},
+	webServer: [
+		{
+			command: 'bun run --cwd ../server dev',
+			url: 'http://localhost:3000/auth/me',
+			reuseExistingServer: !process.env.CI,
+			timeout: 120_000,
+		},
+		{
+			command: 'bun run dev',
+			url: 'http://localhost:5371',
+			reuseExistingServer: !process.env.CI,
+			timeout: 120_000,
+		},
+	],
 	projects: [
 		{
 			name: 'chromium',
