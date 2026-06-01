@@ -1,8 +1,9 @@
 import { IconEye, IconEyeOff } from '@tabler/icons-solidjs'
+import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { createSignal, onCleanup, Show } from 'solid-js'
-import { fetchOtpCode } from '../showAndCopyOtpCode'
+import { fetch_otp_code } from '../otp_list_item'
 
 type Props = {
 	otp: OtpDisplayInfo
@@ -18,9 +19,7 @@ const OtpListItem: Component<Props> = (props) => {
 
 	const issuerSecond = props.otp.issuer_second.trim()
 	const issuerText =
-		issuerSecond.length > 0 && issuerSecond !== props.otp.issuer
-			? `${props.otp.issuer} (${issuerSecond})`
-			: props.otp.issuer
+		issuerSecond.length > 0 ? `${props.otp.issuer} (${issuerSecond})` : props.otp.issuer
 
 	async function toggleCodeVisibility() {
 		if (isCodeVisible()) {
@@ -33,14 +32,19 @@ const OtpListItem: Component<Props> = (props) => {
 			return
 		}
 
+		props.setError(null)
+
 		setIsLoadingCode(true)
-		const fetchedCode = await fetchOtpCode(props.otp.id, props.setError)
+		const code_res = await fetch_otp_code(props.otp.id)
 		setIsLoadingCode(false)
 
-		if (fetchedCode !== null) {
-			setCode(fetchedCode)
-			setIsCodeVisible(true)
+		if (Result.isError(code_res)) {
+			props.setError(code_res.error.message)
+			return
 		}
+
+		setCode(code_res.value)
+		setIsCodeVisible(true)
 	}
 
 	onCleanup(() => {
@@ -60,12 +64,17 @@ const OtpListItem: Component<Props> = (props) => {
 	}
 
 	async function copyCodeFromCard() {
-		const value = code() ?? (await fetchOtpCode(props.otp.id, props.setError))
-		if (value === null) {
-			return
-		}
+		let value = code()
 
-		if (code() === null) {
+		if (value === null) {
+			props.setError(null)
+			const fetchedCodeResult = await fetch_otp_code(props.otp.id)
+			if (Result.isError(fetchedCodeResult)) {
+				props.setError(fetchedCodeResult.error.message)
+				return
+			}
+
+			value = Result.unwrap(fetchedCodeResult)
 			setCode(value)
 		}
 
