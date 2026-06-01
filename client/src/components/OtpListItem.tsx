@@ -23,12 +23,8 @@ const OtpListItem: Component<Props> = (props) => {
 
 	async function toggleCodeVisibility() {
 		if (isCodeVisible()) {
+			setCode(null)
 			setIsCodeVisible(false)
-			return
-		}
-
-		if (code() !== null) {
-			setIsCodeVisible(true)
 			return
 		}
 
@@ -64,17 +60,19 @@ const OtpListItem: Component<Props> = (props) => {
 	}
 
 	async function copyCodeFromCard() {
-		let value = code()
+		if (isLoadingCode()) {
+			return
+		}
 
-		if (value === null) {
-			props.setError(null)
-			const fetchedCodeResult = await fetch_otp_code(props.otp.id)
-			if (Result.isError(fetchedCodeResult)) {
-				props.setError(fetchedCodeResult.error.message)
-				return
-			}
+		props.setError(null)
+		const fetchedCodeResult = await fetch_otp_code(props.otp.id)
+		if (Result.isError(fetchedCodeResult)) {
+			props.setError(fetchedCodeResult.error.message)
+			return
+		}
 
-			value = Result.unwrap(fetchedCodeResult)
+		const value = Result.unwrap(fetchedCodeResult)
+		if (isCodeVisible()) {
 			setCode(value)
 		}
 
@@ -94,6 +92,7 @@ const OtpListItem: Component<Props> = (props) => {
 				onClick={() => void copyCodeFromCard()}
 				aria-label={`Copy OTP code for ${issuerText}`}
 				title="Copy OTP code"
+				disabled={isLoadingCode()}
 			/>
 			<div class="otp-list__content">
 				<span class="otp-list__issuer">{issuerText}</span>
