@@ -17,7 +17,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx playwright install chromium --with-deps
-
+      - name: Setup initial config
+        run: |
+          mkdir -p server/data
+          cp ci/config.smoke.toml server/data/config.toml
       - run: bun run check
       - run: bun run build
       - run: bun run test
