@@ -1,3 +1,4 @@
+import { IconBrandGithub, IconX } from '@tabler/icons-solidjs'
 import { Show } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
@@ -18,18 +19,24 @@ const AboutDialog = (props: AboutDialogProps) => (
 			<div class="modal-card" role="dialog" aria-modal="true" aria-label="TeamOTP">
 				<button
 					type="button"
-					class="modal-close"
+					class="icon-button modal-close"
 					aria-label="Close about dialog"
 					onClick={props.onClose}
 				>
-					<span aria-hidden="true">X</span>
+					<IconX size={18} stroke="2" aria-hidden="true" />
 				</button>
 				<h2>
 					<TeamOtpLogo />
 				</h2>
 				<p>Version 0.0.4</p>
-				<a href="https://github.com/serkonda7/teamotp" target="_blank" rel="noreferrer">
-					Source code on GitHub
+				<a
+					href="https://github.com/serkonda7/teamotp"
+					target="_blank"
+					rel="noreferrer"
+					class="github-link"
+				>
+					<IconBrandGithub size={18} stroke="2" aria-hidden="true" />
+					Source code
 				</a>
 			</div>
 		</div>
