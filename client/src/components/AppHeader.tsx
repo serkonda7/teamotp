@@ -47,7 +47,7 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 		<div class="header-actions">
 			<button
 				type="button"
-				class="info-button"
+				class="icon-button info-button"
 				onClick={props.onOpenAbout}
 				aria-label="About TeamOTP"
 				title="About"

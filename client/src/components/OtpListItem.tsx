@@ -164,7 +164,7 @@ const OtpListItem: Component<Props> = (props) => {
 			</div>
 			<button
 				type="button"
-				class="otp-list__toggle"
+				class="icon-button otp-list__toggle"
 				onClick={(event) => {
 					event.stopPropagation()
 					void toggleCodeVisibility()

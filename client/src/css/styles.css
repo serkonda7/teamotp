@@ -54,3 +54,34 @@ input[type="search"] {
 	font: inherit;
 	letter-spacing: 0.01em;
 }
+
+.icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.2rem;
+	height: 2.2rem;
+	padding: 0;
+	border: 1px solid var(--color-border);
+	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+	color: var(--color-text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+
+	&:hover:enabled {
+		color: var(--color-text);
+		border-color: var(--color-border-strong);
+		background: var(--color-bg-hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.6;
+	}
+}

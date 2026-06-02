@@ -107,34 +107,6 @@
 	position: relative;
 	z-index: 3;
 	pointer-events: auto;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.2rem;
-	height: 2.2rem;
-	padding: 0;
-	border: 1px solid var(--color-border);
-	border-radius: calc(var(--corner-radius) * 0.8);
-	background: var(--color-bg);
-	color: var(--color-text-muted);
-	cursor: pointer;
-	flex-shrink: 0;
-
-	&:hover:enabled {
-		color: var(--color-text);
-		border-color: var(--color-border-strong);
-		background: var(--color-bg-hover);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--color-focus);
-		outline-offset: 2px;
-	}
-
-	&:disabled {
-		cursor: wait;
-		opacity: 0.6;
-	}
 }
 
 .otp-list__issuer {

@@ -57,26 +57,6 @@
 	font-weight: 700;
 }
 
-.info-button {
-	background: transparent;
-	border: 1px solid var(--color-border);
-	border-radius: var(--corner-radius);
-	padding: 0.4rem;
-	cursor: pointer;
-	color: var(--color-text-muted);
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 2.2rem;
-	min-height: 2.2rem;
-}
-
-.info-button:hover {
-	color: var(--color-text);
-	border-color: var(--color-border-strong);
-	background: var(--color-bg-hover);
-}
-
 .header-actions {
 	display: flex;
 	gap: var(--gap-small);
