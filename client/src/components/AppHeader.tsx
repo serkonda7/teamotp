@@ -1,4 +1,4 @@
-import { IconLayoutGrid, IconList } from '@tabler/icons-solidjs'
+import { IconInfoCircle, IconLayoutGrid, IconList } from '@tabler/icons-solidjs'
 import type { Component } from 'solid-js'
 import type { OtpLayoutMode } from '../layout_mode'
 import TeamOtpLogo from './TeamOtpLogo'
@@ -45,8 +45,14 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 			aria-label="Search OTP entries"
 		/>
 		<div class="header-actions">
-			<button type="button" class="info-button" onClick={props.onOpenAbout}>
-				About
+			<button
+				type="button"
+				class="info-button"
+				onClick={props.onOpenAbout}
+				aria-label="About TeamOTP"
+				title="About"
+			>
+				<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
 			</button>
 			<button type="button" class="logout-button" onClick={props.onLogout}>
 				Logout

@@ -28,26 +28,14 @@
 	--color-danger: var(--palette-red);
 
 	/* Semantic colors */
-	--color-bg-hover: color-mix(
-		in srgb,
-		#ffffff 84%,
-		var(--palette-slate)
-	);
-	--color-border: color-mix(
-		in srgb,
-		#ffffff 68%,
-		var(--palette-slate)
-	);
+	--color-bg-hover: color-mix(in srgb, #ffffff 84%, var(--palette-slate));
+	--color-border: color-mix(in srgb, #ffffff 68%, var(--palette-slate));
 	--color-border-strong: color-mix(
 		in srgb,
 		#ffffff 56%,
 		var(--palette-slate)
 	);
-	--color-text-muted: color-mix(
-		in srgb,
-		var(--palette-ink) 72%,
-		#ffffff
-	);
+	--color-text-muted: color-mix(in srgb, var(--palette-ink) 72%, #ffffff);
 	--color-primary-hover: color-mix(
 		in srgb,
 		var(--color-primary) 72%,
