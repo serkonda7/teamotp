@@ -3,6 +3,7 @@
 - Improvements
   - Add countdown bar indicating remaining time for shown codes
   - Add auto refresh for shown codes
+  - Use icons on more buttons
 
 
 ## 0.0.4 - 2026-06-01

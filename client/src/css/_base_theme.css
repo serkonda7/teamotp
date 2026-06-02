@@ -1,13 +1,4 @@
 :root {
-	/* Primary colors */
-	--palette-white: #ffffff;
-	--white-100: hsl(0, 0%, 96%);
-	--palette-ink: #0f172a;
-	--palette-slate: #64748b;
-	--palette-blue: #0b6bcb;
-	--palette-green: #16a34a;
-	--red: hsl(4, 76%, 50%);
-
 	/* Spacing */
 	--corner-radius: 5px;
 	--gap-small: 0.5rem;
@@ -20,50 +11,48 @@
 	--shadow-modal: 0 14px 34px rgb(0 0 0 / 25%);
 
 	/*
-	Semantic colors
+	Colors
 	*/
 
-	--color-bg: var(--white-100);
-	--color-bg-hover: color-mix(
-		in srgb,
-		var(--palette-white) 84%,
-		var(--palette-slate)
-	);
-	--color-border: color-mix(
-		in srgb,
-		var(--palette-white) 68%,
-		var(--palette-slate)
-	);
+	/* Color Palette */
+	--palette-white: hsl(0, 0%, 96%);
+	--palette-ink: #0f172a;
+	--palette-slate: #64748b;
+	--palette-green: #16a34a;
+	--palette-red: hsl(4, 76%, 50%);
+
+	/* Primary colors */
+	--color-text: var(--palette-ink);
+	--color-primary: var(--palette-green);
+	--color-bg: var(--palette-white);
+	--color-danger: var(--palette-red);
+
+	/* Semantic colors */
+	--color-bg-hover: color-mix(in srgb, #ffffff 84%, var(--palette-slate));
+	--color-border: color-mix(in srgb, #ffffff 68%, var(--palette-slate));
 	--color-border-strong: color-mix(
 		in srgb,
-		var(--palette-white) 56%,
+		#ffffff 56%,
 		var(--palette-slate)
 	);
-	--color-text: var(--palette-ink);
-	--color-text-muted: color-mix(
-		in srgb,
-		var(--palette-ink) 72%,
-		var(--palette-white)
-	);
-	--color-focus: var(--palette-blue);
-	--color-primary: var(--palette-blue);
+	--color-text-muted: color-mix(in srgb, var(--palette-ink) 72%, #ffffff);
 	--color-primary-hover: color-mix(
 		in srgb,
-		var(--palette-blue) 72%,
+		var(--color-primary) 72%,
 		var(--palette-ink)
 	);
 	--color-primary-disabled: color-mix(
 		in srgb,
-		var(--palette-white) 38%,
-		var(--palette-blue)
+		#ffffff 38%,
+		var(--color-primary)
 	);
+	--color-focus: var(--color-primary);
 
-	/* Highlight: warn / danger */
-	--color-danger: var(--red);
-	--color-danger-bg: color-mix(in srgb, var(--palette-white) 88%, var(--red));
+	/* Highlight: warn or danger */
+	--color-danger-bg: color-mix(in srgb, #ffffff 88%, var(--color-danger));
 	--color-danger-bg-hover: color-mix(
 		in srgb,
-		var(--palette-white) 78%,
-		var(--red)
+		#ffffff 78%,
+		var(--color-danger)
 	);
 }
