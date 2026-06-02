@@ -81,7 +81,7 @@ input[type="search"] {
 	}
 
 	&:disabled {
-		cursor: wait;
+		cursor: default;
 		opacity: 0.6;
 	}
 }
