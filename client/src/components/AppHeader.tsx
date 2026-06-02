@@ -1,4 +1,4 @@
-import { IconInfoCircle, IconLayoutGrid, IconList } from '@tabler/icons-solidjs'
+import { IconInfoCircle, IconLayoutGrid, IconList, IconLogout } from '@tabler/icons-solidjs'
 import type { Component } from 'solid-js'
 import type { OtpLayoutMode } from '../layout_mode'
 import TeamOtpLogo from './TeamOtpLogo'
@@ -55,7 +55,8 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 				<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
 			</button>
 			<button type="button" class="logout-button" onClick={props.onLogout}>
-				Logout
+				<IconLogout size={18} stroke="2" aria-hidden="true" />
+				Sign out
 			</button>
 		</div>
 	</header>
