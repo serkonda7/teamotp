@@ -3,6 +3,12 @@
 For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore]
 
 
+## Updating
+```sh
+bun run infra/updater.ts
+```
+
+
 ## Configuration
 ```toml
 # Optional: frontend base URL if app runs on different port, default: `/`
@@ -20,24 +26,21 @@ redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
 ```
 
 
-## Getting started
+### Other admin tasks
 ```sh
-# Run
-docker compose up
-
-# Update or initial install
-docker compose up --build
-
-# Update via script
-bun run infra/updater.ts
+# Create local user (password prompted interactively)
+docker compose exec server ./cli.bin create-user max@muster.de
+bun server-cli/src/cli.ts create-user max@muster.de
 ```
 
 
-### Admin activities
+## Installation
 ```sh
-# Manually create user (password prompted interactively)
-docker compose exec server ./cli.bin create-user max@muster.de
-bun server-cli/src/cli.ts create-user max@muster.de
+# Clone main branch
+git clone https://github.com/serkonda7/teamotp
+
+# Run updater to get latest stable version
+bun run infra/updater.ts
 ```
 
 
