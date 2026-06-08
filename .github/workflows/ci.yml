@@ -34,7 +34,7 @@ jobs:
           mkdir -p server/data
           cp ci/config.smoke.toml server/data/config.toml
       - run: bun run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
