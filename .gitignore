@@ -6,6 +6,7 @@ node_modules/
 
 # caches
 .turbo/
+coverage/
 *.tsbuildinfo
 playwright-report/
 test-results/

@@ -27,6 +27,7 @@
     "dev": "turbo run dev",
     "db:generate": "bun run --cwd server db:generate",
     "test": "turbo run test",
+    "test:coverage": "bun test server/src client/src --coverage --coverage-reporter=lcov",
     "test:smoke": "bun test tests/smoke --timeout 20000",
     "test:e2e": "playwright test"
   },

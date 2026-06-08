@@ -19,6 +19,13 @@ jobs:
       - run: bun run check
       - run: bun run build
       - run: bun run test
+      - run: bun run test:coverage
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: unit-coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 7
       - run: bun run lint:ci
 
 
