@@ -16,8 +16,7 @@
     "server",
     "server-cli",
     "client",
-    "shared",
-    "infra"
+    "shared"
   ],
   "scripts": {
     "lint": "biome check --write",
