@@ -151,7 +151,7 @@ const OtpListItem: Component<Props> = (props) => {
 				class="otp-list__copy"
 				onClick={() => void copyCodeFromCard()}
 				aria-label={`Copy OTP code for ${issuerText}`}
-				title="Copy OTP code"
+				title="Copy current code"
 				disabled={isLoadingCode()}
 			/>
 			<div class="otp-list__content">
@@ -169,8 +169,8 @@ const OtpListItem: Component<Props> = (props) => {
 					event.stopPropagation()
 					void toggleCodeVisibility()
 				}}
-				aria-label={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
-				title={isCodeVisible() ? 'Hide OTP code' : 'Show OTP code'}
+				aria-label={isCodeVisible() ? 'Hide code' : 'Show code'}
+				title={isCodeVisible() ? 'Hide code' : 'Show code'}
 				disabled={isLoadingCode()}
 			>
 				<Show when={isCodeVisible()} fallback={<IconEye size={18} />}>
