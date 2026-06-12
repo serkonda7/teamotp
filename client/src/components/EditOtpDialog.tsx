@@ -77,7 +77,12 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 					aria-label="Close edit dialog"
 					onClick={handleClose}
 				/>
-				<div class="modal-card" role="dialog" aria-modal="true" aria-label="Edit OTP entry">
+				<div
+					class="modal-card modal-card--wide"
+					role="dialog"
+					aria-modal="true"
+					aria-label="Edit OTP entry"
+				>
 					<button
 						type="button"
 						class="icon-button modal-close"
@@ -96,65 +101,71 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 					</Show>
 
 					<form class="login-form" onSubmit={handleSubmit}>
-						<div class="form-group">
-							<label
-								for="edit-issuer"
-								classList={{ 'field-changed': isIssuerChanged() }}
-							>
-								<Show when={isIssuerChanged()}>
-									<i>* </i>
-								</Show>
-								Issuer
-							</label>
-							<input
-								id="edit-issuer"
-								type="text"
-								value={issuer()}
-								onInput={(e) => setIssuer(e.currentTarget.value)}
-								disabled={submitting()}
-								placeholder="e.g. Microsoft"
-							/>
+						<div class="form-row">
+							<div class="form-group col-6">
+								<label
+									for="edit-issuer"
+									classList={{ 'field-changed': isIssuerChanged() }}
+								>
+									<Show when={isIssuerChanged()}>
+										<i>* </i>
+									</Show>
+									Issuer
+								</label>
+								<input
+									id="edit-issuer"
+									type="text"
+									value={issuer()}
+									onInput={(e) => setIssuer(e.currentTarget.value)}
+									disabled={submitting()}
+									placeholder="e.g. Microsoft"
+								/>
+							</div>
 						</div>
 
-						<div class="form-group">
-							<label
-								for="edit-issuer-second"
-								classList={{ 'field-changed': isIssuerSecondChanged() }}
-							>
-								<Show when={isIssuerSecondChanged()}>
-									<i>* </i>
-								</Show>
-								Secondary Issuer (Optional)
-							</label>
-							<input
-								id="edit-issuer-second"
-								type="text"
-								value={issuerSecond()}
-								onInput={(e) => setIssuerSecond(e.currentTarget.value)}
-								disabled={submitting()}
-								placeholder="e.g. Musterfirma GmbH"
-							/>
+						<div class="form-row">
+							<div class="form-group col-6">
+								<label
+									for="edit-issuer-second"
+									classList={{ 'field-changed': isIssuerSecondChanged() }}
+								>
+									<Show when={isIssuerSecondChanged()}>
+										<i>* </i>
+									</Show>
+									Secondary Issuer
+								</label>
+								<input
+									id="edit-issuer-second"
+									type="text"
+									value={issuerSecond()}
+									onInput={(e) => setIssuerSecond(e.currentTarget.value)}
+									disabled={submitting()}
+									placeholder="e.g. Musterfirma GmbH"
+								/>
+							</div>
 						</div>
 
-						<div class="form-group">
-							<label
-								for="edit-label"
-								classList={{ 'field-changed': isLabelChanged() }}
-							>
-								<Show when={isLabelChanged()}>
-									<i>* </i>
-								</Show>
-								Label / Account Name
-							</label>
-							<input
-								id="edit-label"
-								type="text"
-								value={label()}
-								onInput={(e) => setLabel(e.currentTarget.value)}
-								disabled={submitting()}
-								required
-								placeholder="e.g. user@gmail.com"
-							/>
+						<div class="form-row">
+							<div class="form-group col-12">
+								<label
+									for="edit-label"
+									classList={{ 'field-changed': isLabelChanged() }}
+								>
+									<Show when={isLabelChanged()}>
+										<i>* </i>
+									</Show>
+									Label
+								</label>
+								<input
+									id="edit-label"
+									type="text"
+									value={label()}
+									onInput={(e) => setLabel(e.currentTarget.value)}
+									disabled={submitting()}
+									required
+									placeholder="e.g. user@gmail.com"
+								/>
+							</div>
 						</div>
 
 						<div class="form-actions">

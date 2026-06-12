@@ -32,6 +32,10 @@
 	gap: 0.7rem;
 }
 
+.modal-card--wide {
+	width: min(38rem, 100%);
+}
+
 .modal-close {
 	position: absolute;
 	top: 0.75rem;

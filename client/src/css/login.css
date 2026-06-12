@@ -33,24 +33,6 @@
 	gap: var(--gap-small);
 }
 
-.form-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--gap-small);
-}
-
-.form-group label {
-	font-weight: 600;
-	color: var(--color-text-muted);
-}
-
-.form-group input {
-	padding: var(--gap-small);
-	border: 1px solid #ccc;
-	border-radius: var(--corner-radius);
-	font-size: 1rem;
-}
-
 .login-button {
 	padding: var(--gap-small) calc(var(--gap-small) * 2);
 	background-color: var(--color-primary);

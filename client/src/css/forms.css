@@ -1,0 +1,35 @@
+/* Shared Form Layout */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-small);
+}
+
+.form-group label {
+	font-weight: 600;
+	color: var(--color-text-muted);
+}
+
+.form-group input {
+	padding: var(--gap-small);
+	border: 1px solid #ccc;
+	border-radius: var(--corner-radius);
+	font-size: 1rem;
+}
+
+/* Row-based form layout */
+.form-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--gap-small);
+	width: 100%;
+}
+
+.col-6 {
+	flex: 1 1 calc(50% - var(--gap-small) / 2);
+	min-width: 200px;
+}
+
+.col-12 {
+	flex: 1 1 100%;
+}
