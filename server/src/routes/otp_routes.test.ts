@@ -129,4 +129,41 @@ describe('OTP routes', () => {
 		const codeBody = (await codeResponse.json()) as { code: string }
 		expect(codeBody.code).toMatch(/^\d{8}$/)
 	})
+
+	test('updates an existing OTP entry', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Old Label',
+				issuer: 'Old Issuer',
+				issuer_second: 'Old Second',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+
+		expect(createResponse.status).toBe(201)
+		const createBody = (await createResponse.json()) as { id: string }
+
+		const updateResponse = await app.request(`/otp/${createBody.id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'New Label',
+				issuer: 'New Issuer',
+				issuer_second: 'New Second',
+			}),
+		})
+
+		expect(updateResponse.status).toBe(200)
+		expect(await updateResponse.json()).toEqual({ success: true })
+
+		const stored = getEntryById(createBody.id)
+		expect(stored).not.toBeNull()
+		expect(stored?.label).toBe('New Label')
+		expect(stored?.issuer).toBe('New Issuer')
+		expect(stored?.issuer_second).toBe('New Second')
+		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+	})
 })
