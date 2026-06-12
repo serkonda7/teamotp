@@ -1,16 +1,19 @@
-import { IconEye, IconEyeOff } from '@tabler/icons-solidjs'
+import { IconEye, IconEyeOff, IconPencil } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../otp_list_item'
+import EditDialog from './EditDialog'
 
 type Props = {
 	otp: OtpDisplayInfo
 	setError: (e: string | null) => void
+	refetch: () => Promise<OtpDisplayInfo[]>
 }
 
 const OtpListItem: Component<Props> = (props) => {
+	const [isEditing, setIsEditing] = createSignal(false)
 	const [code, setCode] = createSignal<string | null>(null)
 	const [isCodeVisible, setIsCodeVisible] = createSignal(false)
 	const [isLoadingCode, setIsLoadingCode] = createSignal(false)
@@ -164,6 +167,18 @@ const OtpListItem: Component<Props> = (props) => {
 			</div>
 			<button
 				type="button"
+				class="icon-button otp-list__edit"
+				onClick={(event) => {
+					event.stopPropagation()
+					setIsEditing(true)
+				}}
+				aria-label={`Edit OTP entry for ${issuerText}`}
+				title="Edit"
+			>
+				<IconPencil size={18} stroke="2" />
+			</button>
+			<button
+				type="button"
 				class="icon-button otp-list__toggle"
 				onClick={(event) => {
 					event.stopPropagation()
@@ -188,6 +203,15 @@ const OtpListItem: Component<Props> = (props) => {
 					style={`--otp-period-seconds:${periodSeconds}s;--otp-offset-seconds:-${timerAlignmentMs() / 1000}s;`}
 				/>
 			</div>
+			<EditDialog
+				open={isEditing()}
+				otp={props.otp}
+				onClose={() => setIsEditing(false)}
+				onSave={async () => {
+					setIsEditing(false)
+					await props.refetch()
+				}}
+			/>
 		</li>
 	)
 }

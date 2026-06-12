@@ -82,8 +82,8 @@ export function getEntryById(id: string): OtpEntry | null {
 	return (row as OtpEntry | null) ?? null
 }
 
-export function updateEntry(_id: string, _updated: UpdateOtpEntry): void {
-	// TODO implement updateEntry
+export function updateEntry(id: string, updated: UpdateOtpEntry): void {
+	db.update(entries).set(updated).where(eq(entries.id, id)).run()
 }
 
 export function getUserByEmail(email: string): User | null {

@@ -1,8 +1,9 @@
 import { Result } from 'better-result'
 import type { Context } from 'hono'
 import type { NewOtpEntry } from 'shared/src/types'
-import { createEntry, getEntryById, listEntries } from '../db'
+import { createEntry, getEntryById, listEntries, updateEntry } from '../db'
 import { generateTotpCode } from '../otp'
+import type { UpdateOtpEntry } from '../types'
 
 function json(data: unknown, status = 200): Response {
 	return Response.json(data, { status })
@@ -55,8 +56,28 @@ export async function handleGetOtpCode(c: Context): Promise<Response> {
 }
 
 // POST /api/otp/:id — update an existing entry
-export async function handleUpdateOtp(_c: Context): Promise<Response> {
-	// TODO implement handleUpdateOtp
+export async function handleUpdateOtp(c: Context): Promise<Response> {
+	const id = c.req.param('id')
+	if (!id) {
+		return badRequest('Missing OTP entry id')
+	}
 
-	return json({ error: 'Not implemented' }, 501)
+	const entry = getEntryById(id)
+	if (!entry) {
+		return json({ error: 'OTP entry not found' }, 404)
+	}
+
+	let body: UpdateOtpEntry
+	try {
+		body = await c.req.json()
+	} catch {
+		return badRequest('Invalid JSON body')
+	}
+
+	// Prevent crash by empty body
+	const hasFields = Object.values(body).some((v) => v !== undefined)
+	if (hasFields) {
+		updateEntry(id, body)
+	}
+	return json({ success: true })
 }

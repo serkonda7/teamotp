@@ -79,7 +79,7 @@ function App() {
 						<div>{error()}</div>
 					</Show>
 
-					<OtpList otps={otps} setError={setError} />
+					<OtpList otps={otps} setError={setError} refetch={refetchTyped} />
 				</div>
 			</Show>
 		</Show>
