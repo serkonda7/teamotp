@@ -48,7 +48,6 @@
 	right: 0;
 	bottom: 0;
 	height: 4px;
-	background: color-mix(in srgb, var(--color-border) 60%, transparent);
 	pointer-events: none;
 	z-index: 2;
 }
