@@ -4,6 +4,8 @@
 - Remove list layout as there was no real use case since adding the responsive grid.
 
 ### Other Changes
+- New Features:
+  - Entry editing
 - Improvements
   - Add countdown bar indicating remaining time for shown codes
   - Add auto refresh for shown codes
