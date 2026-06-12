@@ -4,7 +4,7 @@ import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../otp_list_item'
-import EditOtpDialog from './EditOtpDialog'
+import EditDialog from './EditDialog'
 
 type Props = {
 	otp: OtpDisplayInfo
@@ -204,7 +204,7 @@ const OtpListItem: Component<Props> = (props) => {
 				/>
 			</div>
 			<Show when={isEditing()}>
-				<EditOtpDialog
+				<EditDialog
 					open={isEditing()}
 					otp={props.otp}
 					onClose={() => setIsEditing(false)}
