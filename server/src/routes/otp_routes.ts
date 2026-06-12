@@ -74,6 +74,10 @@ export async function handleUpdateOtp(c: Context): Promise<Response> {
 		return badRequest('Invalid JSON body')
 	}
 
-	updateEntry(id, body)
+	// Prevent crash by empty body
+	const hasFields = Object.values(body).some((v) => v !== undefined)
+	if (hasFields) {
+		updateEntry(id, body)
+	}
 	return json({ success: true })
 }

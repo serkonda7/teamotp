@@ -196,12 +196,10 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	)
 }
 
-const EditDialog = (props: EditDialogProps) => {
-	return (
-		<Show when={props.open}>
-			<DialogContent {...props} />
-		</Show>
-	)
-}
+const EditDialog = (props: EditDialogProps) => (
+	<Show when={props.open}>
+		<DialogContent {...props} />
+	</Show>
+)
 
 export default EditDialog

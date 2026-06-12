@@ -203,17 +203,15 @@ const OtpListItem: Component<Props> = (props) => {
 					style={`--otp-period-seconds:${periodSeconds}s;--otp-offset-seconds:-${timerAlignmentMs() / 1000}s;`}
 				/>
 			</div>
-			<Show when={isEditing()}>
-				<EditDialog
-					open={isEditing()}
-					otp={props.otp}
-					onClose={() => setIsEditing(false)}
-					onSave={async () => {
-						setIsEditing(false)
-						await props.refetch()
-					}}
-				/>
-			</Show>
+			<EditDialog
+				open={isEditing()}
+				otp={props.otp}
+				onClose={() => setIsEditing(false)}
+				onSave={async () => {
+					setIsEditing(false)
+					await props.refetch()
+				}}
+			/>
 		</li>
 	)
 }

@@ -166,4 +166,91 @@ describe('OTP routes', () => {
 		expect(stored?.issuer_second).toBe('New Second')
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
 	})
+
+	test('returns 404 when updating a non-existent entry', async () => {
+		const headers = await getAuthHeaders()
+		const response = await app.request('/otp/non-existent-id', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'New Label' }),
+		})
+		expect(response.status).toBe(404)
+		expect(await response.json()).toEqual({ error: 'OTP entry not found' })
+	})
+
+	test('returns 400 when update body is invalid JSON', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'Test', secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP' }),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const response = await app.request(`/otp/${id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: 'not valid json{',
+		})
+		expect(response.status).toBe(400)
+		expect(await response.json()).toEqual({ error: 'Invalid JSON body' })
+	})
+
+	test('partial update changes only the specified field', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Original Label',
+				issuer: 'Original Issuer',
+				issuer_second: 'Original Second',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const updateResponse = await app.request(`/otp/${id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'Updated Label' }),
+		})
+		expect(updateResponse.status).toBe(200)
+		expect(await updateResponse.json()).toEqual({ success: true })
+
+		const stored = getEntryById(id)
+		expect(stored?.label).toBe('Updated Label')
+		expect(stored?.issuer).toBe('Original Issuer')
+		expect(stored?.issuer_second).toBe('Original Second')
+		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+	})
+
+	test('empty update body leaves entry unchanged', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Stable Label',
+				issuer: 'Stable Issuer',
+				issuer_second: 'Stable Second',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const updateResponse = await app.request(`/otp/${id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({}),
+		})
+		expect(updateResponse.status).toBe(200)
+		expect(await updateResponse.json()).toEqual({ success: true })
+
+		const stored = getEntryById(id)
+		expect(stored?.label).toBe('Stable Label')
+		expect(stored?.issuer).toBe('Stable Issuer')
+		expect(stored?.issuer_second).toBe('Stable Second')
+		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+	})
 })
