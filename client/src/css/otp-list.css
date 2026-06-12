@@ -4,13 +4,6 @@
 	margin: 0;
 	display: grid;
 	gap: var(--gap-small);
-}
-
-.otp-list--list {
-	grid-template-columns: 1fr;
-}
-
-.otp-list--grid {
 	--min-entry-width: 400px;
 	grid-template-columns: repeat(
 			auto-fit,

@@ -6,7 +6,6 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
-import { type OtpLayoutMode, persistLayoutMode, readStoredLayoutMode } from './layout_mode'
 import { makeArrayRefetch } from './util/resource_helpers'
 
 function App() {
@@ -28,7 +27,6 @@ function App() {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [otpLayoutMode, setOtpLayoutMode] = createSignal<OtpLayoutMode>(readStoredLayoutMode())
 
 	onMount(async () => {
 		try {
@@ -58,11 +56,6 @@ function App() {
 		}
 	}
 
-	function handleLayoutModeChange(mode: OtpLayoutMode) {
-		setOtpLayoutMode(mode)
-		persistLayoutMode(mode)
-	}
-
 	return (
 		<Show when={isLoggedIn() !== null} fallback={<div>Loading...</div>}>
 			<Show
@@ -70,12 +63,7 @@ function App() {
 				fallback={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />}
 			>
 				<div>
-					<AppHeader
-						onOpenAbout={() => setAboutOpen(true)}
-						onLogout={handleLogout}
-						layoutMode={otpLayoutMode()}
-						onLayoutModeChange={handleLayoutModeChange}
-					/>
+					<AppHeader onOpenAbout={() => setAboutOpen(true)} onLogout={handleLogout} />
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 					<AddFromOtpauthForm
@@ -91,7 +79,7 @@ function App() {
 						<div>{error()}</div>
 					</Show>
 
-					<OtpList otps={otps} setError={setError} layoutMode={otpLayoutMode()} />
+					<OtpList otps={otps} setError={setError} />
 				</div>
 			</Show>
 		</Show>

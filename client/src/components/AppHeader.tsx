@@ -1,13 +1,10 @@
-import { IconInfoCircle, IconLayoutGrid, IconList, IconLogout } from '@tabler/icons-solidjs'
+import { IconInfoCircle, IconLogout } from '@tabler/icons-solidjs'
 import type { Component } from 'solid-js'
-import type { OtpLayoutMode } from '../layout_mode'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
 	onOpenAbout: () => void
 	onLogout: () => void
-	layoutMode: OtpLayoutMode
-	onLayoutModeChange: (mode: OtpLayoutMode) => void
 }
 
 const AppHeader: Component<AppHeaderProps> = (props) => (
@@ -15,29 +12,6 @@ const AppHeader: Component<AppHeaderProps> = (props) => (
 		<div class="app-title">
 			<TeamOtpLogo class="app-title__logo" />
 		</div>
-		<fieldset class="layout-toggle">
-			<legend class="layout-toggle__legend">Layout</legend>
-			<button
-				type="button"
-				class="layout-toggle__button"
-				aria-label="Use grid layout"
-				title="Grid layout"
-				aria-pressed={props.layoutMode === 'grid'}
-				onClick={() => props.onLayoutModeChange('grid')}
-			>
-				<IconLayoutGrid size={18} stroke="2" aria-hidden="true" />
-			</button>
-			<button
-				type="button"
-				class="layout-toggle__button"
-				aria-label="Use list layout"
-				title="List layout"
-				aria-pressed={props.layoutMode === 'list'}
-				onClick={() => props.onLayoutModeChange('list')}
-			>
-				<IconList size={18} stroke="2" aria-hidden="true" />
-			</button>
-		</fieldset>
 		<input
 			disabled
 			type="search"
