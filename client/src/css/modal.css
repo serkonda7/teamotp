@@ -49,3 +49,61 @@
 	gap: 0.35rem;
 	width: fit-content;
 }
+
+/* Unsaved Changes Indicators */
+.button-changed {
+	font-style: italic;
+}
+
+.button-changed i {
+	margin-right: 0.2rem;
+	font-style: normal;
+}
+
+.form-group label.field-changed {
+	font-style: italic;
+}
+
+.form-group label.field-changed i {
+	color: hsl(35, 100%, 45%);
+	margin-right: 0.2rem;
+	font-style: normal;
+}
+
+/* Cancel Button */
+.cancel-button {
+	padding: var(--gap-small) calc(var(--gap-small) * 2);
+	background-color: transparent;
+	color: var(--color-text-muted);
+	border: 1px solid var(--color-border);
+	border-radius: var(--corner-radius);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	margin-top: 0.5rem;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s,
+		color 0.2s;
+}
+
+.cancel-button:hover:not(:disabled) {
+	background-color: var(--color-bg-hover);
+	border-color: var(--color-border-strong);
+	color: var(--color-text);
+}
+
+.cancel-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.form-actions {
+	display: flex;
+	gap: var(--gap-small);
+	margin-top: 0.5rem;
+}
+
+.form-actions button {
+	flex: 1;
+}

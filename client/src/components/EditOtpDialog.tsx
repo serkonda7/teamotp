@@ -18,6 +18,20 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 
+	const isIssuerChanged = () => issuer().trim() !== props.otp.issuer
+	const isIssuerSecondChanged = () => issuerSecond().trim() !== props.otp.issuer_second
+	const isLabelChanged = () => label().trim() !== props.otp.label
+	const hasChanges = () => isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged()
+
+	function handleClose() {
+		if (hasChanges()) {
+			if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+				return
+			}
+		}
+		props.onClose()
+	}
+
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault()
 		setError(null)
@@ -61,14 +75,14 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 					type="button"
 					class="modal-dismiss"
 					aria-label="Close edit dialog"
-					onClick={props.onClose}
+					onClick={handleClose}
 				/>
 				<div class="modal-card" role="dialog" aria-modal="true" aria-label="Edit OTP entry">
 					<button
 						type="button"
 						class="icon-button modal-close"
 						aria-label="Close edit dialog"
-						onClick={props.onClose}
+						onClick={handleClose}
 					>
 						<IconX size={18} stroke="2" aria-hidden="true" />
 					</button>
@@ -83,7 +97,15 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 
 					<form class="login-form" onSubmit={handleSubmit}>
 						<div class="form-group">
-							<label for="edit-issuer">Issuer</label>
+							<label
+								for="edit-issuer"
+								classList={{ 'field-changed': isIssuerChanged() }}
+							>
+								<Show when={isIssuerChanged()}>
+									<i>* </i>
+								</Show>
+								Issuer
+							</label>
 							<input
 								id="edit-issuer"
 								type="text"
@@ -95,7 +117,15 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 						</div>
 
 						<div class="form-group">
-							<label for="edit-issuer-second">Secondary Issuer (Optional)</label>
+							<label
+								for="edit-issuer-second"
+								classList={{ 'field-changed': isIssuerSecondChanged() }}
+							>
+								<Show when={isIssuerSecondChanged()}>
+									<i>* </i>
+								</Show>
+								Secondary Issuer (Optional)
+							</label>
 							<input
 								id="edit-issuer-second"
 								type="text"
@@ -107,7 +137,15 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 						</div>
 
 						<div class="form-group">
-							<label for="edit-label">Label / Account Name</label>
+							<label
+								for="edit-label"
+								classList={{ 'field-changed': isLabelChanged() }}
+							>
+								<Show when={isLabelChanged()}>
+									<i>* </i>
+								</Show>
+								Label / Account Name
+							</label>
 							<input
 								id="edit-label"
 								type="text"
@@ -119,9 +157,27 @@ const EditOtpDialog = (props: EditOtpDialogProps) => {
 							/>
 						</div>
 
-						<button type="submit" class="login-button" disabled={submitting()}>
-							{submitting() ? 'Saving...' : 'Save'}
-						</button>
+						<div class="form-actions">
+							<button
+								type="submit"
+								class="login-button"
+								disabled={submitting()}
+								classList={{ 'button-changed': hasChanges() }}
+							>
+								<Show when={hasChanges()}>
+									<i>* </i>
+								</Show>
+								{submitting() ? 'Saving...' : 'Save'}
+							</button>
+							<button
+								type="button"
+								class="cancel-button"
+								onClick={handleClose}
+								disabled={submitting()}
+							>
+								Cancel
+							</button>
+						</div>
 					</form>
 				</div>
 			</div>
