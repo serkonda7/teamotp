@@ -174,3 +174,27 @@
 		transform: scaleX(0);
 	}
 }
+
+.otp-list__edit {
+	position: relative;
+	z-index: 3;
+	pointer-events: auto;
+}
+
+@media (hover: hover) {
+	.otp-list__edit {
+		opacity: 0;
+		transition: opacity 0.2s ease;
+	}
+
+	.otp-list__item:hover .otp-list__edit,
+	.otp-list__item:focus-within .otp-list__edit {
+		opacity: 1;
+	}
+}
+
+@media (hover: none) {
+	.otp-list__edit {
+		opacity: 1;
+	}
+}
