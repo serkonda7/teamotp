@@ -1,27 +1,62 @@
+// SPDX-FileCopyrightText: 2026-present Lukas Neubert
+// SPDX-License-Identifier: MPL-2.0
+
+/**
+ * Test file to ensure the correct authentication is required for each endpoint.
+ * Contains two main tests:
+ * - Matrix completeness: Ensures all registered endpoints are covered by the matrix
+ * - Access control: Tests each endpoint with all defined roles / access profiles
+ */
+
 import { describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { app } from '../index'
 
 import { createSessionId } from '../sessions'
 
-const TEST_SECRET = 'test_secret'
+//
+// Constants and types
+//
 
-enum Role {
-	unauthenticated,
-	authenticated,
-}
-
-// Access profiles
-const RESTRICTED = [Role.authenticated]
-const ALL_ROLES = [Role.unauthenticated, Role.authenticated]
-
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+const ACCEPTED_CODES = [200, 400, 404]
 
 interface Endpoint {
 	method: HttpMethod
 	path: string
 	acceptedRoles: Role[]
 }
+
+//
+// Roles, access profiles and endpoints
+//
+
+enum Role {
+	unauthenticated,
+	authenticated,
+}
+
+const ALL_ROLES = [Role.unauthenticated, Role.authenticated]
+const AUTHENTICATED = [Role.authenticated]
+
+// Endpoint authentication matrix
+const endpoints: Endpoint[] = [
+	{ method: 'GET', path: '/auth/providers', acceptedRoles: ALL_ROLES },
+	{ method: 'GET', path: '/auth/login/microsoft', acceptedRoles: ALL_ROLES },
+	{ method: 'GET', path: '/auth/callback/microsoft', acceptedRoles: ALL_ROLES },
+	{ method: 'POST', path: '/auth/login', acceptedRoles: ALL_ROLES },
+	{ method: 'POST', path: '/auth/logout', acceptedRoles: AUTHENTICATED },
+	{ method: 'GET', path: '/auth/me', acceptedRoles: AUTHENTICATED },
+	{ method: 'GET', path: '/otp', acceptedRoles: AUTHENTICATED },
+	{ method: 'POST', path: '/otp', acceptedRoles: AUTHENTICATED },
+	{ method: 'GET', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
+	{ method: 'POST', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
+]
+
+//
+// 1. Test matrix completeness
+//
+
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
 interface AppRoute {
 	method: string
@@ -56,20 +91,6 @@ function getAppEndpoints(): Endpoint[] {
 	return [...unique.values()]
 }
 
-// Endpoint authentication matrix
-const endpoints: Endpoint[] = [
-	{ method: 'GET', path: '/auth/providers', acceptedRoles: ALL_ROLES },
-	{ method: 'GET', path: '/auth/login/microsoft', acceptedRoles: ALL_ROLES },
-	{ method: 'GET', path: '/auth/callback/microsoft', acceptedRoles: ALL_ROLES },
-	{ method: 'POST', path: '/auth/login', acceptedRoles: ALL_ROLES },
-	{ method: 'POST', path: '/auth/logout', acceptedRoles: RESTRICTED },
-	{ method: 'GET', path: '/auth/me', acceptedRoles: RESTRICTED },
-	{ method: 'GET', path: '/otp', acceptedRoles: RESTRICTED },
-	{ method: 'POST', path: '/otp', acceptedRoles: RESTRICTED },
-	{ method: 'GET', path: '/otp/:id', acceptedRoles: RESTRICTED },
-	{ method: 'POST', path: '/otp/:id', acceptedRoles: RESTRICTED },
-]
-
 test('Matrix covers all registered endpoints', () => {
 	const matrixKeys = new Set(endpoints.map(endpointKey))
 	const appEndpointKeys = new Set(getAppEndpoints().map(endpointKey))
@@ -80,6 +101,12 @@ test('Matrix covers all registered endpoints', () => {
 	expect(missingInMatrix).toEqual([])
 	expect(missingInApp).toEqual([])
 })
+
+//
+// 2. Test access control
+//
+
+const TEST_SECRET = 'test_secret'
 
 async function getAuthCookie(role: Role): Promise<string | undefined> {
 	if (role === Role.unauthenticated) {
@@ -99,7 +126,7 @@ async function getAuthCookie(role: Role): Promise<string | undefined> {
 function testEndpointAccess(endpoint: Endpoint, role: Role) {
 	const isAccepted = endpoint.acceptedRoles.includes(role)
 
-	test(`${endpoint.method} ${endpoint.path} -> ${isAccepted ? 'Allowed' : '401'}`, async () => {
+	test(`${endpoint.method} ${endpoint.path} -> ${isAccepted ? 'ok' : '401'}`, async () => {
 		const cookie = await getAuthCookie(role)
 		const headers: Record<string, string> = {}
 		if (cookie) {
@@ -112,7 +139,7 @@ function testEndpointAccess(endpoint: Endpoint, role: Role) {
 		})
 
 		if (isAccepted) {
-			expect(response.status).not.toBe(401)
+			expect(response.status).toBeOneOf(ACCEPTED_CODES)
 		} else {
 			expect(response.status).toBe(401)
 		}
