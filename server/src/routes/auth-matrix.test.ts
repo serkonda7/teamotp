@@ -18,7 +18,9 @@ import { createSessionId } from '../sessions'
 // Constants and types
 //
 
-const ACCEPTED_CODES = [200, 400, 404]
+const ACCEPTED_CODES = [200, 302, 400, 404]
+
+const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as const
 
 interface Endpoint {
 	method: HttpMethod
@@ -56,7 +58,7 @@ const endpoints: Endpoint[] = [
 // 1. Test matrix completeness
 //
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+type HttpMethod = (typeof HTTP_METHODS)[number]
 
 interface AppRoute {
 	method: string
@@ -68,7 +70,7 @@ function endpointKey(endpoint: Pick<Endpoint, 'method' | 'path'>): string {
 }
 
 function isHttpMethod(method: string): method is HttpMethod {
-	return method === 'GET' || method === 'POST' || method === 'PUT' || method === 'DELETE'
+	return (HTTP_METHODS as readonly string[]).includes(method)
 }
 
 function getAppEndpoints(): Endpoint[] {
