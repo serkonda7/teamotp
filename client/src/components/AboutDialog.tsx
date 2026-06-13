@@ -7,6 +7,32 @@ type AboutDialogProps = {
 	onClose: () => void
 }
 
+const VersionLine = () => (
+	<p>
+		Version 0.0.5 (
+		<a
+			href="https://github.com/serkonda7/teamotp/blob/main/CHANGELOG.md#005"
+			target="_blank"
+			rel="noreferrer"
+		>
+			Changelog
+		</a>
+		)
+	</p>
+)
+
+const SourceLink = () => (
+	<a
+		href="https://github.com/serkonda7/teamotp"
+		target="_blank"
+		rel="noreferrer"
+		class="github-link"
+	>
+		<IconBrandGithub size={18} stroke="2" aria-hidden="true" />
+		Source code
+	</a>
+)
+
 const AboutDialog = (props: AboutDialogProps) => (
 	<Show when={props.open}>
 		<div class="modal-backdrop" role="presentation">
@@ -28,16 +54,8 @@ const AboutDialog = (props: AboutDialogProps) => (
 				<h2>
 					<TeamOtpLogo />
 				</h2>
-				<p>Version 0.0.4</p>
-				<a
-					href="https://github.com/serkonda7/teamotp"
-					target="_blank"
-					rel="noreferrer"
-					class="github-link"
-				>
-					<IconBrandGithub size={18} stroke="2" aria-hidden="true" />
-					Source code
-				</a>
+				<VersionLine />
+				<SourceLink />
 			</div>
 		</div>
 	</Show>

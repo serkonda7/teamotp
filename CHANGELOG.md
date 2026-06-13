@@ -1,5 +1,7 @@
 # Changelog
-## unreleased
+## 0.0.5
+_2026-06-13_
+
 ### Breaking Changes
 - Remove list layout as there was no real use case since adding the responsive grid.
 
@@ -10,6 +12,7 @@
   - Add countdown bar indicating remaining time for shown codes
   - Add auto refresh for shown codes
   - Use icons on more buttons
+  - About: Include changelog link
 
 
 ## 0.0.4 - 2026-06-01

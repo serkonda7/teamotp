@@ -24,29 +24,27 @@ type FormFieldProps = {
 	onInput: (value: string) => void
 }
 
-function FormField(props: FormFieldProps): JSX.Element {
-	return (
-		<div class="form-row">
-			<div class={`form-group ${props.colClass}`}>
-				<label for={props.id} classList={{ 'field-changed': props.changed }}>
-					<Show when={props.changed}>
-						<i>* </i>
-					</Show>
-					{props.label}
-				</label>
-				<input
-					id={props.id}
-					type="text"
-					value={props.value}
-					onInput={(e) => props.onInput(e.currentTarget.value)}
-					disabled={props.disabled}
-					required={props.required}
-					placeholder={props.placeholder}
-				/>
-			</div>
+const FormField = (props: FormFieldProps): JSX.Element => (
+	<div class="form-row">
+		<div class={`form-group ${props.colClass}`}>
+			<label for={props.id} classList={{ 'field-changed': props.changed }}>
+				<Show when={props.changed}>
+					<i>* </i>
+				</Show>
+				{props.label}
+			</label>
+			<input
+				id={props.id}
+				type="text"
+				value={props.value}
+				onInput={(e) => props.onInput(e.currentTarget.value)}
+				disabled={props.disabled}
+				required={props.required}
+				placeholder={props.placeholder}
+			/>
 		</div>
-	)
-}
+	</div>
+)
 
 function DialogContent(props: EditDialogProps): JSX.Element {
 	const [label, setLabel] = createSignal(props.otp.label)
