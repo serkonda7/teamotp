@@ -3,7 +3,7 @@ import { Result } from 'better-result'
 import type { OtpDisplayInfo } from 'shared/src/types'
 import type { Component } from 'solid-js'
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
-import { fetch_otp_code } from '../otp_list_item'
+import { fetch_otp_code } from '../api'
 import EditDialog from './EditDialog'
 
 type Props = {
