@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { db, getEntryById } from '../db'
 import { app } from '../index'
+import type { JwtPayload } from '../middleware/auth'
 import { entries } from '../schema'
 import { createSessionId } from '../sessions'
 
@@ -10,7 +11,7 @@ const TEST_SECRET = 'test_secret'
 async function getAuthHeaders() {
 	const sid = createSessionId()
 	const token = await sign(
-		{ sub: 'user_id', email: 'test@example.com', sid },
+		{ sub: 'test@example.com', jti: sid } as JwtPayload,
 		TEST_SECRET,
 		'HS256',
 	)

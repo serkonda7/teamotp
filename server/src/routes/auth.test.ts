@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { db } from '../db'
 import { app } from '../index'
+import type { JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
 import { createSessionId } from '../sessions'
 
@@ -61,7 +62,7 @@ describe('Auth routes', () => {
 	test('logs out successfully (clears cookie)', async () => {
 		const sid = createSessionId()
 		const token = await sign(
-			{ sub: 'user_id', email: 'test@example.com', sid },
+			{ sub: 'test@example.com', jti: sid } as JwtPayload,
 			TEST_SECRET,
 			'HS256',
 		)
@@ -85,7 +86,7 @@ describe('Auth routes', () => {
 
 		const sid = createSessionId()
 		const token = await sign(
-			{ sub: 'user_id', email: 'test@example.com', sid },
+			{ sub: 'test@example.com', jti: sid } as JwtPayload,
 			TEST_SECRET,
 			'HS256',
 		)

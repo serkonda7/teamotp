@@ -11,7 +11,7 @@
 import { describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { app } from '../index'
-
+import type { JwtPayload } from '../middleware/auth'
 import { createSessionId } from '../sessions'
 
 //
@@ -117,7 +117,7 @@ async function getAuthCookie(role: Role): Promise<string | undefined> {
 
 	const sid = createSessionId()
 	const token = await sign(
-		{ sub: 'test_user_id', email: 'test@example.com', sid },
+		{ sub: 'test@example.com', jti: sid } as JwtPayload,
 		TEST_SECRET,
 		'HS256',
 	)

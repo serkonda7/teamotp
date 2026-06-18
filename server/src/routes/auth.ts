@@ -1,11 +1,10 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
-import { sign } from 'hono/jwt'
 import { config } from '../config'
 import { getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
-import { createSessionId, invalidateSession } from '../sessions'
+import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessions'
 
 export const authApp = new Hono()
 
@@ -144,22 +143,8 @@ authApp.get('/callback/microsoft', async (c) => {
 
 	const user = upsertMicrosoftUser({ providerId: oid, email })
 
-	const sid = createSessionId()
-	const payload = {
-		sub: user.id,
-		email: user.email,
-		sid,
-		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
-	}
-	const token = await sign(payload, config.auth.jwtSecret)
-
-	setCookie(c, 'auth_token', token, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'Strict',
-		path: '/',
-		maxAge: 60 * 60 * 24 * 7,
-	})
+	const token = await get_signed_jwt(user.email)
+	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
 
 	deleteCookie(c, 'ms_auth_state', { path: '/' })
 
@@ -186,35 +171,15 @@ authApp.post('/login', async (c) => {
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
-	const secret = config.auth.jwtSecret
-
-	const sid = createSessionId()
-
-	const payload = {
-		sub: user.id,
-		email: user.email,
-		sid,
-		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 1 week
-	}
-
-	const token = await sign(payload, secret)
-
-	setCookie(c, 'auth_token', token, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'Strict',
-		path: '/',
-		maxAge: 60 * 60 * 24 * 7,
-	})
+	const token = await get_signed_jwt(user.email)
+	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
 
 	return c.json({ success: true })
 })
 
 authApp.post('/logout', authMiddleware, async (c) => {
 	const payload = c.get('jwtPayload')
-	if (payload.sid) {
-		invalidateSession(payload.sid)
-	}
+	invalidateSession(payload.jti)
 
 	deleteCookie(c, 'auth_token', {
 		path: '/',
@@ -223,6 +188,6 @@ authApp.post('/logout', authMiddleware, async (c) => {
 })
 
 authApp.get('/me', authMiddleware, (c) => {
-	const payload = c.get('jwtPayload') as { email: string }
-	return c.json({ email: payload.email })
+	const payload = c.get('jwtPayload')
+	return c.json({ email: payload.sub })
 })
