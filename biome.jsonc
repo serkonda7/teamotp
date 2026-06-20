@@ -16,8 +16,24 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
+      "suspicious": {
+        "noVar": "error",
+        "noShadow": "error",
+        "noReturnAssign": "error",
+        "noEvolvingTypes": "error",
+        "noUnknownAttribute": "off" // TODO enable
+      },
       "style": {
         "useBlockStatements": "error"
+      },
+      "nursery": {
+        "useExplicitReturnType": {
+          "level": "error",
+          "options": {
+            "allowExpressions": true
+          }
+        },
+        "useNullishCoalescing": "off" // off due to huge performance impact
       }
     }
   },

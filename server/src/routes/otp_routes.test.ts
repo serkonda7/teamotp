@@ -8,7 +8,8 @@ import { createSessionId } from '../sessions'
 
 const TEST_SECRET = 'test_secret'
 
-async function getAuthHeaders() {
+// TODO make this a shared mock function between all tests as all were quite flaky
+async function getAuthHeaders(): Promise<{ cookie: string }> {
 	const sid = createSessionId()
 	const token = await sign(
 		{ sub: 'test@example.com', jti: sid } as JwtPayload,

@@ -19,7 +19,7 @@ const e2e_entry_1 = {
 	period: 5,
 }
 
-async function seedE2eData() {
+async function seedE2eData(): Promise<void> {
 	// Clear current state so each run starts deterministic.
 	db.delete(entries).run()
 	db.delete(users).run()

@@ -34,7 +34,7 @@ function getMsalClient(): ConfidentialClientApplication {
 // In-memory store for pending auth state: state → { verifier, expiresAt }
 const pendingStates = new Map<string, { verifier: string; expiresAt: number }>()
 
-function cleanExpiredStates() {
+function cleanExpiredStates(): void {
 	const now = Date.now()
 	for (const [key, val] of pendingStates) {
 		if (val.expiresAt < now) {

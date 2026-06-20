@@ -3,7 +3,7 @@ import path from 'node:path'
 
 export const E2E_DB_PATH = path.resolve(process.cwd(), 'server', 'data', 'e2e.db')
 
-async function globalSetup() {
+async function globalSetup(): Promise<void> {
 	execFileSync('bun', ['run', 'tests/e2e/seed-db.ts'], {
 		cwd: process.cwd(),
 		stdio: 'inherit',

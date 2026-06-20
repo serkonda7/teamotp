@@ -1,5 +1,5 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
-import { createResource, createSignal, onMount, Show } from 'solid-js'
+import { createResource, createSignal, type JSX, onMount, Show } from 'solid-js'
 import { client } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
@@ -8,7 +8,7 @@ import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
 import { makeArrayRefetch } from './util/resource_helpers'
 
-function App() {
+function App(): JSX.Element {
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
 
 	const [otps, { refetch }] = createResource(
@@ -47,7 +47,7 @@ function App() {
 		return data as OtpDisplayInfo[]
 	}
 
-	async function handleLogout() {
+	async function handleLogout(): Promise<void> {
 		try {
 			await fetch('/api/auth/logout', { method: 'POST' })
 			setIsLoggedIn(false)

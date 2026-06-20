@@ -31,7 +31,7 @@ const OtpListItem: Component<Props> = (props) => {
 	const issuerText =
 		issuerSecond.length > 0 ? `${props.otp.issuer} (${issuerSecond})` : props.otp.issuer
 
-	async function toggleCodeVisibility() {
+	async function toggleCodeVisibility(): Promise<void> {
 		if (isCodeVisible()) {
 			setCode(null)
 			setIsCodeVisible(false)
@@ -55,7 +55,7 @@ const OtpListItem: Component<Props> = (props) => {
 		setIsCodeVisible(true)
 	}
 
-	async function refreshVisibleCode() {
+	async function refreshVisibleCode(): Promise<void> {
 		if (!isCodeVisible() || isAutoRefreshingCode) {
 			return
 		}
@@ -112,7 +112,7 @@ const OtpListItem: Component<Props> = (props) => {
 		}
 	})
 
-	function triggerCopyToast() {
+	function triggerCopyToast(): void {
 		setShowCopyToast(true)
 		if (copyToastTimer !== undefined) {
 			clearTimeout(copyToastTimer)
@@ -122,7 +122,7 @@ const OtpListItem: Component<Props> = (props) => {
 		}, 1400)
 	}
 
-	async function copyCodeFromCard() {
+	async function copyCodeFromCard(): Promise<void> {
 		if (isLoadingCode()) {
 			return
 		}

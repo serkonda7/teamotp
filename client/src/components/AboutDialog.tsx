@@ -1,5 +1,5 @@
 import { IconBrandGithub, IconX } from '@tabler/icons-solidjs'
-import { Show } from 'solid-js'
+import { type JSX, Show } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AboutDialogProps = {
@@ -7,7 +7,7 @@ type AboutDialogProps = {
 	onClose: () => void
 }
 
-const VersionLine = () => (
+const VersionLine = (): JSX.Element => (
 	<p>
 		Version 0.0.5 (
 		<a
@@ -21,7 +21,7 @@ const VersionLine = () => (
 	</p>
 )
 
-const SourceLink = () => (
+const SourceLink = (): JSX.Element => (
 	<a
 		href="https://github.com/serkonda7/teamotp"
 		target="_blank"
@@ -33,7 +33,7 @@ const SourceLink = () => (
 	</a>
 )
 
-const AboutDialog = (props: AboutDialogProps) => (
+const AboutDialog = (props: AboutDialogProps): JSX.Element => (
 	<Show when={props.open}>
 		<div class="modal-backdrop" role="presentation">
 			<button

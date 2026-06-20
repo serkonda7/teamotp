@@ -125,7 +125,7 @@ async function getAuthCookie(role: Role): Promise<string | undefined> {
 	return `auth_token=${token}`
 }
 
-function testEndpointAccess(endpoint: Endpoint, role: Role) {
+function testEndpointAccess(endpoint: Endpoint, role: Role): void {
 	const isAccepted = endpoint.acceptedRoles.includes(role)
 
 	test(`${endpoint.method} ${endpoint.path} -> ${isAccepted ? 'ok' : '401'}`, async () => {

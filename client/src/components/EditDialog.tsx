@@ -53,12 +53,13 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 
-	const isIssuerChanged = () => issuer().trim() !== props.otp.issuer
-	const isIssuerSecondChanged = () => issuerSecond().trim() !== props.otp.issuer_second
-	const isLabelChanged = () => label().trim() !== props.otp.label
-	const hasChanges = () => isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged()
+	const isIssuerChanged = (): boolean => issuer().trim() !== props.otp.issuer
+	const isIssuerSecondChanged = (): boolean => issuerSecond().trim() !== props.otp.issuer_second
+	const isLabelChanged = (): boolean => label().trim() !== props.otp.label
+	const hasChanges = (): boolean =>
+		isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged()
 
-	function handleClose() {
+	function handleClose(): void {
 		if (hasChanges()) {
 			if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
 				return
@@ -67,7 +68,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 		props.onClose()
 	}
 
-	async function handleSubmit(e: SubmitEvent) {
+	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
 		setError(null)
 
@@ -194,7 +195,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	)
 }
 
-const EditDialog = (props: EditDialogProps) => (
+const EditDialog = (props: EditDialogProps): JSX.Element => (
 	<Show when={props.open}>
 		<DialogContent {...props} />
 	</Show>
