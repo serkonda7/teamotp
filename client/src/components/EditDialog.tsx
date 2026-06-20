@@ -1,5 +1,5 @@
 import { IconX } from '@tabler/icons-solidjs'
-import type { OtpDisplayInfo } from 'shared/src/types'
+import type { InputEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createSignal, Show } from 'solid-js'
 import { client } from '../api'
@@ -37,7 +37,7 @@ const FormField = (props: FormFieldProps): JSX.Element => (
 				id={props.id}
 				type="text"
 				value={props.value}
-				onInput={(e) => props.onInput(e.currentTarget.value)}
+				onInput={(e: InputEventAndTarget): void => props.onInput(e.currentTarget.value)}
 				disabled={props.disabled}
 				required={props.required}
 				placeholder={props.placeholder}

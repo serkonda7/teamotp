@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import msLogo from '../../img/ms-symbollockup_mssymbol_19.svg'
 import '../../css/microsoft-login.css'
 
@@ -6,7 +6,7 @@ type Props = {
 	localLoginForm: JSX.Element
 }
 
-const MicrosoftSignInSection: Component<Props> = (props) => (
+const MicrosoftSignInSection = (props: Props): JSX.Element => (
 	<div class="microsoft-login-section">
 		<a href="/api/auth/login/microsoft" class="login-button-microsoft">
 			<span class="ms-logo" aria-hidden="true">

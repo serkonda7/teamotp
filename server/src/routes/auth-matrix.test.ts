@@ -37,8 +37,8 @@ enum Role {
 	authenticated,
 }
 
-const ALL_ROLES = [Role.unauthenticated, Role.authenticated]
-const AUTHENTICATED = [Role.authenticated]
+const ALL_ROLES: Role[] = [Role.unauthenticated, Role.authenticated]
+const AUTHENTICATED: Role[] = [Role.authenticated]
 
 // Endpoint authentication matrix
 const endpoints: Endpoint[] = [

@@ -1,6 +1,6 @@
 import { Result } from 'better-result'
-import type { OtpDisplayInfo } from 'shared/src/types'
-import type { Component } from 'solid-js'
+import type { InputEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import type { JSX } from 'solid-js'
 import { client } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
 import { read_api_error } from '../util/api_error'
@@ -14,7 +14,7 @@ type Props = {
 	refetch: () => Promise<OtpDisplayInfo[]>
 }
 
-const AddFromOtpauthForm: Component<Props> = (props) => {
+const AddFromOtpauthForm = (props: Props): JSX.Element => {
 	async function addFromOtpauthUrl(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
 		props.setError(null)
@@ -53,7 +53,9 @@ const AddFromOtpauthForm: Component<Props> = (props) => {
 				type="text"
 				placeholder="otpauth://totp/..."
 				value={props.otpauthUrl()}
-				onInput={(e) => props.setOtpauthUrl(e.currentTarget.value)}
+				onInput={(e: InputEventAndTarget): void =>
+					props.setOtpauthUrl(e.currentTarget.value)
+				}
 				disabled={props.submitting()}
 			/>
 			<button type="submit" disabled={props.submitting()}>

@@ -9,7 +9,7 @@ const packageJsonPath = 'package.json'
 
 const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as RootPackageJson
 
-const workspaces = packageJson.workspaces ?? []
+const workspaces: string[] = packageJson.workspaces ?? []
 const kept: string[] = []
 
 for (const workspace of workspaces) {

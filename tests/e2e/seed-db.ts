@@ -1,11 +1,13 @@
 import { db } from '../../server/src/db'
 import { entries, users } from '../../server/src/schema'
+import type { User } from '../../server/src/types'
 
-const e2e_user_1 = {
+const e2e_user_1: User = {
 	id: 'e2e-user-test-1',
 	email: 'e2e@test.com',
 	password_hash: await Bun.password.hash('e2e-password'),
 	provider: 'local',
+	provider_id: null,
 }
 
 const e2e_entry_1 = {

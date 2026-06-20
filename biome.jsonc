@@ -27,6 +27,7 @@
         "useBlockStatements": "error"
       },
       "nursery": {
+        "useExplicitType": "error", // TODO implicit pbjects in function param are not catched
         "useExplicitReturnType": {
           "level": "error",
           "options": {

@@ -1,5 +1,5 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
-import type { Component, JSX, Resource } from 'solid-js'
+import type { JSX, Resource } from 'solid-js'
 import { For, Show } from 'solid-js'
 import OtpListItem from './OtpListItem'
 
@@ -9,11 +9,11 @@ type Props = {
 	refetch: () => Promise<OtpDisplayInfo[]>
 }
 
-const OtpList: Component<Props> = (props): JSX.Element => (
+const OtpList = (props: Props): JSX.Element => (
 	<Show when={!props.otps.loading} fallback={<div>Loading...</div>}>
 		<ul class="otp-list otp-list--grid">
 			<For each={props.otps()}>
-				{(otp: OtpDisplayInfo) => (
+				{(otp: OtpDisplayInfo): JSX.Element => (
 					<OtpListItem otp={otp} setError={props.setError} refetch={props.refetch} />
 				)}
 			</For>

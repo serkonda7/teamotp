@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { InputEventAndTarget } from 'shared/src/types'
+import type { JSX } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
 import { read_api_error } from '../../util/api_error'
 import TeamOtpLogo from '../TeamOtpLogo'
@@ -18,7 +19,7 @@ async function fetchProviders(): Promise<Providers> {
 	return res.json() as Promise<Providers>
 }
 
-const LoginPage: Component<Props> = (props) => {
+const LoginPage = (props: Props): JSX.Element => {
 	const [email, setEmail] = createSignal('')
 	const [password, setPassword] = createSignal('')
 	const [error, setError] = createSignal<string | null>(null)
@@ -71,7 +72,7 @@ const LoginPage: Component<Props> = (props) => {
 					type="email"
 					id="email"
 					value={email()}
-					onInput={(e) => setEmail(e.currentTarget.value)}
+					onInput={(e: InputEventAndTarget): string => setEmail(e.currentTarget.value)}
 					disabled={isSubmitting()}
 					required
 					autofocus={!hasMicrosoftProvider()}
@@ -83,7 +84,7 @@ const LoginPage: Component<Props> = (props) => {
 					type="password"
 					id="password"
 					value={password()}
-					onInput={(e) => setPassword(e.currentTarget.value)}
+					onInput={(e: InputEventAndTarget): string => setPassword(e.currentTarget.value)}
 					disabled={isSubmitting()}
 					required
 				/>

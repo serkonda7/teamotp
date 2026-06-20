@@ -1,7 +1,7 @@
 import { IconEye, IconEyeOff, IconPencil } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
-import type { OtpDisplayInfo } from 'shared/src/types'
-import type { Component } from 'solid-js'
+import type { MouseEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../api'
 import EditDialog from './EditDialog'
@@ -12,7 +12,7 @@ type Props = {
 	refetch: () => Promise<OtpDisplayInfo[]>
 }
 
-const OtpListItem: Component<Props> = (props) => {
+const OtpListItem = (props: Props): JSX.Element => {
 	const [isEditing, setIsEditing] = createSignal(false)
 	const [code, setCode] = createSignal<string | null>(null)
 	const [isCodeVisible, setIsCodeVisible] = createSignal(false)
@@ -152,7 +152,10 @@ const OtpListItem: Component<Props> = (props) => {
 			<button
 				type="button"
 				class="otp-list__copy"
-				onClick={() => void copyCodeFromCard()}
+				onClick={(event: MouseEventAndTarget): void => {
+					event.stopPropagation()
+					void copyCodeFromCard()
+				}}
 				aria-label={`Copy OTP code for ${issuerText}`}
 				title="Copy current code"
 				disabled={isLoadingCode()}
@@ -168,7 +171,7 @@ const OtpListItem: Component<Props> = (props) => {
 			<button
 				type="button"
 				class="icon-button otp-list__edit"
-				onClick={(event) => {
+				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					setIsEditing(true)
 				}}
@@ -180,7 +183,7 @@ const OtpListItem: Component<Props> = (props) => {
 			<button
 				type="button"
 				class="icon-button otp-list__toggle"
-				onClick={(event) => {
+				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					void toggleCodeVisibility()
 				}}
@@ -206,8 +209,8 @@ const OtpListItem: Component<Props> = (props) => {
 			<EditDialog
 				open={isEditing()}
 				otp={props.otp}
-				onClose={() => setIsEditing(false)}
-				onSave={async () => {
+				onClose={(): boolean => setIsEditing(false)}
+				onSave={async (): Promise<void> => {
 					setIsEditing(false)
 					await props.refetch()
 				}}
