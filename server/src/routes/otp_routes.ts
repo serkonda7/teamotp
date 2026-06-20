@@ -8,10 +8,12 @@ import type { UpdateOtpEntry } from '../types'
 
 export const otpApp = new Hono()
 	.use(authMiddleware)
+
 	// GET /otp — list all entries
 	.get('/', (c) => {
 		return c.json(listEntries())
 	})
+
 	// POST /otp — create a new entry, return its id
 	.post('/', async (c) => {
 		let body: NewOtpEntry
@@ -29,6 +31,7 @@ export const otpApp = new Hono()
 		const entry = createEntry(body)
 		return c.json({ id: entry.id }, 201)
 	})
+
 	// GET /otp/:id — get the current TOTP code for an entry
 	.get('/:id', (c) => {
 		const id = c.req.param('id')
@@ -44,6 +47,7 @@ export const otpApp = new Hono()
 		}
 		return c.json({ code: Result.unwrap(code_res) })
 	})
+
 	// POST /otp/:id — update an existing entry
 	.post('/:id', async (c) => {
 		const id = c.req.param('id')

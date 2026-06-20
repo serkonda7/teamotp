@@ -8,7 +8,7 @@ type TeamOtpLogoProps = {
 const TeamOtpLogo = (props: TeamOtpLogoProps): JSX.Element => (
 	<span class={`teamotp-logo ${props.class ?? ''}`.trim()}>
 		<img class="teamotp-logo__icon" src={teamOtpIcon} alt="" aria-hidden="true" />
-		<span class="teamotp-logo__text">TeamOTP'</span>
+		<span class="teamotp-logo__text">TeamOTP</span>
 	</span>
 )
 
