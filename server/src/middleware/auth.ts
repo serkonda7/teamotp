@@ -4,7 +4,15 @@ import { verify } from 'hono/jwt'
 import { config } from '../config'
 import { isValidSession } from '../sessions'
 
-export type JwtPayload = { sub: string; email: string; sid: string; exp: number }
+export type JwtPayload = {
+	sub: string // Subject (user email)
+	jti: string // JWT ID, equivalent to session ID
+	iat: number // Issued at
+	exp: number // expiration time
+	// Ignored fields: iss, aud, nbf
+}
+
+export const JWT_ALGO = 'HS256'
 
 export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPayload } }>(
 	async (c, next) => {
@@ -16,9 +24,9 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 		const secret = config.auth.jwtSecret
 
 		try {
-			const payload = (await verify(token, secret, 'HS256')) as JwtPayload
+			const payload = (await verify(token, secret, JWT_ALGO)) as JwtPayload
 
-			if (!isValidSession(payload.sid)) {
+			if (!isValidSession(payload.jti)) {
 				return c.json({ error: 'Unauthorized: Session invalidated' }, 401)
 			}
 

@@ -1,21 +1,9 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { authMiddleware } from './middleware/auth'
 import { authApp } from './routes/auth'
-import {
-	handleCreateOtp,
-	handleGetOtpCode,
-	handleListOtp,
-	handleUpdateOtp,
-} from './routes/otp_routes'
+import { otpApp } from './routes/otp_routes'
 
-export const app = new Hono()
-	.use('/*', cors())
-	.route('/auth', authApp)
-	.get('/otp', authMiddleware, handleListOtp)
-	.post('/otp', authMiddleware, handleCreateOtp)
-	.get('/otp/:id', authMiddleware, handleGetOtpCode)
-	.post('/otp/:id', authMiddleware, handleUpdateOtp)
+export const app = new Hono().use('/*', cors()).route('/auth', authApp).route('/otp', otpApp)
 
 export type AppType = typeof app
 

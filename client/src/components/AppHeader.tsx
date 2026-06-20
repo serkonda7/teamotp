@@ -1,5 +1,5 @@
 import { IconInfoCircle, IconLogout } from '@tabler/icons-solidjs'
-import type { Component } from 'solid-js'
+import type { JSX } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
@@ -7,7 +7,7 @@ type AppHeaderProps = {
 	onLogout: () => void
 }
 
-const AppHeader: Component<AppHeaderProps> = (props) => (
+const AppHeader = (props: AppHeaderProps): JSX.Element => (
 	<header class="app-header">
 		<div class="app-title">
 			<TeamOtpLogo class="app-title__logo" />

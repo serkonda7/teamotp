@@ -1,11 +1,8 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { sign } from 'hono/jwt'
 import { db } from '../db'
 import { app } from '../index'
 import { users } from '../schema'
-import { createSessionId } from '../sessions'
-
-const TEST_SECRET = 'test_secret'
+import { createAuthCookie } from '../tests/helpers'
 
 beforeEach(async () => {
 	db.delete(users).run()
@@ -59,17 +56,12 @@ describe('Auth routes', () => {
 	})
 
 	test('logs out successfully (clears cookie)', async () => {
-		const sid = createSessionId()
-		const token = await sign(
-			{ sub: 'user_id', email: 'test@example.com', sid },
-			TEST_SECRET,
-			'HS256',
-		)
+		const cookie = await createAuthCookie()
 
 		const response = await app.request('/auth/logout', {
 			method: 'POST',
 			headers: {
-				Cookie: `auth_token=${token}`,
+				Cookie: cookie,
 			},
 		})
 		expect(response.status).toBe(200)
@@ -83,16 +75,11 @@ describe('Auth routes', () => {
 		const response = await app.request('/auth/me')
 		expect(response.status).toBe(401)
 
-		const sid = createSessionId()
-		const token = await sign(
-			{ sub: 'user_id', email: 'test@example.com', sid },
-			TEST_SECRET,
-			'HS256',
-		)
+		const cookie = await createAuthCookie()
 
 		const authedResponse = await app.request('/auth/me', {
 			headers: {
-				Cookie: `auth_token=${token}`,
+				Cookie: cookie,
 			},
 		})
 		expect(authedResponse.status).toBe(200)

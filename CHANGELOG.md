@@ -1,4 +1,10 @@
 # Changelog
+## 0.0.6
+_unreleased_
+
+- Technical
+  - stricter typing and linting
+
 ## 0.0.5
 _2026-06-13_
 

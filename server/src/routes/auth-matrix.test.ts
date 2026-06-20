@@ -9,10 +9,8 @@
  */
 
 import { describe, expect, test } from 'bun:test'
-import { sign } from 'hono/jwt'
 import { app } from '../index'
-
-import { createSessionId } from '../sessions'
+import { createAuthCookie } from '../tests/helpers'
 
 //
 // Constants and types
@@ -37,8 +35,8 @@ enum Role {
 	authenticated,
 }
 
-const ALL_ROLES = [Role.unauthenticated, Role.authenticated]
-const AUTHENTICATED = [Role.authenticated]
+const ALL_ROLES: Role[] = [Role.unauthenticated, Role.authenticated]
+const AUTHENTICATED: Role[] = [Role.authenticated]
 
 // Endpoint authentication matrix
 const endpoints: Endpoint[] = [
@@ -108,24 +106,15 @@ test('Matrix covers all registered endpoints', () => {
 // 2. Test access control
 //
 
-const TEST_SECRET = 'test_secret'
-
 async function getAuthCookie(role: Role): Promise<string | undefined> {
 	if (role === Role.unauthenticated) {
 		return undefined
 	}
 
-	const sid = createSessionId()
-	const token = await sign(
-		{ sub: 'test_user_id', email: 'test@example.com', sid },
-		TEST_SECRET,
-		'HS256',
-	)
-
-	return `auth_token=${token}`
+	return createAuthCookie()
 }
 
-function testEndpointAccess(endpoint: Endpoint, role: Role) {
+function testEndpointAccess(endpoint: Endpoint, role: Role): void {
 	const isAccepted = endpoint.acceptedRoles.includes(role)
 
 	test(`${endpoint.method} ${endpoint.path} -> ${isAccepted ? 'ok' : '401'}`, async () => {
