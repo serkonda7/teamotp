@@ -33,7 +33,9 @@
             "allowExpressions": true
           }
         },
-        "useNullishCoalescing": "off" // off due to huge performance impact
+        "useDomQuerySelector": "error",
+        "useExhaustiveSwitchCases": "off", // off due to performance impact
+        "useNullishCoalescing": "off" // off due to performance impact
       }
     }
   },
