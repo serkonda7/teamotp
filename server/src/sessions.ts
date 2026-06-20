@@ -35,8 +35,8 @@ export function invalidateSession(sid: string): void {
 
 /** Creates and signes a new session JWT. */
 export async function get_signed_jwt(email: string): Promise<string> {
-	const sid = createSessionId()
 	const now = Math.floor(Date.now() / 1000)
+	const sid = createSessionId()
 	const exp = now + 60 * 60 * 24 * 7 // 1 week
 
 	const payload: JwtPayload = {

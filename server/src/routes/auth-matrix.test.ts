@@ -9,10 +9,8 @@
  */
 
 import { describe, expect, test } from 'bun:test'
-import { sign } from 'hono/jwt'
 import { app } from '../index'
-import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
-import { createSessionId } from '../sessions'
+import { createAuthCookie } from '../tests/helpers'
 
 //
 // Constants and types
@@ -108,21 +106,12 @@ test('Matrix covers all registered endpoints', () => {
 // 2. Test access control
 //
 
-const TEST_SECRET = 'test_secret'
-
 async function getAuthCookie(role: Role): Promise<string | undefined> {
 	if (role === Role.unauthenticated) {
 		return undefined
 	}
 
-	const sid = createSessionId()
-	const token = await sign(
-		{ sub: 'test@example.com', jti: sid } as JwtPayload,
-		TEST_SECRET,
-		JWT_ALGO,
-	)
-
-	return `auth_token=${token}`
+	return createAuthCookie()
 }
 
 function testEndpointAccess(endpoint: Endpoint, role: Role): void {
