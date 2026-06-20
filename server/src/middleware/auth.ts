@@ -12,6 +12,8 @@ export type JwtPayload = {
 	// Ignored fields: iss, aud, nbf
 }
 
+export const JWT_ALGO = 'HS256'
+
 export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPayload } }>(
 	async (c, next) => {
 		const token = getCookie(c, 'auth_token')
@@ -22,7 +24,7 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 		const secret = config.auth.jwtSecret
 
 		try {
-			const payload = (await verify(token, secret, 'HS256')) as JwtPayload
+			const payload = (await verify(token, secret, JWT_ALGO)) as JwtPayload
 
 			if (!isValidSession(payload.jti)) {
 				return c.json({ error: 'Unauthorized: Session invalidated' }, 401)

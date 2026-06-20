@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { db, getEntryById } from '../db'
 import { app } from '../index'
-import type { JwtPayload } from '../middleware/auth'
+import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { entries } from '../schema'
 import { createSessionId } from '../sessions'
 
@@ -14,7 +14,7 @@ async function getAuthHeaders(): Promise<{ cookie: string }> {
 	const token = await sign(
 		{ sub: 'test@example.com', jti: sid } as JwtPayload,
 		TEST_SECRET,
-		'HS256',
+		JWT_ALGO,
 	)
 	return {
 		cookie: `auth_token=${token}`,

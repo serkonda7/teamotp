@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test'
 import { sign } from 'hono/jwt'
 import { db } from '../db'
 import { app } from '../index'
-import type { JwtPayload } from '../middleware/auth'
+import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
 import { createSessionId } from '../sessions'
 
@@ -64,7 +64,7 @@ describe('Auth routes', () => {
 		const token = await sign(
 			{ sub: 'test@example.com', jti: sid } as JwtPayload,
 			TEST_SECRET,
-			'HS256',
+			JWT_ALGO,
 		)
 
 		const response = await app.request('/auth/logout', {
@@ -88,7 +88,7 @@ describe('Auth routes', () => {
 		const token = await sign(
 			{ sub: 'test@example.com', jti: sid } as JwtPayload,
 			TEST_SECRET,
-			'HS256',
+			JWT_ALGO,
 		)
 
 		const authedResponse = await app.request('/auth/me', {
