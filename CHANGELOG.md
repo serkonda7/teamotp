@@ -2,8 +2,13 @@
 ## 0.0.6
 _unreleased_
 
+- Updater
+  - Show release dates of current and target version
+- UI improvements
+  - About: Clearly mark external links
 - Technical
   - stricter typing and linting
+
 
 ## 0.0.5
 _2026-06-13_

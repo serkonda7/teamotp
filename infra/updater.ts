@@ -93,6 +93,17 @@ async function get_current_ref(): Promise<string> {
 	return resolved.trim()
 }
 
+async function get_tag_release_date(tag: string): Promise<string> {
+	try {
+		const date =
+			await $`git for-each-ref --format="%(creatordate:short)" refs/tags/${tag}`.text()
+		const trimmed = date.trim()
+		return trimmed.length > 0 ? trimmed : 'unknown date'
+	} catch {
+		return 'unknown date'
+	}
+}
+
 async function ask_confirm(current_ref: string, target_ref: string): Promise<void> {
 	if (!stdin.isTTY || !stdout.isTTY) {
 		fatal('Cannot prompt for confirmation in a non-interactive terminal.')
@@ -139,13 +150,16 @@ async function main(): Promise<void> {
 	await require_commands(['git', 'docker', 'bun'])
 	await assert_clean_worktree()
 
-	// Fetch latest refs/tags
+	// Fetch latest refs (tags) and dates
 	const current_ref = await get_current_ref()
+	const current_date = await get_tag_release_date(current_ref)
 	await $`git fetch --all --tags --prune`.quiet()
 	const target_ref = await resolve_ref(args.ref)
+	const target_date = await get_tag_release_date(target_ref)
 
-	console.log(`Current ref: ${current_ref}`)
-	console.log(`Target ref : ${target_ref}`)
+	console.log(`Current ref: ${current_ref} (${current_date})`)
+	console.log(`Target ref : ${target_ref} (${target_date})`)
+
 	await ask_confirm(current_ref, target_ref)
 
 	// Stop containers for data consistency
