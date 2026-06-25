@@ -3,5 +3,8 @@
   "version": "0.0.0-dev",
   "scripts": {
     "check": "tsgo --project tsconfig.json"
+  },
+  "dependencies": {
+    "shared": "workspace:*"
   }
 }

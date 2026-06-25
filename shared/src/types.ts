@@ -19,6 +19,12 @@ export interface OtpDisplayInfo {
 	period: number
 }
 
+export interface ReleaseMetadata {
+	releaseRef: string
+	releaseDate: string
+	updatedAt: string
+}
+
 /** JSX helper type for onInput handlers */
 export type InputEventAndTarget = InputEvent & {
 	currentTarget: HTMLInputElement

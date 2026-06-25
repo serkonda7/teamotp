@@ -14,7 +14,8 @@ import path from 'node:path'
 import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import { parseArgs } from 'node:util'
-import { $ } from 'bun'
+import { $, JSON5 } from 'bun'
+import type { ReleaseMetadata } from 'shared/src/types'
 
 // --------
 // Constants
@@ -23,6 +24,7 @@ import { $ } from 'bun'
 const ROOT_DIR = path.resolve(import.meta.dir, '..')
 const SERVER_DATA_DIR = path.join(ROOT_DIR, 'server', 'data')
 const BACKUP_ROOT = path.join(ROOT_DIR, 'backups')
+const METADATA_PATH = path.join(SERVER_DATA_DIR, 'metadata.json5')
 
 // --------
 // CLI
@@ -141,6 +143,20 @@ async function create_backup(current_version: string): Promise<void> {
 	})
 }
 
+function write_release_metadata(release_ref: string, release_date: string): void {
+	let text = '{}'
+	if (fs.existsSync(METADATA_PATH)) {
+		text = fs.readFileSync(METADATA_PATH, 'utf8')
+	}
+	const metadata = JSON5.parse(text) as ReleaseMetadata
+	metadata.releaseRef = release_ref
+	metadata.releaseDate = release_date
+	metadata.updatedAt = new Date().toISOString()
+
+	const out_text = JSON5.stringify(metadata, null, 2) ?? '{}'
+	fs.writeFileSync(METADATA_PATH, out_text, 'utf8')
+}
+
 // --------
 // Main
 // --------
@@ -175,6 +191,10 @@ async function main(): Promise<void> {
 	await $`git checkout ${target_ref}`.quiet()
 	await $`bun install --frozen-lockfile`.quiet()
 
+	// Write metadata (must happen before container restart)
+	write_release_metadata(target_ref, target_date)
+
+	// Rebuild and start containers
 	console.log('Building...')
 	await $`docker compose up -d --build --remove-orphans`.quiet()
 	await $`docker compose ps`

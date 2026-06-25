@@ -34,6 +34,9 @@
     "infra": {
       "name": "infra",
       "version": "0.0.0-dev",
+      "dependencies": {
+        "shared": "workspace:*",
+      },
     },
     "server": {
       "name": "server",
