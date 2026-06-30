@@ -2,12 +2,15 @@
 ## 0.0.6
 _unreleased_
 
-- Updater
-  - Show release dates of current and target version
+- New Features
+  - Implement search bar
 - UI improvements
   - About: Clearly mark external links
+- Updater
+  - Show release dates of current and target version
 - Technical
-  - stricter typing and linting
+  - Refactor config handling
+  - Stricter typing and linting
 
 
 ## 0.0.5
