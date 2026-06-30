@@ -19,6 +19,7 @@ export interface UpdateDeps {
 
 export interface RunUpdateOptions {
 	requestedRef?: string
+	autoConfirm: boolean
 	isInteractive: boolean
 }
 
@@ -55,7 +56,7 @@ export async function runUpdate(options: RunUpdateOptions, deps: UpdateDeps): Pr
 		await deps.requireCommand(cmd)
 	}
 	await assertCleanWorktree(deps)
-	if (!options.isInteractive) {
+	if (!options.isInteractive && !options.autoConfirm) {
 		throw new Error('Cannot prompt for confirmation in a non-interactive terminal.')
 	}
 
@@ -70,9 +71,13 @@ export async function runUpdate(options: RunUpdateOptions, deps: UpdateDeps): Pr
 	deps.log(`Current ref: ${currentRef} (${currentDate})`)
 	deps.log(`Target ref : ${targetRef} (${targetDate})`)
 
-	const confirmed = await deps.confirmUpdate(currentRef, targetRef)
-	if (!confirmed) {
-		throw new Error('Aborted by user.')
+	if (options.autoConfirm) {
+		deps.log('Auto-confirm enabled via --yes; proceeding without prompt.')
+	} else {
+		const confirmed = await deps.confirmUpdate(currentRef, targetRef)
+		if (!confirmed) {
+			throw new Error('Aborted by user.')
+		}
 	}
 
 	deps.log('Stopping app...')

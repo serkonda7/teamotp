@@ -4,7 +4,7 @@
  * Update a running teamotp instance to a new release.
  *
  * Usage:
- *   bun run infra/updater/main.ts [--ref <git-ref>]
+ *   bun run infra/updater/main.ts [--ref <git-ref>] [--yes]
  *
  * Default to latest tag when --ref is omitted.
  */
@@ -21,6 +21,7 @@ const { values: args } = parseArgs({
 	args: process.argv.slice(2),
 	options: {
 		ref: { type: 'string' },
+		yes: { type: 'boolean', default: false },
 	},
 	strict: true,
 })
@@ -30,6 +31,7 @@ async function main(): Promise<void> {
 	await runUpdate(
 		{
 			requestedRef: args.ref,
+			autoConfirm: args.yes,
 			isInteractive: stdin.isTTY && stdout.isTTY,
 		},
 		deps,
