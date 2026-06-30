@@ -16,13 +16,15 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => (
 			<TeamOtpLogo class="app-title__logo" />
 		</div>
 		<input
+			class="app-header__search"
 			type="search"
 			value={props.searchQuery}
 			onInput={(event: InputEventAndTarget): void => {
 				props.onSearchInput(event.currentTarget.value)
 			}}
-			placeholder="Search entries"
+			placeholder="Search"
 			aria-label="Search OTP entries"
+			autofocus
 		/>
 		<div class="header-actions">
 			<button

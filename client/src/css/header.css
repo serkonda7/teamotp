@@ -16,6 +16,20 @@
 	display: inline-flex;
 }
 
+.app-header__search {
+	border-radius: var(--corner-radius);
+	border: 2px solid var(--color-border);
+}
+
+.app-header__search:hover {
+	border-color: var(--color-primary-hover);
+}
+
+.app-header__search:focus-visible {
+	outline: none;
+	border-color: var(--color-primary);
+}
+
 .header-actions {
 	display: flex;
 	gap: var(--gap-small);
