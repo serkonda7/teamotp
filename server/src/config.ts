@@ -1,19 +1,10 @@
-/**
- * `data/config.toml` handling
- * - Schema definition and validation
- * - Expose a test fallback
- */
-
 import fs from 'node:fs'
-import path from 'node:path'
 import { Result } from 'better-result'
 import * as v from 'valibot'
-import { SERVER_ROOT } from './util/server_root'
 
-// --------
-// Config Schema
-// --------
-
+/**
+ * Schema definition of config file structure and fields.
+ */
 const configSchema = v.object({
 	auth: v.object({
 		jwtSecret: v.string(),
@@ -31,48 +22,35 @@ const configSchema = v.object({
 
 export type AppConfig = v.InferOutput<typeof configSchema>
 
-// --------
-// Config parsing logic
-// --------
-
-export function loadConfig(): Result<AppConfig, Error> {
-	const is_test_run = Bun.env.NODE_ENV === 'test'
-
-	if (is_test_run) {
-		const testConfigResult = v.safeParse(configSchema, {
-			auth: {
-				jwtSecret: 'test_secret',
-			},
-		})
-
-		if (!testConfigResult.success) {
-			return Result.err(new Error('Invalid built-in test configuration'))
-		}
-
-		return Result.ok(testConfigResult.output)
+/**
+ * Loads and validates the configuration file from given path.
+ */
+export function load_config_file(path: string): Result<AppConfig, Error> {
+	if (!fs.existsSync(path)) {
+		return Result.err(new Error(`Configuration file missing at ${path}`))
 	}
 
-	const config_path = path.join(SERVER_ROOT, 'data', 'config.toml')
-
-	if (!fs.existsSync(config_path)) {
-		return Result.err(new Error(`Configuration file missing at ${config_path}`))
-	}
-
-	const file_content = fs.readFileSync(config_path, 'utf8')
+	// Parse TOML file content
+	const content = fs.readFileSync(path, 'utf8')
 	let parsed: object
 	try {
-		parsed = Bun.TOML.parse(file_content)
+		parsed = Bun.TOML.parse(content)
 	} catch {
-		return Result.err(new Error(`Failed to parse TOML configuration at ${config_path}`))
+		return Result.err(new Error(`Failed to parse TOML configuration at ${path}`))
 	}
 
-	const parsedConfigResult = v.safeParse(configSchema, parsed)
-	if (!parsedConfigResult.success) {
-		return Result.err(new Error(`Invalid configuration at ${config_path}`))
+	// Validate schema
+	const config_res = v.safeParse(configSchema, parsed)
+	if (!config_res.success) {
+		return Result.err(new Error(`Invalid configuration at ${path}`))
 	}
 
-	return Result.ok(parsedConfigResult.output)
+	return Result.ok(config_res.output)
 }
+
+// ---------------------------------------------------------------------------
+// Getters and setters for global config object.
+// ---------------------------------------------------------------------------
 
 let config: AppConfig | null = null
 
@@ -88,10 +66,14 @@ export function getConfig(): AppConfig {
 	return config
 }
 
-// Keep tests simple when they import server modules without running index.ts.
+// Use special testing config if tests import server modules without running the full server.
 if (Bun.env.NODE_ENV === 'test') {
-	const configResult = loadConfig()
-	if (Result.isOk(configResult)) {
-		initConfig(configResult.value)
-	}
+	// Note: config is hardcoded for simplicity.
+	// Schema validation might crash the tests if the config becomes invalid.
+	const test_config = v.parse(configSchema, {
+		auth: {
+			jwtSecret: 'test_secret',
+		},
+	})
+	initConfig(test_config)
 }
