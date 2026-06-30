@@ -5,7 +5,7 @@ For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore
 
 ## Updating
 ```sh
-bun run infra/updater.ts
+bun run infra/updater/index.ts
 ```
 
 
@@ -40,7 +40,7 @@ bun server-cli/src/cli.ts create-user max@muster.de
 git clone https://github.com/serkonda7/teamotp
 
 # Run updater to get latest stable version
-bun run infra/updater.ts
+bun run infra/updater/index.ts
 ```
 
 
