@@ -11,6 +11,14 @@
 		);
 }
 
+.otp-list__empty {
+	padding: 0.9rem 1rem;
+	border: 1px dashed var(--color-border-strong);
+	border-radius: var(--corner-radius);
+	color: var(--color-text-muted);
+	background: var(--color-bg-hover);
+}
+
 .otp-list__item {
 	position: relative;
 	width: 100%;
