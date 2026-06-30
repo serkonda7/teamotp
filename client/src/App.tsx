@@ -1,11 +1,12 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
-import { createResource, createSignal, type JSX, onMount, Show } from 'solid-js'
+import { createMemo, createResource, createSignal, type JSX, onMount, Show } from 'solid-js'
 import { client } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
+import { otpMatchesSearch } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
 function App(): JSX.Element {
@@ -27,6 +28,12 @@ function App(): JSX.Element {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
+	const [searchQuery, setSearchQuery] = createSignal('')
+
+	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
+		const query = searchQuery()
+		return otps().filter((otp) => otpMatchesSearch(otp, query))
+	})
 
 	onMount(async () => {
 		try {
@@ -51,6 +58,7 @@ function App(): JSX.Element {
 		try {
 			await fetch('/api/auth/logout', { method: 'POST' })
 			setIsLoggedIn(false)
+			setSearchQuery('')
 		} catch (err) {
 			console.error('Logout failed', err)
 		}
@@ -63,7 +71,12 @@ function App(): JSX.Element {
 				fallback={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />}
 			>
 				<div>
-					<AppHeader onOpenAbout={() => setAboutOpen(true)} onLogout={handleLogout} />
+					<AppHeader
+						onOpenAbout={() => setAboutOpen(true)}
+						onLogout={handleLogout}
+						searchQuery={searchQuery()}
+						onSearchInput={setSearchQuery}
+					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 					<AddFromOtpauthForm
@@ -79,7 +92,13 @@ function App(): JSX.Element {
 						<div>{error()}</div>
 					</Show>
 
-					<OtpList otps={otps} setError={setError} refetch={refetchTyped} />
+					<OtpList
+						otps={filteredOtps()}
+						loading={otps.loading}
+						searchQuery={searchQuery()}
+						setError={setError}
+						refetch={refetchTyped}
+					/>
 				</div>
 			</Show>
 		</Show>

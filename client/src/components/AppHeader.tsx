@@ -1,10 +1,13 @@
 import { IconInfoCircle, IconLogout } from '@tabler/icons-solidjs'
+import type { InputEventAndTarget } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
 	onOpenAbout: () => void
 	onLogout: () => void
+	searchQuery: string
+	onSearchInput: (query: string) => void
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => (
@@ -13,9 +16,12 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => (
 			<TeamOtpLogo class="app-title__logo" />
 		</div>
 		<input
-			disabled
 			type="search"
-			placeholder="Search coming soon"
+			value={props.searchQuery}
+			onInput={(event: InputEventAndTarget): void => {
+				props.onSearchInput(event.currentTarget.value)
+			}}
+			placeholder="Search entries"
 			aria-label="Search OTP entries"
 		/>
 		<div class="header-actions">
