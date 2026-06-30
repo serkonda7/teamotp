@@ -1,7 +1,7 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
-import { config } from '../config'
+import { getConfig } from '../config'
 import { getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessions'
@@ -16,7 +16,7 @@ let _msalClient: ConfidentialClientApplication | null = null
 
 function getMsalClient(): ConfidentialClientApplication {
 	if (!_msalClient) {
-		const ms = config.auth.microsoft
+		const ms = getConfig().auth.microsoft
 		if (!ms) {
 			throw new Error('Microsoft auth is not configured')
 		}
@@ -50,16 +50,18 @@ function cleanExpiredStates(): void {
 authApp.get('/providers', (c) => {
 	return c.json({
 		local: true,
-		microsoft: !!config.auth.microsoft,
+		microsoft: !!getConfig().auth.microsoft,
 	})
 })
 
-// ---------------------------------------------------------------------------
 // Microsoft login – redirect to Microsoft identity platform
 // ---------------------------------------------------------------------------
 
 authApp.get('/login/microsoft', async (c) => {
-	if (!config.auth.microsoft) {
+	const config = getConfig()
+	const msAuth = config.auth.microsoft
+
+	if (!msAuth) {
 		return c.json({ error: 'Microsoft auth not configured' }, 404)
 	}
 	cleanExpiredStates()
@@ -72,7 +74,7 @@ authApp.get('/login/microsoft', async (c) => {
 
 	const authCodeUrl = await getMsalClient().getAuthCodeUrl({
 		scopes: ['openid', 'profile', 'email'],
-		redirectUri: config.auth.microsoft.redirectUri,
+		redirectUri: msAuth.redirectUri,
 		codeChallenge: challenge,
 		codeChallengeMethod: 'S256',
 		state,
@@ -94,7 +96,10 @@ authApp.get('/login/microsoft', async (c) => {
 // ---------------------------------------------------------------------------
 
 authApp.get('/callback/microsoft', async (c) => {
-	if (!config.auth.microsoft) {
+	const config = getConfig()
+	const msAuth = config.auth.microsoft
+
+	if (!msAuth) {
 		return c.json({ error: 'Microsoft auth not configured' }, 404)
 	}
 
@@ -117,7 +122,7 @@ authApp.get('/callback/microsoft', async (c) => {
 		tokenResponse = await getMsalClient().acquireTokenByCode({
 			code,
 			scopes: ['openid', 'profile', 'email'],
-			redirectUri: config.auth.microsoft.redirectUri,
+			redirectUri: msAuth.redirectUri,
 			codeVerifier: pending.verifier,
 		})
 	} catch (err) {

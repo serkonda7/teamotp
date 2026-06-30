@@ -1,6 +1,6 @@
 import { sign } from 'hono/jwt'
 import type { CookieOptions } from 'hono/utils/cookie'
-import { config } from './config'
+import { getConfig } from './config'
 import { JWT_ALGO, type JwtPayload } from './middleware/auth'
 
 export const SESSION_COOKIE_OPTS: CookieOptions = {
@@ -46,5 +46,5 @@ export async function get_signed_jwt(email: string): Promise<string> {
 		exp,
 	}
 
-	return await sign(payload, config.auth.jwtSecret, JWT_ALGO)
+	return await sign(payload, getConfig().auth.jwtSecret, JWT_ALGO)
 }

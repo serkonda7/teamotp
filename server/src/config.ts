@@ -6,6 +6,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
+import { Result } from 'better-result'
 import * as v from 'valibot'
 import { SERVER_ROOT } from './util/server_root'
 
@@ -34,48 +35,63 @@ export type AppConfig = v.InferOutput<typeof configSchema>
 // Config parsing logic
 // --------
 
-const is_test_run = Bun.env.NODE_ENV === 'test'
+export function loadConfig(): Result<AppConfig, Error> {
+	const is_test_run = Bun.env.NODE_ENV === 'test'
 
-let config: AppConfig
+	if (is_test_run) {
+		const testConfigResult = v.safeParse(configSchema, {
+			auth: {
+				jwtSecret: 'test_secret',
+			},
+		})
 
-if (is_test_run) {
-	// Note: test config is hardcoded here for simplicity. Schema validation can just crash if invalid
-	config = v.parse(configSchema, {
-		auth: {
-			jwtSecret: 'test_secret',
-		},
-	})
-} else {
+		if (!testConfigResult.success) {
+			return Result.err(new Error('Invalid built-in test configuration'))
+		}
+
+		return Result.ok(testConfigResult.output)
+	}
+
 	const config_path = path.join(SERVER_ROOT, 'data', 'config.toml')
 
 	if (!fs.existsSync(config_path)) {
-		console.error(`FATAL Error: Configuration file missing at ${config_path}`)
-		process.exit(1)
+		return Result.err(new Error(`Configuration file missing at ${config_path}`))
 	}
 
-	// Parse TOML file content
 	const file_content = fs.readFileSync(config_path, 'utf8')
 	let parsed: object
 	try {
 		parsed = Bun.TOML.parse(file_content)
-	} catch (e: unknown) {
-		const errorMessage = e instanceof Error ? e.message : String(e)
-		console.error(
-			`FATAL Error: Failed to parse TOML configuration at ${config_path}:`,
-			errorMessage,
-		)
-		process.exit(1)
+	} catch {
+		return Result.err(new Error(`Failed to parse TOML configuration at ${config_path}`))
 	}
 
-	// Validate schema
-	const result = v.safeParse(configSchema, parsed)
-	if (!result.success) {
-		console.error(`FATAL Error: Invalid configuration at ${config_path}`)
-		console.error(result.issues)
-		process.exit(1)
+	const parsedConfigResult = v.safeParse(configSchema, parsed)
+	if (!parsedConfigResult.success) {
+		return Result.err(new Error(`Invalid configuration at ${config_path}`))
 	}
 
-	config = result.output
+	return Result.ok(parsedConfigResult.output)
 }
 
-export { config }
+let config: AppConfig | null = null
+
+export function initConfig(value: AppConfig): void {
+	config = value
+}
+
+export function getConfig(): AppConfig {
+	if (!config) {
+		throw new Error('Config has not been initialized')
+	}
+
+	return config
+}
+
+// Keep tests simple when they import server modules without running index.ts.
+if (Bun.env.NODE_ENV === 'test') {
+	const configResult = loadConfig()
+	if (Result.isOk(configResult)) {
+		initConfig(configResult.value)
+	}
+}
