@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
@@ -51,6 +51,7 @@ export function listEntries(): OtpDisplayInfo[] {
 			label: entries.label,
 			issuer: entries.issuer,
 			issuer_second: entries.issuer_second,
+			usage_count: entries.usage_count,
 			period: entries.period,
 		})
 		.from(entries)
@@ -66,6 +67,7 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		label: obj.label,
 		issuer: obj.issuer ?? '',
 		issuer_second: obj.issuer_second ?? '',
+		usage_count: 0,
 		secret: obj.secret.toUpperCase(),
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
@@ -84,6 +86,13 @@ export function getEntryById(id: string): OtpEntry | null {
 
 export function updateEntry(id: string, updated: UpdateOtpEntry): void {
 	db.update(entries).set(updated).where(eq(entries.id, id)).run()
+}
+
+export function incrementEntryAccessCount(id: string): void {
+	db.update(entries)
+		.set({ usage_count: sql`${entries.usage_count} + 1` })
+		.where(eq(entries.id, id))
+		.run()
 }
 
 export function getUserByEmail(email: string): User | null {

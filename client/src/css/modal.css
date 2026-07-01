@@ -111,3 +111,10 @@
 .form-actions button {
 	flex: 1;
 }
+
+.edit-dialog__usage-count {
+	align-self: flex-start;
+	width: 100%;
+	text-align: left;
+	color: var(--color-text-muted);
+}

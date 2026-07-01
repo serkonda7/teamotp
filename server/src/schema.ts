@@ -5,6 +5,7 @@ export const entries = sqliteTable('entries', {
 	label: text('label').notNull(),
 	issuer: text('issuer').notNull(),
 	issuer_second: text('issuer_second').notNull().default(''),
+	usage_count: integer('usage_count').notNull().default(0),
 	secret: text('secret').notNull(),
 	algorithm: text('algorithm').notNull(),
 	digits: integer('digits').notNull(),

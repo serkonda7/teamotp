@@ -7,6 +7,7 @@ const otp: OtpDisplayInfo = {
 	issuer: 'Microsoft',
 	issuer_second: 'Test Und+Firma',
 	label: 'test@firma.onmicrosoft.com',
+	usage_count: 0,
 	period: 30,
 }
 

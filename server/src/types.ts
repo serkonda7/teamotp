@@ -4,6 +4,7 @@ export interface OtpEntry {
 	label: string
 	issuer: string
 	issuer_second: string
+	usage_count: number
 	secret: string
 	algorithm: HashAlgorithm
 	digits: number

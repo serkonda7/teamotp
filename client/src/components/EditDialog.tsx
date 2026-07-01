@@ -50,6 +50,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const [label, setLabel] = createSignal(props.otp.label)
 	const [issuer, setIssuer] = createSignal(props.otp.issuer)
 	const [issuerSecond, setIssuerSecond] = createSignal(props.otp.issuer_second)
+	const usageCount = props.otp.usage_count.toString()
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 
@@ -167,7 +168,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 						required
 						onInput={setLabel}
 					/>
-
+					<p class="edit-dialog__usage-count">Usage count: {usageCount}</p>
 					<div class="form-actions">
 						<button
 							type="submit"

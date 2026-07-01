@@ -11,11 +11,13 @@ export interface NewOtpEntry {
 	period?: number
 }
 
+/** OTP fields needed by frontend */
 export interface OtpDisplayInfo {
 	id: string
 	label: string
 	issuer: string
 	issuer_second: string
+	usage_count: number
 	period: number
 }
 

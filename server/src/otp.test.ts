@@ -10,6 +10,7 @@ describe('generateTotpCode', () => {
 			label: 'M365 account',
 			issuer: 'Microsoft',
 			issuer_second: '',
+			usage_count: 0,
 			secret: 'JBSWY3DPEHPK3PXP',
 			algorithm: 'sha1',
 			digits: 6,

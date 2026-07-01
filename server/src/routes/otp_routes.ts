@@ -1,7 +1,13 @@
 import { Result } from 'better-result'
 import { Hono } from 'hono'
 import type { NewOtpEntry } from 'shared/src/types'
-import { createEntry, getEntryById, listEntries, updateEntry } from '../db'
+import {
+	createEntry,
+	getEntryById,
+	incrementEntryAccessCount,
+	listEntries,
+	updateEntry,
+} from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { generateTotpCode } from '../otp'
 import type { UpdateOtpEntry } from '../types'
@@ -45,6 +51,7 @@ export const otpApp = new Hono()
 		if (Result.isError(code_res)) {
 			return c.json({ error: code_res.error.message }, 500)
 		}
+		incrementEntryAccessCount(id)
 		return c.json({ code: Result.unwrap(code_res) })
 	})
 

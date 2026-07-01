@@ -44,6 +44,7 @@ describe('OTP routes', () => {
 		expect(stored?.period).toBe(30)
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
 		expect(stored?.issuer_second).toBe('')
+		expect(stored?.usage_count).toBe(0)
 
 		const listResponse = await app.request('/otp', {
 			headers: { ...headers },
@@ -55,6 +56,7 @@ describe('OTP routes', () => {
 				label: 'Personal account',
 				issuer: 'example.com',
 				issuer_second: '',
+				usage_count: 0,
 				period: 30,
 			},
 		])
@@ -113,6 +115,9 @@ describe('OTP routes', () => {
 		expect(codeResponse.status).toBe(200)
 		const codeBody = (await codeResponse.json()) as { code: string }
 		expect(codeBody.code).toMatch(/^\d{8}$/)
+
+		const stored = getEntryById(createBody.id)
+		expect(stored?.usage_count).toBe(1)
 	})
 
 	test('updates an existing OTP entry', async () => {

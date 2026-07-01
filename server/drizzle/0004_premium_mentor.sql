@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `usage_count` integer DEFAULT 0 NOT NULL;
