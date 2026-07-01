@@ -80,15 +80,25 @@
 
 @media (max-width: 800px) {
 	.app-header {
-		grid-template-columns: 1fr;
+		grid-template-columns: 1fr auto;
 		row-gap: 0.75rem;
 	}
 
-	.app-header__search-wrap {
-		max-width: min(100%, 24rem);
+	.app-title {
+		order: 1;
+		grid-column: 1;
 	}
 
 	.header-actions {
-		justify-self: start;
+		order: 2;
+		grid-column: 2;
+		justify-self: end;
+	}
+
+	.app-header__search-wrap {
+		order: 3;
+		grid-column: 1 / -1;
+		max-width: min(100%, 24rem);
+		justify-self: stretch;
 	}
 }
