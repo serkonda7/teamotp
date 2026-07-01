@@ -1,6 +1,6 @@
 # Changelog
 ## 0.0.6
-_unreleased_
+_2026-07-01_
 
 - New Features
   - Implement search bar
