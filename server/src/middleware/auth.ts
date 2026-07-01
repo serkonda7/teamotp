@@ -1,7 +1,7 @@
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { verify } from 'hono/jwt'
-import { config } from '../config'
+import { getConfig } from '../config'
 import { isValidSession } from '../sessions'
 
 export type JwtPayload = {
@@ -21,7 +21,7 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
-		const secret = config.auth.jwtSecret
+		const secret = getConfig().auth.jwtSecret
 
 		try {
 			const payload = (await verify(token, secret, JWT_ALGO)) as JwtPayload

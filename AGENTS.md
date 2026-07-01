@@ -1,4 +1,0 @@
-- Linter: Biome.js
-  - Run after bigger changes: `bun run lint`
-- Type Checker: tsgo
-  - Run after bigger changes: `bun run check`

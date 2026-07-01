@@ -1,18 +1,10 @@
-/**
- * `data/config.toml` handling
- * - Schema definition and validation
- * - Expose a test fallback
- */
-
 import fs from 'node:fs'
-import path from 'node:path'
+import { Result } from 'better-result'
 import * as v from 'valibot'
-import { SERVER_ROOT } from './util/server_root'
 
-// --------
-// Config Schema
-// --------
-
+/**
+ * Schema definition of config file structure and fields.
+ */
 const configSchema = v.object({
 	auth: v.object({
 		jwtSecret: v.string(),
@@ -30,52 +22,58 @@ const configSchema = v.object({
 
 export type AppConfig = v.InferOutput<typeof configSchema>
 
-// --------
-// Config parsing logic
-// --------
+/**
+ * Loads and validates the configuration file from given path.
+ */
+export function load_config_file(path: string): Result<AppConfig, Error> {
+	if (!fs.existsSync(path)) {
+		return Result.err(new Error(`Configuration file missing at ${path}`))
+	}
 
-const is_test_run = Bun.env.NODE_ENV === 'test'
+	// Parse TOML file content
+	const content = fs.readFileSync(path, 'utf8')
+	let parsed: object
+	try {
+		parsed = Bun.TOML.parse(content)
+	} catch {
+		return Result.err(new Error(`Failed to parse TOML configuration at ${path}`))
+	}
 
-let config: AppConfig
+	// Validate schema
+	const config_res = v.safeParse(configSchema, parsed)
+	if (!config_res.success) {
+		return Result.err(new Error(`Invalid configuration at ${path}`))
+	}
 
-if (is_test_run) {
-	// Note: test config is hardcoded here for simplicity. Schema validation can just crash if invalid
-	config = v.parse(configSchema, {
+	return Result.ok(config_res.output)
+}
+
+// ---------------------------------------------------------------------------
+// Getters and setters for global config object.
+// ---------------------------------------------------------------------------
+
+let config: AppConfig | null = null
+
+export function initConfig(value: AppConfig): void {
+	config = value
+}
+
+export function getConfig(): AppConfig {
+	if (!config) {
+		throw new Error('Config has not been initialized')
+	}
+
+	return config
+}
+
+// Use special testing config if tests import server modules without running the full server.
+if (Bun.env.NODE_ENV === 'test') {
+	// Note: config is hardcoded for simplicity.
+	// Schema validation might crash the tests if the config becomes invalid.
+	const test_config = v.parse(configSchema, {
 		auth: {
 			jwtSecret: 'test_secret',
 		},
 	})
-} else {
-	const config_path = path.join(SERVER_ROOT, 'data', 'config.toml')
-
-	if (!fs.existsSync(config_path)) {
-		console.error(`FATAL Error: Configuration file missing at ${config_path}`)
-		process.exit(1)
-	}
-
-	// Parse TOML file content
-	const file_content = fs.readFileSync(config_path, 'utf8')
-	let parsed: object
-	try {
-		parsed = Bun.TOML.parse(file_content)
-	} catch (e: unknown) {
-		const errorMessage = e instanceof Error ? e.message : String(e)
-		console.error(
-			`FATAL Error: Failed to parse TOML configuration at ${config_path}:`,
-			errorMessage,
-		)
-		process.exit(1)
-	}
-
-	// Validate schema
-	const result = v.safeParse(configSchema, parsed)
-	if (!result.success) {
-		console.error(`FATAL Error: Invalid configuration at ${config_path}`)
-		console.error(result.issues)
-		process.exit(1)
-	}
-
-	config = result.output
+	initConfig(test_config)
 }
-
-export { config }
