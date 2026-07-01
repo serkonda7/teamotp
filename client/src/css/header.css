@@ -9,7 +9,6 @@
 	padding: 0.5rem 0;
 	background-color: var(--color-bg);
 	border-bottom: 1px solid transparent;
-	margin-bottom: 1rem;
 }
 
 .app-header--scrolled {
@@ -65,6 +64,7 @@
 .logout-button {
 	display: inline-flex;
 	align-items: center;
+	min-width: max-content;
 	gap: 0.35rem;
 	background-color: var(--color-danger-bg);
 	color: var(--color-danger);

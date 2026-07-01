@@ -1,4 +1,13 @@
 # Changelog
+## 0.0.7
+_unreleased_
+
+- UI improvements
+  - Header with search sticks to top of page if scrolled down
+  - Add entry form: Align style with application
+  - Improve various UI parts for mobile phone displays
+
+
 ## 0.0.6
 _2026-07-01_
 
