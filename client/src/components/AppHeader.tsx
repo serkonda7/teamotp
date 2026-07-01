@@ -1,6 +1,6 @@
 import { IconInfoCircle, IconLogout, IconSearch } from '@tabler/icons-solidjs'
 import type { InputEventAndTarget } from 'shared/src/types'
-import { createSignal, onCleanup, onMount, type JSX } from 'solid-js'
+import { createSignal, type JSX, onCleanup, onMount } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
@@ -32,7 +32,12 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<TeamOtpLogo class="app-title__logo" />
 			</div>
 			<div class="app-header__search-wrap">
-				<IconSearch class="app-header__search-icon" size={16} stroke="2" aria-hidden="true" />
+				<IconSearch
+					class="app-header__search-icon"
+					size={16}
+					stroke="2"
+					aria-hidden="true"
+				/>
 				<input
 					class="app-header__search"
 					type="search"
