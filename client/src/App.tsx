@@ -89,7 +89,7 @@ function App(): JSX.Element {
 					/>
 
 					<Show when={error()}>
-						<div>{error()}</div>
+						<div class="app-inline-error">{error()}</div>
 					</Show>
 
 					<OtpList

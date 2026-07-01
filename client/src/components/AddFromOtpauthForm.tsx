@@ -48,18 +48,25 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 	}
 
 	return (
-		<form onSubmit={addFromOtpauthUrl}>
+		<form class="add-entry" onSubmit={addFromOtpauthUrl}>
 			<input
+				id="otpauth-url"
+				class="add-entry__input"
 				type="text"
 				placeholder="otpauth://totp/..."
+				aria-label="OTPAuth URL"
 				value={props.otpauthUrl()}
-				onInput={(e: InputEventAndTarget): void =>
+				onInput={(e: InputEventAndTarget): void => {
 					props.setOtpauthUrl(e.currentTarget.value)
-				}
+					props.setError(null)
+				}}
 				disabled={props.submitting()}
+				autocomplete="off"
+				spellcheck={false}
 			/>
-			<button type="submit" disabled={props.submitting()}>
-				{props.submitting() ? 'Adding...' : 'Add from URL'}
+
+			<button type="submit" class="add-entry__submit" disabled={props.submitting()}>
+				{props.submitting() ? 'Adding...' : 'Add Entry'}
 			</button>
 		</form>
 	)
