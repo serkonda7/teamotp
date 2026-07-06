@@ -225,7 +225,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							onClick={(): Promise<void> => handleArchive()}
 							disabled={submitting()}
 						>
-							Archive
+							Archivieren
 						</button>
 					</div>
 				</form>
