@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import { eq } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
@@ -44,8 +44,8 @@ function resolve_db_path(): string {
 	return path.join(data_dir, configured_path)
 }
 
-export function listEntries(): OtpDisplayInfo[] {
-	return db
+export function listEntries(includeArchived = false): OtpDisplayInfo[] {
+	const baseQuery = db
 		.select({
 			id: entries.id,
 			label: entries.label,
@@ -54,7 +54,12 @@ export function listEntries(): OtpDisplayInfo[] {
 			period: entries.period,
 		})
 		.from(entries)
-		.all()
+
+	if (includeArchived) {
+		return baseQuery.all()
+	}
+
+	return baseQuery.where(isNull(entries.archived_at)).all()
 }
 
 export function createEntry(obj: NewOtpEntry): OtpEntry {
@@ -70,6 +75,7 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
+		archived_at: null,
 	}
 
 	db.insert(entries).values(entry).run()
@@ -84,6 +90,21 @@ export function getEntryById(id: string): OtpEntry | null {
 
 export function updateEntry(id: string, updated: UpdateOtpEntry): void {
 	db.update(entries).set(updated).where(eq(entries.id, id)).run()
+}
+
+export function archiveEntry(id: string): string | null {
+	const existing = getEntryById(id)
+	if (!existing) {
+		return null
+	}
+
+	if (existing.archived_at) {
+		return existing.archived_at
+	}
+
+	const archivedAt = new Date().toISOString()
+	db.update(entries).set({ archived_at: archivedAt }).where(eq(entries.id, id)).run()
+	return archivedAt
 }
 
 export function getUserByEmail(email: string): User | null {

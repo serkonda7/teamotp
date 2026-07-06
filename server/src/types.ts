@@ -8,6 +8,7 @@ export interface OtpEntry {
 	algorithm: HashAlgorithm
 	digits: number
 	period: number
+	archived_at: string | null
 }
 
 // Other fields are not updatable

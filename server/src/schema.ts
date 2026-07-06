@@ -9,6 +9,7 @@ export const entries = sqliteTable('entries', {
 	algorithm: text('algorithm').notNull(),
 	digits: integer('digits').notNull(),
 	period: integer('period').notNull(),
+	archived_at: text('archived_at'),
 })
 
 export const users = sqliteTable('users', {

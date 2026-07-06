@@ -238,4 +238,80 @@ describe('OTP routes', () => {
 		expect(stored?.issuer_second).toBe('Stable Second')
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
 	})
+
+	test('archives an entry and returns archivedAt', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Archive me',
+				issuer: 'archive.example',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const archiveResponse = await app.request(`/otp/${id}/archive`, {
+			method: 'POST',
+			headers: { ...headers },
+		})
+
+		expect(archiveResponse.status).toBe(200)
+		const archiveBody = (await archiveResponse.json()) as { archivedAt: string }
+		expect(archiveBody.archivedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+
+		const stored = getEntryById(id)
+		expect(stored?.archived_at).toBe(archiveBody.archivedAt)
+	})
+
+	test('archived entries are hidden by default and can be included explicitly', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Hidden when archived',
+				issuer: 'archive.example',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		await app.request(`/otp/${id}/archive`, {
+			method: 'POST',
+			headers: { ...headers },
+		})
+
+		const defaultList = await app.request('/otp', {
+			headers: { ...headers },
+		})
+		expect(defaultList.status).toBe(200)
+		expect(await defaultList.json()).toEqual([])
+
+		const includeArchivedList = await app.request('/otp?includeArchived=true', {
+			headers: { ...headers },
+		})
+		expect(includeArchivedList.status).toBe(200)
+		expect(await includeArchivedList.json()).toEqual([
+			{
+				id,
+				label: 'Hidden when archived',
+				issuer: 'archive.example',
+				issuer_second: '',
+				period: 30,
+			},
+		])
+	})
+
+	test('returns 404 when archiving a non-existent entry', async () => {
+		const headers = await getAuthHeaders()
+		const archiveResponse = await app.request('/otp/missing/archive', {
+			method: 'POST',
+			headers: { ...headers },
+		})
+
+		expect(archiveResponse.status).toBe(404)
+		expect(await archiveResponse.json()).toEqual({ error: 'OTP entry not found' })
+	})
 })

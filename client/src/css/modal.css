@@ -111,3 +111,33 @@
 .form-actions button {
 	flex: 1;
 }
+
+.archive-button {
+	padding: var(--gap-small) calc(var(--gap-small) * 2);
+	background-color: var(--color-danger-bg);
+	color: var(--color-danger);
+	border: 1px solid var(--color-danger);
+	border-radius: var(--corner-radius);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	margin-top: 0.5rem;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s,
+		color 0.2s;
+	margin-left: auto;
+	flex: 0 1 auto;
+	min-width: 8rem;
+}
+
+.archive-button:hover:not(:disabled) {
+	background-color: var(--color-danger-bg-hover);
+	border-color: var(--color-danger);
+	color: var(--color-danger);
+}
+
+.archive-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
