@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
-import { and, eq, isNull } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'

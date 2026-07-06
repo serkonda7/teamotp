@@ -14,6 +14,7 @@ describe('generateTotpCode', () => {
 			algorithm: 'sha1',
 			digits: 6,
 			period: 30,
+			archived_at: null,
 		}
 
 		expect(Result.unwrap(generateTotpCode(entry))).toHaveLength(6)

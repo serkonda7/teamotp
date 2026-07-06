@@ -50,6 +50,7 @@ const endpoints: Endpoint[] = [
 	{ method: 'POST', path: '/otp', acceptedRoles: AUTHENTICATED },
 	{ method: 'GET', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
 	{ method: 'POST', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
+	{ method: 'POST', path: '/otp/:id/archive', acceptedRoles: AUTHENTICATED },
 ]
 
 //
