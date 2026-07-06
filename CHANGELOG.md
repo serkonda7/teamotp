@@ -2,6 +2,8 @@
 ## 0.0.7
 _unreleased_
 
+- New Features
+  - Add url param `search`
 - UI improvements
   - Header with search sticks to top of page if scrolled down
   - Add entry form: Align style with application

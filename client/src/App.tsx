@@ -1,5 +1,13 @@
 import type { OtpDisplayInfo } from 'shared/src/types'
-import { createMemo, createResource, createSignal, type JSX, onMount, Show } from 'solid-js'
+import {
+	createEffect,
+	createMemo,
+	createResource,
+	createSignal,
+	type JSX,
+	onMount,
+	Show,
+} from 'solid-js'
 import { client } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
@@ -28,11 +36,36 @@ function App(): JSX.Element {
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 	const [aboutOpen, setAboutOpen] = createSignal(false)
-	const [searchQuery, setSearchQuery] = createSignal('')
+	const initialSearchQuery =
+		typeof window !== 'undefined'
+			? (new URLSearchParams(window.location.search).get('search') ?? '')
+			: ''
+	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
 
 	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
 		const query = searchQuery()
 		return otps().filter((otp) => otpMatchesSearch(otp, query))
+	})
+
+	createEffect(() => {
+		if (typeof window === 'undefined') {
+			return
+		}
+
+		const url = new URL(window.location.href)
+		const query = searchQuery().trim()
+
+		if (query.length > 0) {
+			url.searchParams.set('search', query)
+		} else {
+			url.searchParams.delete('search')
+		}
+
+		const next = `${url.pathname}${url.search}${url.hash}`
+		const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
+		if (next !== current) {
+			window.history.replaceState(null, '', next)
+		}
 	})
 
 	onMount(async () => {
