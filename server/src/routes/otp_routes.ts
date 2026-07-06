@@ -1,7 +1,7 @@
 import { Result } from 'better-result'
 import { Hono } from 'hono'
 import type { NewOtpEntry } from 'shared/src/types'
-import { createEntry, getEntryById, listEntries, updateEntry } from '../db'
+import { archiveEntry, createEntry, getEntryById, listEntries, updateEntry } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { generateTotpCode } from '../otp'
 import type { UpdateOtpEntry } from '../types'
@@ -11,7 +11,8 @@ export const otpApp = new Hono()
 
 	// GET /otp — list all entries
 	.get('/', (c) => {
-		return c.json(listEntries())
+		const includeArchived = c.req.query('includeArchived') === 'true'
+		return c.json(listEntries(includeArchived))
 	})
 
 	// POST /otp — create a new entry, return its id
@@ -70,4 +71,15 @@ export const otpApp = new Hono()
 			updateEntry(id, body)
 		}
 		return c.json({ success: true })
+	})
+
+	// POST /otp/:id/archive — archive an existing entry
+	.post('/:id/archive', (c) => {
+		const id = c.req.param('id')
+		const archivedAt = archiveEntry(id)
+		if (!archivedAt) {
+			return c.json({ error: 'OTP entry not found' }, 404)
+		}
+
+		return c.json({ archivedAt })
 	})
