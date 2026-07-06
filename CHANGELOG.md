@@ -9,7 +9,7 @@ _unreleased_
   - Header with search sticks to top of page if scrolled down
   - Add entry form: Align style with application
   - Improve various UI parts for mobile phone displays
-  - Search: focus with shortcut `Strg K`
+  - Search: focus with shortcut `Ctrl K`
 - Other changes
   - Translate UI to german
 

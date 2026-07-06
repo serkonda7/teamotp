@@ -24,6 +24,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 
 		const handleKeyDown = (event: KeyboardEvent): void => {
 			if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+				event.preventDefault()
+
 				const activeElement = document.activeElement
 				if (
 					activeElement instanceof HTMLInputElement ||
@@ -32,7 +34,6 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					return
 				}
 
-				event.preventDefault()
 				searchInputRef?.focus()
 			}
 		}
