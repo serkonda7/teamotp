@@ -12,6 +12,7 @@ type AppHeaderProps = {
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
 	const [isScrolled, setIsScrolled] = createSignal(false)
+	let searchInputRef: HTMLInputElement | undefined
 
 	onMount(() => {
 		const updateScrolled = (): void => {
@@ -21,8 +22,26 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 		updateScrolled()
 		window.addEventListener('scroll', updateScrolled, { passive: true })
 
+		const handleKeyDown = (event: KeyboardEvent): void => {
+			if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+				const activeElement = document.activeElement
+				if (
+					activeElement instanceof HTMLInputElement ||
+					activeElement instanceof HTMLTextAreaElement
+				) {
+					return
+				}
+
+				event.preventDefault()
+				searchInputRef?.focus()
+			}
+		}
+
+		window.addEventListener('keydown', handleKeyDown)
+
 		onCleanup(() => {
 			window.removeEventListener('scroll', updateScrolled)
+			window.removeEventListener('keydown', handleKeyDown)
 		})
 	})
 
@@ -39,6 +58,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					aria-hidden="true"
 				/>
 				<input
+					ref={searchInputRef}
 					class="app-header__search"
 					type="search"
 					value={props.searchQuery}
@@ -49,6 +69,14 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					aria-label="OTP-Einträge suchen"
 					autofocus
 				/>
+				<kbd
+					class="app-header__search-shortcut"
+					classList={{
+						'app-header__search-shortcut--hidden': props.searchQuery.length > 0,
+					}}
+				>
+					Strg K
+				</kbd>
 			</div>
 			<div class="header-actions">
 				<button

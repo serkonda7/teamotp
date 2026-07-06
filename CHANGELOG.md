@@ -4,10 +4,12 @@ _unreleased_
 
 - New Features
   - Add url param `search`
+  - Add feature to archive entries
 - UI improvements
   - Header with search sticks to top of page if scrolled down
   - Add entry form: Align style with application
   - Improve various UI parts for mobile phone displays
+  - Search: focus with shortcut `Strg K`
 - Other changes
   - Translate UI to german
 
