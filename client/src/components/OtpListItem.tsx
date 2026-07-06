@@ -143,7 +143,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 			await navigator.clipboard.writeText(value)
 			triggerCopyToast()
 		} catch {
-			props.setError('Failed to copy OTP code to clipboard')
+			props.setError('OTP-Code konnte nicht in die Zwischenablage kopiert werden')
 		}
 	}
 
@@ -156,8 +156,8 @@ const OtpListItem = (props: Props): JSX.Element => {
 					event.stopPropagation()
 					void copyCodeFromCard()
 				}}
-				aria-label={`Copy OTP code for ${issuerText}`}
-				title="Copy current code"
+				aria-label={`OTP-Code für ${issuerText} kopieren`}
+				title="Aktuellen Code kopieren"
 				disabled={isLoadingCode()}
 			/>
 			<div class="otp-list__content">
@@ -175,8 +175,8 @@ const OtpListItem = (props: Props): JSX.Element => {
 					event.stopPropagation()
 					setIsEditing(true)
 				}}
-				aria-label={`Edit OTP entry for ${issuerText}`}
-				title="Edit"
+				aria-label={`Eintrag für ${issuerText} bearbeiten`}
+				title="Bearbeiten"
 			>
 				<IconPencil size={18} stroke="2" />
 			</button>
@@ -187,8 +187,8 @@ const OtpListItem = (props: Props): JSX.Element => {
 					event.stopPropagation()
 					void toggleCodeVisibility()
 				}}
-				aria-label={isCodeVisible() ? 'Hide code' : 'Show code'}
-				title={isCodeVisible() ? 'Hide code' : 'Show code'}
+				aria-label={isCodeVisible() ? 'Code ausblenden' : 'Code anzeigen'}
+				title={isCodeVisible() ? 'Code ausblenden' : 'Code anzeigen'}
 				disabled={isLoadingCode()}
 			>
 				<Show when={isCodeVisible()} fallback={<IconEye size={18} />}>
@@ -197,7 +197,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 			</button>
 			<Show when={showCopyToast()}>
 				<div class="otp-list__copy-toast" role="status" aria-live="polite">
-					Copied!
+					Kopiert!
 				</div>
 			</Show>
 			<div class="otp-list__timer-track" aria-hidden="true">

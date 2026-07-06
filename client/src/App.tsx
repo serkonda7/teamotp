@@ -98,7 +98,7 @@ function App(): JSX.Element {
 	}
 
 	return (
-		<Show when={isLoggedIn() !== null} fallback={<div>Loading...</div>}>
+		<Show when={isLoggedIn() !== null} fallback={<div>Laden...</div>}>
 			<Show
 				when={isLoggedIn()}
 				fallback={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />}

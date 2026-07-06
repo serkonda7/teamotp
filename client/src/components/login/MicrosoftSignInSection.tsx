@@ -10,12 +10,12 @@ const MicrosoftSignInSection = (props: Props): JSX.Element => (
 	<div class="microsoft-login-section">
 		<a href="/api/auth/login/microsoft" class="login-button-microsoft">
 			<span class="ms-logo" aria-hidden="true">
-				<img src={msLogo} alt="Microsoft logo" />
+				<img src={msLogo} alt="Microsoft-Logo" />
 			</span>
-			<span class="ms-text">Sign in with Microsoft</span>
+			<span class="ms-text">Mit Microsoft anmelden</span>
 		</a>
 		<details class="local-login-details">
-			<summary>Use local account</summary>
+			<summary>Lokales Konto verwenden</summary>
 			{props.localLoginForm}
 		</details>
 	</div>

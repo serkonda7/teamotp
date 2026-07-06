@@ -15,7 +15,7 @@ const VersionLine = (): JSX.Element => (
 			target="_blank"
 			rel="noreferrer"
 		>
-			Changelog
+			Änderungen
 		</a>
 		)
 	</p>
@@ -29,7 +29,7 @@ const SourceLink = (): JSX.Element => (
 		class="github-link"
 	>
 		<IconBrandGithub size={18} stroke="2" aria-hidden="true" />
-		Source code
+		Quellcode
 	</a>
 )
 
@@ -39,14 +39,14 @@ const AboutDialog = (props: AboutDialogProps): JSX.Element => (
 			<button
 				type="button"
 				class="modal-dismiss"
-				aria-label="Close about dialog"
+				aria-label="Über TeamOTP schließen"
 				onClick={props.onClose}
 			/>
 			<div class="modal-card" role="dialog" aria-modal="true" aria-label="TeamOTP">
 				<button
 					type="button"
 					class="icon-button modal-close"
-					aria-label="Close about dialog"
+					aria-label="Über TeamOTP schließen"
 					onClick={props.onClose}
 				>
 					<IconX size={18} stroke="2" aria-hidden="true" />

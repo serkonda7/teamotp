@@ -61,7 +61,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 	function handleClose(): void {
 		if (hasChanges()) {
-			if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+			if (!confirm('Ungespeicherte Änderungen wirklich verwerfen?')) {
 				return
 			}
 		}
@@ -74,7 +74,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 		const labelVal = label().trim()
 		if (!labelVal) {
-			setError('Label is required')
+			setError('Konto ist erforderlich')
 			return
 		}
 
@@ -91,14 +91,14 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 			})
 
 			if (!res.ok) {
-				const msg = await read_api_error(res, 'Failed to update OTP entry')
+				const msg = await read_api_error(res, 'Fehler beim Update des Eintrags')
 				setError(msg)
 				return
 			}
 
 			await props.onSave()
 		} catch (_err) {
-			setError('An error occurred while saving.')
+			setError('Fehler beim Speichern.')
 		} finally {
 			setSubmitting(false)
 		}
@@ -109,25 +109,25 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 			<button
 				type="button"
 				class="modal-dismiss"
-				aria-label="Close edit dialog"
+				aria-label="Dialog schließen"
 				onClick={handleClose}
 			/>
 			<div
 				class="modal-card modal-card--wide"
 				role="dialog"
 				aria-modal="true"
-				aria-label="Edit OTP entry"
+				aria-label="OTP-Eintrag bearbeiten"
 			>
 				<button
 					type="button"
 					class="icon-button modal-close"
-					aria-label="Close edit dialog"
+					aria-label="Dialog schließen"
 					onClick={handleClose}
 				>
 					<IconX size={18} stroke="2" aria-hidden="true" />
 				</button>
 
-				<h2 style={{ 'margin-bottom': '1rem' }}>Edit OTP Entry</h2>
+				<h2 style={{ 'margin-bottom': '1rem' }}>Eintrag bearbeiten</h2>
 
 				<Show when={error()}>
 					<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
@@ -138,32 +138,32 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 				<form class="login-form" onSubmit={handleSubmit}>
 					<FormField
 						id="edit-issuer"
-						label="Issuer"
+						label="Anbieter"
 						value={issuer()}
 						changed={isIssuerChanged()}
 						disabled={submitting()}
 						colClass="col-6"
-						placeholder="e.g. Microsoft"
+						placeholder="z. B. Microsoft"
 						onInput={setIssuer}
 					/>
 					<FormField
 						id="edit-issuer-second"
-						label="Secondary Issuer"
+						label="Firma / zweiter Anbieter"
 						value={issuerSecond()}
 						changed={isIssuerSecondChanged()}
 						disabled={submitting()}
 						colClass="col-6"
-						placeholder="e.g. Musterfirma GmbH"
+						placeholder="z. B. Musterfirma GmbH"
 						onInput={setIssuerSecond}
 					/>
 					<FormField
 						id="edit-label"
-						label="Label"
+						label="Konto"
 						value={label()}
 						changed={isLabelChanged()}
 						disabled={submitting()}
 						colClass="col-12"
-						placeholder="e.g. user@gmail.com"
+						placeholder="z. B. user@gmail.com"
 						required
 						onInput={setLabel}
 					/>
@@ -178,7 +178,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							<Show when={hasChanges()}>
 								<i>* </i>
 							</Show>
-							{submitting() ? 'Saving...' : 'Save'}
+							{submitting() ? 'Speichern...' : 'Speichern'}
 						</button>
 						<button
 							type="button"
@@ -186,7 +186,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							onClick={handleClose}
 							disabled={submitting()}
 						>
-							Cancel
+							Abbrechen
 						</button>
 					</div>
 				</form>

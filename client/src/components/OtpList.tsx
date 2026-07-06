@@ -12,16 +12,16 @@ type Props = {
 }
 
 const OtpList = (props: Props): JSX.Element => (
-	<Show when={!props.loading} fallback={<div>Loading...</div>}>
+	<Show when={!props.loading} fallback={<div>Laden...</div>}>
 		<Show
 			when={props.otps.length > 0}
 			fallback={
 				<div class="otp-list__empty" role="status" aria-live="polite">
 					<Show
 						when={props.searchQuery.trim().length > 0}
-						fallback={<>No OTP entries yet.</>}
+						fallback={<>Keine Einträge vorhanden.</>}
 					>
-						No entries match "{props.searchQuery.trim()}".
+						Keine Einträge passen zu "{props.searchQuery.trim()}".
 					</Show>
 				</div>
 			}

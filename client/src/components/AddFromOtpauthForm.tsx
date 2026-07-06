@@ -21,7 +21,7 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 
 		const raw = props.otpauthUrl().trim()
 		if (!raw) {
-			props.setError('Please paste an otpauth URL')
+			props.setError('Füge eine otpauth:// URL ein')
 			return
 		}
 
@@ -66,7 +66,7 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 			/>
 
 			<button type="submit" class="add-entry__submit" disabled={props.submitting()}>
-				{props.submitting() ? 'Adding...' : 'Add Entry'}
+				{props.submitting() ? 'Wird erstellt...' : 'Neuer Eintrag'}
 			</button>
 		</form>
 	)

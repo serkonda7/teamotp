@@ -34,7 +34,7 @@ const LoginPage = (props: Props): JSX.Element => {
 		setError(null)
 
 		if (!email() || !password()) {
-			setError('Please enter both email and password.')
+			setError('Bitte E-Mail und Passwort eingeben.')
 			return
 		}
 
@@ -49,14 +49,14 @@ const LoginPage = (props: Props): JSX.Element => {
 			})
 
 			if (!res.ok) {
-				setError(await read_api_error(res, 'Login failed.'))
+				setError(await read_api_error(res, 'Anmeldung fehlgeschlagen.'))
 				return
 			}
 
 			// Call success callback to update App state
 			props.onLoginSuccess()
 		} catch (_err) {
-			setError('A network error occurred. Please try again.')
+			setError('Ein Netzwerkfehler ist aufgetreten. Bitte erneut versuchen.')
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -67,7 +67,7 @@ const LoginPage = (props: Props): JSX.Element => {
 	const localLoginForm = (): JSX.Element => (
 		<form onSubmit={handleSubmit} class="login-form">
 			<div class="form-group">
-				<label for="email">Email</label>
+				<label for="email">E-Mail</label>
 				<input
 					type="email"
 					id="email"
@@ -79,7 +79,7 @@ const LoginPage = (props: Props): JSX.Element => {
 				/>
 			</div>
 			<div class="form-group">
-				<label for="password">Password</label>
+				<label for="password">Passwort</label>
 				<input
 					type="password"
 					id="password"
@@ -93,7 +93,7 @@ const LoginPage = (props: Props): JSX.Element => {
 				<div class="login-error">{error()}</div>
 			</Show>
 			<button type="submit" disabled={isSubmitting()} class="login-button">
-				{isSubmitting() ? 'Signing in...' : 'Sign In'}
+				{isSubmitting() ? 'Anmelden...' : 'Anmelden'}
 			</button>
 		</form>
 	)

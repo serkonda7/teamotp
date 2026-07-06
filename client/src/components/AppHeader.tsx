@@ -45,8 +45,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					onInput={(event: InputEventAndTarget): void => {
 						props.onSearchInput(event.currentTarget.value)
 					}}
-					placeholder="Search"
-					aria-label="Search OTP entries"
+					placeholder="Suche"
+					aria-label="OTP-Einträge suchen"
 					autofocus
 				/>
 			</div>
@@ -55,14 +55,14 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					type="button"
 					class="icon-button info-button"
 					onClick={props.onOpenAbout}
-					aria-label="About TeamOTP"
-					title="About"
+					aria-label="Über TeamOTP"
+					title="Über"
 				>
 					<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
 				</button>
 				<button type="button" class="logout-button" onClick={props.onLogout}>
 					<IconLogout size={18} stroke="2" aria-hidden="true" />
-					Sign out
+					Abmelden
 				</button>
 			</div>
 		</header>
