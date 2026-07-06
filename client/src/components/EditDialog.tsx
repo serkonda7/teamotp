@@ -104,6 +104,37 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 		}
 	}
 
+	async function handleArchive(): Promise<void> {
+		if (
+			!confirm(
+				`Archive "${props.otp.issuer} (${props.otp.issuer_second}): ${props.otp.label}"?`,
+			)
+		) {
+			return
+		}
+
+		setError(null)
+		setSubmitting(true)
+		try {
+			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
+			const res = await (client.otp[':id'].archive.$post as any)({
+				param: { id: props.otp.id },
+			})
+
+			if (!res.ok) {
+				const msg = await read_api_error(res, 'Failed to archive OTP entry')
+				setError(msg)
+				return
+			}
+
+			await props.onSave()
+		} catch (_err) {
+			setError('An error occurred while archiving.')
+		} finally {
+			setSubmitting(false)
+		}
+	}
+
 	return (
 		<div class="modal-backdrop" role="presentation">
 			<button
@@ -187,6 +218,14 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							disabled={submitting()}
 						>
 							Abbrechen
+						</button>
+						<button
+							type="button"
+							class="archive-button"
+							onClick={(): Promise<void> => handleArchive()}
+							disabled={submitting()}
+						>
+							Archive
 						</button>
 					</div>
 				</form>
