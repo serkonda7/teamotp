@@ -9,9 +9,9 @@ type AboutDialogProps = {
 
 const VersionLine = (): JSX.Element => (
 	<p>
-		Version 0.0.6 (
+		Version 0.0.7 (
 		<a
-			href="https://github.com/serkonda7/teamotp/blob/main/CHANGELOG.md#006"
+			href="https://github.com/serkonda7/teamotp/blob/main/CHANGELOG.md#007"
 			target="_blank"
 			rel="noreferrer"
 		>

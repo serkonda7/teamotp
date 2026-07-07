@@ -1,6 +1,6 @@
 # Changelog
 ## 0.0.7
-_unreleased_
+_2026-07-07_
 
 - New Features
   - Add url param `search`
