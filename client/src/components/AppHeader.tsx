@@ -67,7 +67,10 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					onInput={(event: InputEventAndTarget): void => {
 						props.onSearchInput(event.currentTarget.value)
 					}}
-					onFocus={() => setIsSearchFocused(true)}
+					onFocus={() => {
+						setIsSearchFocused(true)
+						searchInputRef?.select()
+					}}
 					onBlur={() => setIsSearchFocused(false)}
 					placeholder="Suche"
 					aria-label="OTP-Einträge suchen"
