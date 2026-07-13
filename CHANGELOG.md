@@ -1,4 +1,12 @@
 # Changelog
+## 0.0.8
+_2026-07-13_
+
+- search bar UX improvements
+  - Show keyboard shortcut too if out of focus
+  - Select search text on refocus, so a new search text can be entered immediately
+
+
 ## 0.0.7
 _2026-07-07_
 
