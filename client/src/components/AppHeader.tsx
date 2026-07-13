@@ -12,6 +12,7 @@ type AppHeaderProps = {
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
 	const [isScrolled, setIsScrolled] = createSignal(false)
+	const [isSearchFocused, setIsSearchFocused] = createSignal(false)
 	let searchInputRef: HTMLInputElement | undefined
 
 	onMount(() => {
@@ -66,6 +67,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					onInput={(event: InputEventAndTarget): void => {
 						props.onSearchInput(event.currentTarget.value)
 					}}
+					onFocus={() => setIsSearchFocused(true)}
+					onBlur={() => setIsSearchFocused(false)}
 					placeholder="Suche"
 					aria-label="OTP-Einträge suchen"
 					autofocus
@@ -73,7 +76,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<kbd
 					class="app-header__search-shortcut"
 					classList={{
-						'app-header__search-shortcut--hidden': props.searchQuery.length > 0,
+						'app-header__search-shortcut--hidden':
+							props.searchQuery.length > 0 && isSearchFocused(),
 					}}
 				>
 					Strg K
