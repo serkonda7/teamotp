@@ -25,6 +25,16 @@
 	display: inline-flex;
 }
 
+.header-search {
+	display: flex;
+	align-items: center;
+	gap: var(--gap-small);
+}
+
+.header-search .search-input {
+	flex: 1;
+}
+
 .header-actions {
 	display: flex;
 	gap: var(--gap-small);
@@ -65,7 +75,7 @@
 		justify-self: end;
 	}
 
-	.search-input {
+	.header-search {
 		order: 3;
 		grid-column: 1 / -1;
 		max-width: min(100%, 24rem);

@@ -35,26 +35,28 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="app-title">
 				<TeamOtpLogo class="app-title__logo" />
 			</div>
-			<Show
-				when={path() === '/tags'}
-				fallback={
+			<div class="header-search">
+				<Show
+					when={path() === '/tags'}
+					fallback={
+						<SearchInput
+							value={props.searchQuery}
+							onInput={props.onSearchInput}
+							placeholder="Einträge suchen"
+							ariaLabel="Einträge suchen"
+						/>
+					}
+				>
 					<SearchInput
-						value={props.searchQuery}
-						onInput={props.onSearchInput}
-						placeholder="Einträge suchen"
-						ariaLabel="Einträge suchen"
+						value={props.tagSearchQuery}
+						onInput={props.onTagSearchInput}
+						placeholder="Tags suchen"
+						ariaLabel="Tags suchen"
 					/>
-				}
-			>
-				<SearchInput
-					value={props.tagSearchQuery}
-					onInput={props.onTagSearchInput}
-					placeholder="Tags suchen"
-					ariaLabel="Tags suchen"
-				/>
-			</Show>
-			<div class="header-actions">
+				</Show>
 				{props.children}
+			</div>
+			<div class="header-actions">
 				<Show
 					when={path() === '/tags'}
 					fallback={
