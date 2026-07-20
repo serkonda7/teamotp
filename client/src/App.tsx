@@ -15,7 +15,7 @@ import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
 import TagsPage from './components/TagsPage'
-import { path } from './router'
+import { path, setTagsChanged, tagsChanged } from './router'
 import { otpMatchesSearch } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
@@ -52,6 +52,11 @@ function App(): JSX.Element {
 	createEffect(() => {
 		if (typeof window === 'undefined') {
 			return
+		}
+
+		if (path() !== '/tags' && tagsChanged()) {
+			setTagsChanged(false)
+			void refetchTyped()
 		}
 
 		const url = new URL(window.location.href)

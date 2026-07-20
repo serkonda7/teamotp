@@ -4,6 +4,7 @@ import type { InputEventAndTarget, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createResource, createSignal, For, Show } from 'solid-js'
 import { create_tag, delete_tag, fetch_tags } from '../api'
+import { setTagsChanged } from '../router'
 import { makeArrayRefetch } from '../util/resource_helpers'
 
 const DEFAULT_COLOR = '#16a34a'
@@ -49,6 +50,7 @@ const TagsPage = (): JSX.Element => {
 		setName('')
 		setColor(DEFAULT_COLOR)
 		await refetchTyped()
+		setTagsChanged(true)
 	}
 
 	async function handleDelete(tag: TagWithMemberCount): Promise<void> {
@@ -64,6 +66,7 @@ const TagsPage = (): JSX.Element => {
 		}
 
 		await refetchTyped()
+		setTagsChanged(true)
 	}
 
 	return (
