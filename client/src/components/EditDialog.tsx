@@ -88,7 +88,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 		const res = await set_entry_tag(props.otp.id, tagId, assigned)
 		if (Result.isError(res)) {
-			setAssignedTagIds(current => {
+			setAssignedTagIds((current) => {
 				const reverted = new Set(current)
 				if (assigned) {
 					reverted.delete(tagId)
