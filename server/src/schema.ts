@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const entries = sqliteTable('entries', {
 	id: text('id').primaryKey(),
@@ -11,6 +11,25 @@ export const entries = sqliteTable('entries', {
 	period: integer('period').notNull(),
 	archived_at: text('archived_at'),
 })
+
+export const tags = sqliteTable('tags', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull().unique(),
+	color: text('color').notNull(),
+})
+
+export const entry_tags = sqliteTable(
+	'entry_tags',
+	{
+		entry_id: text('entry_id')
+			.notNull()
+			.references(() => entries.id, { onDelete: 'cascade' }),
+		tag_id: text('tag_id')
+			.notNull()
+			.references(() => tags.id, { onDelete: 'cascade' }),
+	},
+	(t) => [primaryKey({ columns: [t.entry_id, t.tag_id] })],
+)
 
 export const users = sqliteTable('users', {
 	id: text('id').primaryKey(),

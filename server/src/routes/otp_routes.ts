@@ -1,7 +1,17 @@
 import { Result } from 'better-result'
 import { Hono } from 'hono'
 import type { NewOtpEntry } from 'shared/src/types'
-import { archiveEntry, createEntry, getEntryById, listEntries, updateEntry } from '../db'
+import {
+	archiveEntry,
+	assignTag,
+	createEntry,
+	getEntryById,
+	getTagById,
+	listEntries,
+	listEntryTags,
+	unassignTag,
+	updateEntry,
+} from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { generateTotpCode } from '../otp'
 import type { UpdateOtpEntry } from '../types'
@@ -82,4 +92,46 @@ export const otpApp = new Hono()
 		}
 
 		return c.json({ archivedAt })
+	})
+
+	// GET /otp/:id/tags — list tags assigned to an entry
+	.get('/:id/tags', (c) => {
+		const id = c.req.param('id')
+		if (!getEntryById(id)) {
+			return c.json({ error: 'OTP entry not found' }, 404)
+		}
+
+		return c.json(listEntryTags(id))
+	})
+
+	// PUT /otp/:id/tags/:tagId — assign a tag to an entry
+	.put('/:id/tags/:tagId', (c) => {
+		const id = c.req.param('id')
+		const tagId = c.req.param('tagId')
+
+		if (!getEntryById(id)) {
+			return c.json({ error: 'OTP entry not found' }, 404)
+		}
+		if (!getTagById(tagId)) {
+			return c.json({ error: 'Tag not found' }, 404)
+		}
+
+		assignTag(id, tagId)
+		return c.json({ success: true })
+	})
+
+	// DELETE /otp/:id/tags/:tagId — unassign a tag from an entry
+	.delete('/:id/tags/:tagId', (c) => {
+		const id = c.req.param('id')
+		const tagId = c.req.param('tagId')
+
+		if (!getEntryById(id)) {
+			return c.json({ error: 'OTP entry not found' }, 404)
+		}
+		if (!getTagById(tagId)) {
+			return c.json({ error: 'Tag not found' }, 404)
+		}
+
+		unassignTag(id, tagId)
+		return c.json({ success: true })
 	})

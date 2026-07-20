@@ -8,6 +8,7 @@ const otp: OtpDisplayInfo = {
 	issuer_second: 'Test Und+Firma',
 	label: 'test@firma.onmicrosoft.com',
 	period: 30,
+	tags: [],
 }
 
 test('matches empty query', () => {

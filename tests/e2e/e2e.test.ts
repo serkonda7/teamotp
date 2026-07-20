@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 
 test('login page loads', async ({ page }) => {
 	await page.goto('/')
@@ -6,12 +6,7 @@ test('login page loads', async ({ page }) => {
 	await expect(page.locator('.login-card')).toBeVisible()
 })
 
-test('clicking the same entry again after 5 seconds copies a fresh code', async ({
-	context,
-	page,
-}) => {
-	await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-
+async function login(page: Page): Promise<void> {
 	await page.goto('/')
 	const useLocalAccount = page.getByText('Lokales Konto verwenden')
 	if ((await useLocalAccount.count()) > 0) {
@@ -20,6 +15,55 @@ test('clicking the same entry again after 5 seconds copies a fresh code', async 
 	await page.getByLabel('E-Mail').fill('e2e@test.com')
 	await page.getByLabel('Passwort').fill('e2e-password')
 	await page.getByRole('button', { name: 'Anmelden' }).click()
+}
+
+test('tags can be created, assigned and deleted', async ({ page }) => {
+	await login(page)
+
+	// Navigate to the tags page
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
+	await expect(page).toHaveURL(/\/tags$/)
+	await expect(page.getByText('Keine Tags vorhanden.')).toBeVisible()
+
+	// Create a tag
+	await page.getByLabel('Name').fill('Arbeit')
+	await page.getByLabel('Farbe').fill('#3b82f6')
+	await page.getByRole('button', { name: 'Erstellen' }).click()
+
+	const tagItem = page.locator('.tag-list__item')
+	await expect(tagItem).toHaveCount(1)
+	await expect(tagItem.locator('.tag-chip')).toHaveText('Arbeit')
+	await expect(tagItem.locator('.tag-list__count')).toHaveText('0 Einträge')
+
+	// Assign the tag in the entry edit dialog
+	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await expect(page).toHaveURL(/\/$/)
+	await page.getByRole('button', { name: 'Eintrag für test bearbeiten' }).click()
+	const tagOption = page.locator('.edit-tags__option', { hasText: 'Arbeit' })
+	await expect(tagOption).toBeVisible()
+	await tagOption.click()
+	await expect(tagOption.locator('input')).toBeChecked()
+
+	// Chip appears on the entry and the member count increases
+	await page.getByRole('button', { name: 'Abbrechen' }).click()
+	await expect(page.locator('.otp-list__tags .tag-chip')).toHaveText('Arbeit')
+
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
+	await expect(page.locator('.tag-list__count')).toHaveText('1 Eintrag')
+
+	// Delete the tag
+	page.on('dialog', (dialog) => dialog.accept())
+	await page.getByRole('button', { name: 'Tag Arbeit löschen' }).click()
+	await expect(page.getByText('Keine Tags vorhanden.')).toBeVisible()
+})
+
+test('clicking the same entry again after 5 seconds copies a fresh code', async ({
+	context,
+	page,
+}) => {
+	await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+
+	await login(page)
 
 	const copyButton = page.getByRole('button', { name: 'OTP-Code für Test kopieren' })
 	await expect(copyButton).toBeVisible()

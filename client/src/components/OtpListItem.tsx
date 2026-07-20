@@ -1,8 +1,8 @@
 import { IconEye, IconEyeOff, IconPencil } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
-import type { MouseEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import type { MouseEventAndTarget, OtpDisplayInfo, TagInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../api'
 import EditDialog from './EditDialog'
 
@@ -167,6 +167,17 @@ const OtpListItem = (props: Props): JSX.Element => {
 				>
 					{isCodeVisible() && code() !== null ? code() : props.otp.label}
 				</span>
+				<Show when={props.otp.tags.length > 0}>
+					<span class="otp-list__tags">
+						<For each={props.otp.tags}>
+							{(tag: TagInfo): JSX.Element => (
+								<span class="tag-chip" style={{ '--tag-color': tag.color }}>
+									{tag.name}
+								</span>
+							)}
+						</For>
+					</span>
+				</Show>
 			</div>
 			<button
 				type="button"
@@ -209,7 +220,11 @@ const OtpListItem = (props: Props): JSX.Element => {
 			<EditDialog
 				open={isEditing()}
 				otp={props.otp}
-				onClose={(): boolean => setIsEditing(false)}
+				onClose={(): void => {
+					setIsEditing(false)
+					// Tag assignments apply immediately, so refresh on close
+					void props.refetch()
+				}}
 				onSave={async (): Promise<void> => {
 					setIsEditing(false)
 					await props.refetch()

@@ -14,6 +14,8 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
+import TagsPage from './components/TagsPage'
+import { navigate, path, setTagsChanged, tagsChanged } from './router'
 import { otpMatchesSearch } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
@@ -41,6 +43,7 @@ function App(): JSX.Element {
 			? (new URLSearchParams(window.location.search).get('search') ?? '')
 			: ''
 	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
+	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
 
 	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
 		const query = searchQuery()
@@ -50,6 +53,11 @@ function App(): JSX.Element {
 	createEffect(() => {
 		if (typeof window === 'undefined') {
 			return
+		}
+
+		if (path() !== '/tags' && tagsChanged()) {
+			setTagsChanged(false)
+			void refetchTyped()
 		}
 
 		const url = new URL(window.location.href)
@@ -92,6 +100,8 @@ function App(): JSX.Element {
 			await fetch('/api/auth/logout', { method: 'POST' })
 			setIsLoggedIn(false)
 			setSearchQuery('')
+			setTagSearchQuery('')
+			navigate('/')
 		} catch (err) {
 			console.error('Logout failed', err)
 		}
@@ -109,29 +119,40 @@ function App(): JSX.Element {
 						onLogout={handleLogout}
 						searchQuery={searchQuery()}
 						onSearchInput={setSearchQuery}
+						tagSearchQuery={tagSearchQuery()}
+						onTagSearchInput={setTagSearchQuery}
 					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
-					<AddFromOtpauthForm
-						otpauthUrl={otpauthUrl}
-						setOtpauthUrl={setOtpauthUrl}
-						submitting={submitting}
-						setSubmitting={setSubmitting}
-						setError={setError}
-						refetch={refetchTyped}
-					/>
+					<Show
+						when={path() === '/tags'}
+						fallback={
+							<>
+								<AddFromOtpauthForm
+									otpauthUrl={otpauthUrl}
+									setOtpauthUrl={setOtpauthUrl}
+									submitting={submitting}
+									setSubmitting={setSubmitting}
+									setError={setError}
+									refetch={refetchTyped}
+								/>
 
-					<Show when={error()}>
-						<div class="app-inline-error">{error()}</div>
+								<Show when={error()}>
+									<div class="app-inline-error">{error()}</div>
+								</Show>
+
+								<OtpList
+									otps={filteredOtps()}
+									loading={otps.loading}
+									searchQuery={searchQuery()}
+									setError={setError}
+									refetch={refetchTyped}
+								/>
+							</>
+						}
+					>
+						<TagsPage searchQuery={tagSearchQuery()} />
 					</Show>
-
-					<OtpList
-						otps={filteredOtps()}
-						loading={otps.loading}
-						searchQuery={searchQuery()}
-						setError={setError}
-						refetch={refetchTyped}
-					/>
 				</div>
 			</Show>
 		</Show>

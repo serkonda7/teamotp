@@ -1,0 +1,48 @@
+/* Shared search input used in the header on the home and tags pages */
+.search-input {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.search-input__icon {
+	position: absolute;
+	left: 0.7rem;
+	color: var(--color-text-muted);
+	pointer-events: none;
+}
+
+.search-input .search-input__field {
+	width: 100%;
+	padding: 0.45rem 0.6rem 0.45rem 2.1rem;
+	border-radius: var(--corner-radius);
+	border: 2px solid var(--color-border);
+}
+
+.search-input__field:hover {
+	border-color: var(--color-primary-hover);
+}
+
+.search-input__field:focus-visible {
+	outline: none;
+	border-color: var(--color-primary);
+}
+
+.search-input__shortcut {
+	position: absolute;
+	right: 0.6rem;
+	padding: 0.15rem 0.4rem;
+	font-size: 0.75rem;
+	font-family: var(--font-family-base);
+	color: var(--color-text-muted);
+	background-color: var(--color-bg-hover);
+	border: 1px solid var(--color-border);
+	border-radius: var(--corner-radius);
+	pointer-events: none;
+	user-select: none;
+}
+
+.search-input__shortcut--hidden {
+	display: none;
+}
