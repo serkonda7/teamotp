@@ -15,7 +15,7 @@ import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
 import TagsPage from './components/TagsPage'
-import { path, setTagsChanged, tagsChanged } from './router'
+import { navigate, path, setTagsChanged, tagsChanged } from './router'
 import { otpMatchesSearch } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
@@ -101,6 +101,7 @@ function App(): JSX.Element {
 			setIsLoggedIn(false)
 			setSearchQuery('')
 			setTagSearchQuery('')
+			navigate('/')
 		} catch (err) {
 			console.error('Logout failed', err)
 		}

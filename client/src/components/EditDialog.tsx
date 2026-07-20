@@ -78,8 +78,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	async function handleTagToggle(tagId: string, assigned: boolean): Promise<void> {
 		setError(null)
 
-		const previous = assignedTagIds()
-		const next = new Set(previous)
+		const next = new Set(assignedTagIds())
 		if (assigned) {
 			next.add(tagId)
 		} else {
@@ -89,7 +88,15 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 		const res = await set_entry_tag(props.otp.id, tagId, assigned)
 		if (Result.isError(res)) {
-			setAssignedTagIds(previous)
+			setAssignedTagIds(current => {
+				const reverted = new Set(current)
+				if (assigned) {
+					reverted.delete(tagId)
+				} else {
+					reverted.add(tagId)
+				}
+				return reverted
+			})
 			setError(res.error.message)
 		}
 	}

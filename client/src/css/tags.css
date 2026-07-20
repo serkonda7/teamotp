@@ -31,6 +31,7 @@
 }
 
 .tags-create-form {
+	display: flex;
 	align-items: flex-end;
 	flex-wrap: wrap;
 }
@@ -43,7 +44,7 @@
 	width: 3.2rem;
 	height: 2.35rem;
 	padding: 0.15rem;
-	border: 1px solid #ccc;
+	border: 1px solid var(--color-border);
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
 	cursor: pointer;
@@ -116,7 +117,7 @@
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
-	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
 }
 
 .edit-tags__option--assigned {

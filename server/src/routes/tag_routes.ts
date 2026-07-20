@@ -22,6 +22,10 @@ export const tagApp = new Hono()
 			return c.json({ error: 'Invalid JSON body' }, 400)
 		}
 
+		if (!body || typeof body !== 'object') {
+			return c.json({ error: 'Invalid JSON body' }, 400)
+		}
+
 		const name = body.name?.trim() ?? ''
 		const color = body.color ?? ''
 		if (!name || !color) {
