@@ -14,7 +14,7 @@
     "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "@azure/msal-node": "~5.4.0",
+    "@azure/msal-node": "~5.4.1",
     "otplib": "~13.4.1",
     "valibot": "~1.4.2"
   },
