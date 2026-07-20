@@ -14,3 +14,13 @@ export function otpMatchesSearch(otp: OtpDisplayInfo, query: string): boolean {
 		normalize(field).includes(normalizedQuery),
 	)
 }
+
+/** Matches when the entry has all of the given tag IDs (empty list matches everything). */
+export function otpMatchesTags(otp: OtpDisplayInfo, tagIds: string[]): boolean {
+	if (tagIds.length === 0) {
+		return true
+	}
+
+	const entryTagIds = new Set(otp.tags.map((tag) => tag.id))
+	return tagIds.every((id) => entryTagIds.has(id))
+}

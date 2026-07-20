@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import type { OtpDisplayInfo } from 'shared/src/types'
-import { otpMatchesSearch } from '../util/otp_search'
+import { otpMatchesSearch, otpMatchesTags } from '../util/otp_search'
 
 const otp: OtpDisplayInfo = {
 	id: '1',
@@ -33,4 +33,29 @@ test('trims query before matching', () => {
 
 test('returns false when query does not match', () => {
 	expect(otpMatchesSearch(otp, 'github')).toBe(false)
+})
+
+const taggedOtp: OtpDisplayInfo = {
+	...otp,
+	tags: [
+		{ id: 'tag-1', name: 'Arbeit', color: '#3b82f6' },
+		{ id: 'tag-2', name: 'Wichtig', color: '#ef4444' },
+	],
+}
+
+test('tag filter matches everything when no tags are selected', () => {
+	expect(otpMatchesTags(otp, [])).toBe(true)
+})
+
+test('tag filter matches when entry has all selected tags', () => {
+	expect(otpMatchesTags(taggedOtp, ['tag-1'])).toBe(true)
+	expect(otpMatchesTags(taggedOtp, ['tag-1', 'tag-2'])).toBe(true)
+})
+
+test('tag filter does not match when a selected tag is missing', () => {
+	expect(otpMatchesTags(taggedOtp, ['tag-1', 'tag-3'])).toBe(false)
+})
+
+test('tag filter does not match entries without tags', () => {
+	expect(otpMatchesTags(otp, ['tag-1'])).toBe(false)
 })

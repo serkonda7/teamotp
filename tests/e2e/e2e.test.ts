@@ -17,7 +17,7 @@ async function login(page: Page): Promise<void> {
 	await page.getByRole('button', { name: 'Anmelden' }).click()
 }
 
-test('tags can be created, assigned and deleted', async ({ page }) => {
+test('tags can be created, assigned, filtered and deleted', async ({ page }) => {
 	await login(page)
 
 	// Navigate to the tags page
@@ -51,9 +51,46 @@ test('tags can be created, assigned and deleted', async ({ page }) => {
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	await expect(page.locator('.tag-list__count')).toHaveText('1 Eintrag')
 
-	// Delete the tag
+	// Create a second, unassigned tag
+	await page.getByLabel('Name').fill('Privat')
+	await page.getByRole('button', { name: 'Erstellen' }).click()
+	await expect(page.locator('.tag-list__item')).toHaveCount(2)
+
+	// The overview page shows a filter chip per tag
+	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	const arbeitChip = page.locator('.tag-filter-bar__chip', { hasText: 'Arbeit' })
+	const privatChip = page.locator('.tag-filter-bar__chip', { hasText: 'Privat' })
+	await expect(page.locator('.tag-filter-bar__chip')).toHaveCount(2)
+
+	// Filtering by the unassigned tag hides the entry
+	await privatChip.click()
+	await expect(privatChip).toHaveAttribute('aria-pressed', 'true')
+	await expect(page.locator('.otp-list__item')).toHaveCount(0)
+	await expect(page.getByText('Keine Einträge passen zum gewählten Tag-Filter.')).toBeVisible()
+
+	// Deselecting the tag shows the entry again
+	await privatChip.click()
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
+	// Filtering by the assigned tag keeps the entry visible
+	await arbeitChip.click()
+	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'true')
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
+	// Delete the selected tag
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	page.on('dialog', (dialog) => dialog.accept())
 	await page.getByRole('button', { name: 'Tag Arbeit löschen' }).click()
+	await expect(page.locator('.tag-list__item')).toHaveCount(1)
+
+	// The deleted tag disappears from the filter bar and is deselected
+	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await expect(page.locator('.tag-filter-bar__chip')).toHaveCount(1)
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
+	// Delete the remaining tag
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
+	await page.getByRole('button', { name: 'Tag Privat löschen' }).click()
 	await expect(page.getByText('Keine Tags vorhanden.')).toBeVisible()
 })
 
