@@ -11,6 +11,7 @@ type AppHeaderProps = {
 	onSearchInput: (query: string) => void
 	tagSearchQuery: string
 	onTagSearchInput: (query: string) => void
+	children?: JSX.Element
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
@@ -53,6 +54,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				/>
 			</Show>
 			<div class="header-actions">
+				{props.children}
 				<Show
 					when={path() === '/tags'}
 					fallback={

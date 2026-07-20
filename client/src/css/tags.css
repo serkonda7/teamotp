@@ -126,15 +126,60 @@
 	color: #fff;
 }
 
-/* Tag filter bar on the entries page */
-.tag-filter-bar {
+/* Tag filter popover on the entries page */
+.tag-filter {
+	position: relative;
+}
+
+.tag-filter__button {
+	position: relative;
+}
+
+.tag-filter__button--active {
+	color: var(--color-primary);
+	border-color: var(--color-primary);
+}
+
+.tag-filter__badge {
+	position: absolute;
+	top: -0.35rem;
+	right: -0.35rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.05rem;
+	height: 1.05rem;
+	padding: 0 0.2rem;
+	border-radius: 999px;
+	background: var(--color-primary);
+	color: #fff;
+	font-size: 0.65rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.tag-filter__popover {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	right: 0;
+	z-index: 20;
+	padding: var(--gap-small);
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+	box-shadow: var(--shadow-card);
+	max-width: min(22rem, 85vw);
+	max-height: 50vh;
+	overflow-y: auto;
+}
+
+.tag-filter__chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.4rem;
-	margin: 0 0 0.75rem;
 }
 
-.tag-filter-bar__chip {
+.tag-filter__chip {
 	font-family: inherit;
 	cursor: pointer;
 
@@ -148,8 +193,8 @@
 	}
 }
 
-.tag-filter-bar__chip--active,
-.tag-filter-bar__chip--active:hover {
+.tag-filter__chip--active,
+.tag-filter__chip--active:hover {
 	background: var(--tag-color);
 	border-color: var(--tag-color);
 	color: #fff;

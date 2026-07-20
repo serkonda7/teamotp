@@ -15,7 +15,7 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
-import TagFilterBar from './components/TagFilterBar'
+import TagFilter from './components/TagFilter'
 import TagsPage from './components/TagsPage'
 import { navigate, path, setTagsChanged, tagsChanged } from './router'
 import { otpMatchesSearch, otpMatchesTags } from './util/otp_search'
@@ -158,7 +158,15 @@ function App(): JSX.Element {
 						onSearchInput={setSearchQuery}
 						tagSearchQuery={tagSearchQuery()}
 						onTagSearchInput={setTagSearchQuery}
-					/>
+					>
+						<Show when={path() !== '/tags' && allTags().length > 0}>
+							<TagFilter
+								tags={allTags()}
+								activeTagIds={activeTagIds()}
+								onToggle={toggleTagFilter}
+							/>
+						</Show>
+					</AppHeader>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 					<Show
@@ -176,14 +184,6 @@ function App(): JSX.Element {
 
 								<Show when={error()}>
 									<div class="app-inline-error">{error()}</div>
-								</Show>
-
-								<Show when={allTags().length > 0}>
-									<TagFilterBar
-										tags={allTags()}
-										activeTagIds={activeTagIds()}
-										onToggle={toggleTagFilter}
-									/>
 								</Show>
 
 								<OtpList
