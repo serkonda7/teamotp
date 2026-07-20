@@ -85,6 +85,10 @@ function App(): JSX.Element {
 		)
 	}
 
+	function clearTagFilter(): void {
+		setActiveTagIds([])
+	}
+
 	createEffect(() => {
 		if (typeof window === 'undefined') {
 			return
@@ -164,6 +168,7 @@ function App(): JSX.Element {
 								tags={allTags()}
 								activeTagIds={activeTagIds()}
 								onToggle={toggleTagFilter}
+								onClear={clearTagFilter}
 							/>
 						</Show>
 					</AppHeader>

@@ -81,6 +81,12 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'true')
 	await expect(page.locator('.otp-list__item')).toHaveCount(1)
 
+	// The clear button resets the filter
+	await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'false')
+	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
 	// Escape closes the popover
 	await page.keyboard.press('Escape')
 	await expect(page.locator('.tag-filter__popover')).toHaveCount(0)

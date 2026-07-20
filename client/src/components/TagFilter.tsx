@@ -1,4 +1,4 @@
-import { IconFilter2 } from '@tabler/icons-solidjs'
+import { IconFilter2, IconFilter2Cancel } from '@tabler/icons-solidjs'
 import type { TagInfo } from 'shared/src/types'
 import { createEffect, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
 
@@ -6,6 +6,7 @@ type Props = {
 	tags: TagInfo[]
 	activeTagIds: string[]
 	onToggle: (tagId: string) => void
+	onClear: () => void
 }
 
 const TagFilter = (props: Props): JSX.Element => {
@@ -60,6 +61,17 @@ const TagFilter = (props: Props): JSX.Element => {
 			</button>
 			<Show when={open()}>
 				<div class="tag-filter__popover">
+					<Show when={props.activeTagIds.length > 0}>
+						<button
+							type="button"
+							class="tag-filter__clear"
+							onClick={(): void => props.onClear()}
+							title="Tag-Filter zurücksetzen"
+						>
+							<IconFilter2Cancel size={16} stroke="2" aria-hidden="true" />
+							Filter zurücksetzen
+						</button>
+					</Show>
 					<div class="tag-filter__chips">
 						<For each={props.tags}>
 							{(tag: TagInfo): JSX.Element => {

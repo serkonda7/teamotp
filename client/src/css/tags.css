@@ -173,6 +173,34 @@
 	overflow-y: auto;
 }
 
+.tag-filter__clear {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	width: 100%;
+	margin-bottom: var(--gap-small);
+	padding: 0.3rem 0.6rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+	color: var(--color-text-muted);
+	font-family: inherit;
+	font-size: 0.78rem;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--color-bg-hover);
+		border-color: var(--color-border-strong);
+		color: var(--color-text);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+}
+
 .tag-filter__chips {
 	display: flex;
 	flex-wrap: wrap;
