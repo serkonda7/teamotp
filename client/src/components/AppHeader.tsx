@@ -1,7 +1,7 @@
-import { IconHome, IconInfoCircle, IconLogout, IconSearch, IconTag } from '@tabler/icons-solidjs'
-import type { InputEventAndTarget } from 'shared/src/types'
+import { IconHome, IconInfoCircle, IconLogout, IconTag } from '@tabler/icons-solidjs'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import { navigate, path } from '../router'
+import SearchInput from './SearchInput'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
@@ -9,12 +9,12 @@ type AppHeaderProps = {
 	onLogout: () => void
 	searchQuery: string
 	onSearchInput: (query: string) => void
+	tagSearchQuery: string
+	onTagSearchInput: (query: string) => void
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
 	const [isScrolled, setIsScrolled] = createSignal(false)
-	const [isSearchFocused, setIsSearchFocused] = createSignal(false)
-	let searchInputRef: HTMLInputElement | undefined
 
 	onMount(() => {
 		const updateScrolled = (): void => {
@@ -24,27 +24,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 		updateScrolled()
 		window.addEventListener('scroll', updateScrolled, { passive: true })
 
-		const handleKeyDown = (event: KeyboardEvent): void => {
-			if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-				event.preventDefault()
-
-				const activeElement = document.activeElement
-				if (
-					activeElement instanceof HTMLInputElement ||
-					activeElement instanceof HTMLTextAreaElement
-				) {
-					return
-				}
-
-				searchInputRef?.focus()
-			}
-		}
-
-		window.addEventListener('keydown', handleKeyDown)
-
 		onCleanup(() => {
 			window.removeEventListener('scroll', updateScrolled)
-			window.removeEventListener('keydown', handleKeyDown)
 		})
 	})
 
@@ -53,41 +34,23 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="app-title">
 				<TeamOtpLogo class="app-title__logo" />
 			</div>
-			<Show when={path() === '/'}>
-				<div class="app-header__search-wrap">
-					<IconSearch
-						class="app-header__search-icon"
-						size={16}
-						stroke="2"
-						aria-hidden="true"
-					/>
-					<input
-						ref={searchInputRef}
-						class="app-header__search"
-						type="search"
+			<Show
+				when={path() === '/tags'}
+				fallback={
+					<SearchInput
 						value={props.searchQuery}
-						onInput={(event: InputEventAndTarget): void => {
-							props.onSearchInput(event.currentTarget.value)
-						}}
-						onFocus={() => {
-							setIsSearchFocused(true)
-							searchInputRef?.select()
-						}}
-						onBlur={() => setIsSearchFocused(false)}
-						placeholder="Suche"
-						aria-label="OTP-Einträge suchen"
-						autofocus
+						onInput={props.onSearchInput}
+						placeholder="Einträge suchen"
+						ariaLabel="Einträge suchen"
 					/>
-					<kbd
-						class="app-header__search-shortcut"
-						classList={{
-							'app-header__search-shortcut--hidden':
-								props.searchQuery.length > 0 && isSearchFocused(),
-						}}
-					>
-						Strg K
-					</kbd>
-				</div>
+				}
+			>
+				<SearchInput
+					value={props.tagSearchQuery}
+					onInput={props.onTagSearchInput}
+					placeholder="Tags suchen"
+					ariaLabel="Tags suchen"
+				/>
 			</Show>
 			<div class="header-actions">
 				<Show

@@ -25,54 +25,6 @@
 	display: inline-flex;
 }
 
-.app-header__search-wrap {
-	position: relative;
-	display: flex;
-	align-items: center;
-	min-width: 0;
-}
-
-.app-header__search-icon {
-	position: absolute;
-	left: 0.7rem;
-	color: var(--color-text-muted);
-	pointer-events: none;
-}
-
-.app-header__search-wrap .app-header__search {
-	width: 100%;
-	padding: 0.45rem 0.6rem 0.45rem 2.1rem;
-	border-radius: var(--corner-radius);
-	border: 2px solid var(--color-border);
-}
-
-.app-header__search:hover {
-	border-color: var(--color-primary-hover);
-}
-
-.app-header__search:focus-visible {
-	outline: none;
-	border-color: var(--color-primary);
-}
-
-.app-header__search-shortcut {
-	position: absolute;
-	right: 0.6rem;
-	padding: 0.15rem 0.4rem;
-	font-size: 0.75rem;
-	font-family: var(--font-family-base);
-	color: var(--color-text-muted);
-	background-color: var(--color-bg-hover);
-	border: 1px solid var(--color-border);
-	border-radius: var(--corner-radius);
-	pointer-events: none;
-	user-select: none;
-}
-
-.app-header__search-shortcut--hidden {
-	display: none;
-}
-
 .header-actions {
 	display: flex;
 	gap: var(--gap-small);
@@ -113,7 +65,7 @@
 		justify-self: end;
 	}
 
-	.app-header__search-wrap {
+	.search-input {
 		order: 3;
 		grid-column: 1 / -1;
 		max-width: min(100%, 24rem);

@@ -9,7 +9,11 @@ import { makeArrayRefetch } from '../util/resource_helpers'
 
 const DEFAULT_COLOR = '#16a34a'
 
-const TagsPage = (): JSX.Element => {
+type TagsPageProps = {
+	searchQuery: string
+}
+
+const TagsPage = (props: TagsPageProps): JSX.Element => {
 	const [name, setName] = createSignal('')
 	const [color, setColor] = createSignal(DEFAULT_COLOR)
 	const [submitting, setSubmitting] = createSignal(false)
@@ -27,6 +31,14 @@ const TagsPage = (): JSX.Element => {
 		{ initialValue: [] },
 	)
 	const refetchTyped = makeArrayRefetch<TagWithMemberCount>(refetch)
+
+	const filteredTags = (): TagWithMemberCount[] => {
+		const query = props.searchQuery.trim().toLocaleLowerCase()
+		if (query.length === 0) {
+			return tags()
+		}
+		return tags().filter((tag) => tag.name.toLocaleLowerCase().includes(query))
+	}
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -118,31 +130,40 @@ const TagsPage = (): JSX.Element => {
 						</div>
 					}
 				>
-					<ul class="tag-list">
-						<For each={tags()}>
-							{(tag: TagWithMemberCount): JSX.Element => (
-								<li class="tag-list__item">
-									<span class="tag-chip" style={{ '--tag-color': tag.color }}>
-										{tag.name}
-									</span>
-									<span class="tag-list__count">
-										{tag.member_count === 1
-											? '1 Eintrag'
-											: `${tag.member_count} Einträge`}
-									</span>
-									<button
-										type="button"
-										class="icon-button"
-										onClick={(): Promise<void> => handleDelete(tag)}
-										aria-label={`Tag ${tag.name} löschen`}
-										title="Löschen"
-									>
-										<IconTrash size={18} stroke="2" aria-hidden="true" />
-									</button>
-								</li>
-							)}
-						</For>
-					</ul>
+					<Show
+						when={filteredTags().length > 0}
+						fallback={
+							<div class="tag-list__empty" role="status" aria-live="polite">
+								Keine passenden Tags gefunden.
+							</div>
+						}
+					>
+						<ul class="tag-list">
+							<For each={filteredTags()}>
+								{(tag: TagWithMemberCount): JSX.Element => (
+									<li class="tag-list__item">
+										<span class="tag-chip" style={{ '--tag-color': tag.color }}>
+											{tag.name}
+										</span>
+										<span class="tag-list__count">
+											{tag.member_count === 1
+												? '1 Eintrag'
+												: `${tag.member_count} Einträge`}
+										</span>
+										<button
+											type="button"
+											class="icon-button"
+											onClick={(): Promise<void> => handleDelete(tag)}
+											aria-label={`Tag ${tag.name} löschen`}
+											title="Löschen"
+										>
+											<IconTrash size={18} stroke="2" aria-hidden="true" />
+										</button>
+									</li>
+								)}
+							</For>
+						</ul>
+					</Show>
 				</Show>
 			</Show>
 		</div>

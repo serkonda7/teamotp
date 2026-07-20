@@ -1,5 +1,6 @@
 @import "./_base_theme.css";
 @import "./header.css";
+@import "./search-input.css";
 @import "./otp-list.css";
 @import "./add-entry.css";
 @import "./forms.css";

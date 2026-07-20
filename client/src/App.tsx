@@ -43,6 +43,7 @@ function App(): JSX.Element {
 			? (new URLSearchParams(window.location.search).get('search') ?? '')
 			: ''
 	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
+	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
 
 	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
 		const query = searchQuery()
@@ -99,6 +100,7 @@ function App(): JSX.Element {
 			await fetch('/api/auth/logout', { method: 'POST' })
 			setIsLoggedIn(false)
 			setSearchQuery('')
+			setTagSearchQuery('')
 		} catch (err) {
 			console.error('Logout failed', err)
 		}
@@ -116,6 +118,8 @@ function App(): JSX.Element {
 						onLogout={handleLogout}
 						searchQuery={searchQuery()}
 						onSearchInput={setSearchQuery}
+						tagSearchQuery={tagSearchQuery()}
+						onTagSearchInput={setTagSearchQuery}
 					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
@@ -146,7 +150,7 @@ function App(): JSX.Element {
 							</>
 						}
 					>
-						<TagsPage />
+						<TagsPage searchQuery={tagSearchQuery()} />
 					</Show>
 				</div>
 			</Show>
