@@ -14,6 +14,8 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
+import TagsPage from './components/TagsPage'
+import { path } from './router'
 import { otpMatchesSearch } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
@@ -112,26 +114,35 @@ function App(): JSX.Element {
 					/>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
-					<AddFromOtpauthForm
-						otpauthUrl={otpauthUrl}
-						setOtpauthUrl={setOtpauthUrl}
-						submitting={submitting}
-						setSubmitting={setSubmitting}
-						setError={setError}
-						refetch={refetchTyped}
-					/>
+					<Show
+						when={path() === '/tags'}
+						fallback={
+							<>
+								<AddFromOtpauthForm
+									otpauthUrl={otpauthUrl}
+									setOtpauthUrl={setOtpauthUrl}
+									submitting={submitting}
+									setSubmitting={setSubmitting}
+									setError={setError}
+									refetch={refetchTyped}
+								/>
 
-					<Show when={error()}>
-						<div class="app-inline-error">{error()}</div>
+								<Show when={error()}>
+									<div class="app-inline-error">{error()}</div>
+								</Show>
+
+								<OtpList
+									otps={filteredOtps()}
+									loading={otps.loading}
+									searchQuery={searchQuery()}
+									setError={setError}
+									refetch={refetchTyped}
+								/>
+							</>
+						}
+					>
+						<TagsPage />
 					</Show>
-
-					<OtpList
-						otps={filteredOtps()}
-						loading={otps.loading}
-						searchQuery={searchQuery()}
-						setError={setError}
-						refetch={refetchTyped}
-					/>
 				</div>
 			</Show>
 		</Show>

@@ -56,6 +56,7 @@ describe('OTP routes', () => {
 				issuer: 'example.com',
 				issuer_second: '',
 				period: 30,
+				tags: [],
 			},
 		])
 	})
@@ -300,6 +301,7 @@ describe('OTP routes', () => {
 				issuer: 'archive.example',
 				issuer_second: '',
 				period: 30,
+				tags: [],
 			},
 		])
 	})

@@ -51,6 +51,12 @@ const endpoints: Endpoint[] = [
 	{ method: 'GET', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
 	{ method: 'POST', path: '/otp/:id', acceptedRoles: AUTHENTICATED },
 	{ method: 'POST', path: '/otp/:id/archive', acceptedRoles: AUTHENTICATED },
+	{ method: 'GET', path: '/otp/:id/tags', acceptedRoles: AUTHENTICATED },
+	{ method: 'PUT', path: '/otp/:id/tags/:tagId', acceptedRoles: AUTHENTICATED },
+	{ method: 'DELETE', path: '/otp/:id/tags/:tagId', acceptedRoles: AUTHENTICATED },
+	{ method: 'GET', path: '/tags', acceptedRoles: AUTHENTICATED },
+	{ method: 'POST', path: '/tags', acceptedRoles: AUTHENTICATED },
+	{ method: 'DELETE', path: '/tags/:id', acceptedRoles: AUTHENTICATED },
 ]
 
 //

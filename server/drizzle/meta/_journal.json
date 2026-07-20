@@ -36,6 +36,13 @@
       "when": 1783340400000,
       "tag": "0004_ancient_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784542979699,
+      "tag": "0005_mean_groot",
+      "breakpoints": true
     }
   ]
 }

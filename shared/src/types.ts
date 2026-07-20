@@ -17,6 +17,22 @@ export interface OtpDisplayInfo {
 	issuer: string
 	issuer_second: string
 	period: number
+	tags: TagInfo[]
+}
+
+export interface TagInfo {
+	id: string
+	name: string
+	color: string
+}
+
+export interface TagWithMemberCount extends TagInfo {
+	member_count: number
+}
+
+export interface NewTag {
+	name: string
+	color: string
 }
 
 /** JSX helper type for onInput handlers */

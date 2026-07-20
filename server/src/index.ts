@@ -4,11 +4,16 @@ import { cors } from 'hono/cors'
 import { initConfig, load_config_file } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
+import { tagApp } from './routes/tag_routes'
 import { SERVER_ROOT } from './util/server_root'
 
 const cfg_path = path.join(SERVER_ROOT, 'data', 'config.toml')
 
-export const app = new Hono().use('/*', cors()).route('/auth', authApp).route('/otp', otpApp)
+export const app = new Hono()
+	.use('/*', cors())
+	.route('/auth', authApp)
+	.route('/otp', otpApp)
+	.route('/tags', tagApp)
 export type AppType = typeof app
 
 if (import.meta.main) {

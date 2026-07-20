@@ -1,8 +1,9 @@
 import { IconX } from '@tabler/icons-solidjs'
-import type { InputEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import { Result } from 'better-result'
+import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createSignal, Show } from 'solid-js'
-import { client } from '../api'
+import { createSignal, For, onMount, Show } from 'solid-js'
+import { client, fetch_entry_tags, fetch_tags, set_entry_tag } from '../api'
 import { read_api_error } from '../util/api_error'
 
 type EditDialogProps = {
@@ -52,6 +53,46 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const [issuerSecond, setIssuerSecond] = createSignal(props.otp.issuer_second)
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
+	const [allTags, setAllTags] = createSignal<TagWithMemberCount[]>([])
+	const [assignedTagIds, setAssignedTagIds] = createSignal<ReadonlySet<string>>(new Set())
+
+	onMount(async () => {
+		const [tagsRes, entryTagsRes] = await Promise.all([
+			fetch_tags(),
+			fetch_entry_tags(props.otp.id),
+		])
+
+		if (Result.isError(tagsRes)) {
+			setError(tagsRes.error.message)
+			return
+		}
+		setAllTags(tagsRes.value)
+
+		if (Result.isError(entryTagsRes)) {
+			setError(entryTagsRes.error.message)
+			return
+		}
+		setAssignedTagIds(new Set(entryTagsRes.value.map((tag) => tag.id)))
+	})
+
+	async function handleTagToggle(tagId: string, assigned: boolean): Promise<void> {
+		setError(null)
+
+		const previous = assignedTagIds()
+		const next = new Set(previous)
+		if (assigned) {
+			next.add(tagId)
+		} else {
+			next.delete(tagId)
+		}
+		setAssignedTagIds(next)
+
+		const res = await set_entry_tag(props.otp.id, tagId, assigned)
+		if (Result.isError(res)) {
+			setAssignedTagIds(previous)
+			setError(res.error.message)
+		}
+	}
 
 	const isIssuerChanged = (): boolean => issuer().trim() !== props.otp.issuer
 	const isIssuerSecondChanged = (): boolean => issuerSecond().trim() !== props.otp.issuer_second
@@ -198,6 +239,40 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 						required
 						onInput={setLabel}
 					/>
+
+					<Show when={allTags().length > 0}>
+						<div class="edit-tags">
+							<span class="edit-tags__label">Tags</span>
+							<For each={allTags()}>
+								{(tag: TagWithMemberCount): JSX.Element => (
+									<label
+										class="tag-chip edit-tags__option"
+										classList={{
+											'edit-tags__option--assigned': assignedTagIds().has(
+												tag.id,
+											),
+										}}
+										style={{ '--tag-color': tag.color }}
+									>
+										<input
+											type="checkbox"
+											checked={assignedTagIds().has(tag.id)}
+											disabled={submitting()}
+											onChange={(
+												e: Event & { currentTarget: HTMLInputElement },
+											): void => {
+												void handleTagToggle(
+													tag.id,
+													e.currentTarget.checked,
+												)
+											}}
+										/>
+										{tag.name}
+									</label>
+								)}
+							</For>
+						</div>
+					</Show>
 
 					<div class="form-actions">
 						<button

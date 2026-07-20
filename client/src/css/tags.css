@@ -1,0 +1,139 @@
+/* Tag chip shown on entries and in the edit dialog */
+.tag-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.1rem 0.55rem;
+	border: 1px solid var(--tag-color);
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--tag-color) 14%, transparent);
+	color: var(--color-text);
+	font-size: 0.78rem;
+	line-height: 1.5;
+	white-space: nowrap;
+}
+
+.tag-chip::before {
+	content: "";
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--tag-color);
+	flex: none;
+}
+
+.otp-list__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-top: 2px;
+}
+
+/* Tags page */
+.tags-page {
+	max-width: 44rem;
+	margin: 0 auto;
+}
+
+.tags-page h2 {
+	margin: 0.5rem 0 1rem;
+}
+
+.tags-create-form {
+	align-items: flex-end;
+	flex-wrap: wrap;
+}
+
+.tags-create-form .form-group {
+	flex: 1 1 12rem;
+}
+
+.tags-create-form input[type="color"] {
+	width: 3.2rem;
+	height: 2.35rem;
+	padding: 0.15rem;
+	border: 1px solid #ccc;
+	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+	cursor: pointer;
+}
+
+.tag-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: var(--gap-small);
+}
+
+.tag-list__item {
+	display: flex;
+	align-items: center;
+	gap: var(--gap-small);
+	padding: var(--gap-small) calc(var(--gap-small) * 2);
+	border: 2px solid var(--color-border);
+	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+
+	&:hover {
+		background: var(--color-bg-hover);
+		border-color: var(--color-border-strong);
+	}
+}
+
+.tag-list__count {
+	margin-left: auto;
+	color: var(--color-text-muted);
+	font-size: 0.9rem;
+	white-space: nowrap;
+}
+
+.tag-list__empty {
+	padding: 0.9rem 1rem;
+	border: 1px dashed var(--color-border-strong);
+	border-radius: var(--corner-radius);
+	color: var(--color-text-muted);
+	background: var(--color-bg-hover);
+}
+
+/* Tag assignment inside the edit dialog */
+.edit-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--gap-small);
+	width: 100%;
+	margin-bottom: 1rem;
+}
+
+.edit-tags__label {
+	width: 100%;
+	font-weight: 600;
+	color: var(--color-text-muted);
+}
+
+.edit-tags__option {
+	cursor: pointer;
+
+	&:has(input:focus-visible) {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+}
+
+.edit-tags__option input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+
+.edit-tags__option--assigned {
+	background: var(--tag-color);
+	border-color: var(--tag-color);
+	color: #fff;
+}
+
+.edit-tags__option--assigned::before {
+	background: #fff;
+}

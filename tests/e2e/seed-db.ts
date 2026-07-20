@@ -1,5 +1,5 @@
 import { db } from '../../server/src/db'
-import { entries, users } from '../../server/src/schema'
+import { entries, entry_tags, tags, users } from '../../server/src/schema'
 import type { User } from '../../server/src/types'
 
 const e2e_user_1: User = {
@@ -23,6 +23,8 @@ const e2e_entry_1 = {
 
 async function seedE2eData(): Promise<void> {
 	// Clear current state so each run starts deterministic.
+	db.delete(entry_tags).run()
+	db.delete(tags).run()
 	db.delete(entries).run()
 	db.delete(users).run()
 
