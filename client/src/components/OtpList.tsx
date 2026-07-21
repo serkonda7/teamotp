@@ -7,6 +7,7 @@ type Props = {
 	otps: OtpDisplayInfo[]
 	loading: boolean
 	searchQuery: string
+	tagFilterActive: boolean
 	setError: (e: string | null) => void
 	refetch: () => Promise<OtpDisplayInfo[]>
 }
@@ -19,7 +20,14 @@ const OtpList = (props: Props): JSX.Element => (
 				<div class="otp-list__empty" role="status" aria-live="polite">
 					<Show
 						when={props.searchQuery.trim().length > 0}
-						fallback={<>Keine Einträge vorhanden.</>}
+						fallback={
+							<Show
+								when={props.tagFilterActive}
+								fallback={<>Keine Einträge vorhanden.</>}
+							>
+								Keine Einträge passen zum gewählten Tag-Filter.
+							</Show>
+						}
 					>
 						Keine Einträge passen zu "{props.searchQuery.trim()}".
 					</Show>

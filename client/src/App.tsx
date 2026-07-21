@@ -1,4 +1,5 @@
-import type { OtpDisplayInfo } from 'shared/src/types'
+import { Result } from 'better-result'
+import type { OtpDisplayInfo, TagInfo } from 'shared/src/types'
 import {
 	createEffect,
 	createMemo,
@@ -8,15 +9,16 @@ import {
 	onMount,
 	Show,
 } from 'solid-js'
-import { client } from './api'
+import { client, fetch_tags } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
+import TagFilter from './components/TagFilter'
 import TagsPage from './components/TagsPage'
 import { navigate, path, setTagsChanged, tagsChanged } from './router'
-import { otpMatchesSearch } from './util/otp_search'
+import { otpMatchesSearch, otpMatchesTags } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
 function App(): JSX.Element {
@@ -44,11 +46,49 @@ function App(): JSX.Element {
 			: ''
 	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
 	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
+	const [activeTagIds, setActiveTagIds] = createSignal<string[]>([])
+
+	const [allTags, { refetch: refetchTags }] = createResource(
+		isLoggedIn,
+		async (loggedIn): Promise<TagInfo[]> => {
+			if (!loggedIn) {
+				return []
+			}
+			const res = await fetch_tags()
+			if (Result.isError(res)) {
+				setError(res.error.message)
+				return []
+			}
+			setError(null)
+			return res.value.sort((a, b) => a.name.localeCompare(b.name))
+		},
+		{ initialValue: [] },
+	)
 
 	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
 		const query = searchQuery()
-		return otps().filter((otp) => otpMatchesSearch(otp, query))
+		const tagIds = activeTagIds()
+		return otps().filter((otp) => otpMatchesSearch(otp, query) && otpMatchesTags(otp, tagIds))
 	})
+
+	// Deselect tags that no longer exist (e.g. deleted on the tags page)
+	createEffect(() => {
+		const existingIds = new Set(allTags().map((tag) => tag.id))
+		const pruned = activeTagIds().filter((id) => existingIds.has(id))
+		if (pruned.length !== activeTagIds().length) {
+			setActiveTagIds(pruned)
+		}
+	})
+
+	function toggleTagFilter(tagId: string): void {
+		setActiveTagIds((prev) =>
+			prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
+		)
+	}
+
+	function clearTagFilter(): void {
+		setActiveTagIds([])
+	}
 
 	createEffect(() => {
 		if (typeof window === 'undefined') {
@@ -58,6 +98,7 @@ function App(): JSX.Element {
 		if (path() !== '/tags' && tagsChanged()) {
 			setTagsChanged(false)
 			void refetchTyped()
+			void refetchTags()
 		}
 
 		const url = new URL(window.location.href)
@@ -101,6 +142,7 @@ function App(): JSX.Element {
 			setIsLoggedIn(false)
 			setSearchQuery('')
 			setTagSearchQuery('')
+			setActiveTagIds([])
 			navigate('/')
 		} catch (err) {
 			console.error('Logout failed', err)
@@ -121,7 +163,16 @@ function App(): JSX.Element {
 						onSearchInput={setSearchQuery}
 						tagSearchQuery={tagSearchQuery()}
 						onTagSearchInput={setTagSearchQuery}
-					/>
+					>
+						<Show when={path() !== '/tags' && allTags().length > 0}>
+							<TagFilter
+								tags={allTags()}
+								activeTagIds={activeTagIds()}
+								onToggle={toggleTagFilter}
+								onClear={clearTagFilter}
+							/>
+						</Show>
+					</AppHeader>
 					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
 
 					<Show
@@ -145,6 +196,7 @@ function App(): JSX.Element {
 									otps={filteredOtps()}
 									loading={otps.loading}
 									searchQuery={searchQuery()}
+									tagFilterActive={activeTagIds().length > 0}
 									setError={setError}
 									refetch={refetchTyped}
 								/>
