@@ -59,6 +59,7 @@ function App(): JSX.Element {
 				setError(res.error.message)
 				return []
 			}
+			setError(null)
 			return res.value.sort((a, b) => a.name.localeCompare(b.name))
 		},
 		{ initialValue: [] },
