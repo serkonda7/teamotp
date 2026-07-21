@@ -1,4 +1,13 @@
 # Changelog
+## 0.1.0
+_2026-07-21_
+
+- Implement tags
+  - Create tags with custom colors
+  - Assign tags to OTP entries
+  - Filter for specific tags
+
+
 ## 0.0.8
 _2026-07-13_
 
