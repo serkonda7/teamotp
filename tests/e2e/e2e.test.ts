@@ -44,8 +44,8 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await tagOption.click()
 	await expect(tagOption.locator('input')).toBeChecked()
 
-	// Chip appears on the entry and the member count increases
-	await page.getByRole('button', { name: 'Abbrechen' }).click()
+	// Tag changes are pending until saved; the chip appears and the member count increases
+	await page.getByRole('button', { name: 'Speichern' }).click()
 	await expect(page.locator('.otp-list__tags .tag-chip')).toHaveText('Arbeit')
 
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()

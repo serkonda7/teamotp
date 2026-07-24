@@ -1,4 +1,11 @@
 # Changelog
+## 0.1.1
+_unreleased_
+
+- Prevent layout shifts in tag filter popup
+- Correctly detect tag changes in edit dialog
+
+
 ## 0.1.0
 _2026-07-21_
 
