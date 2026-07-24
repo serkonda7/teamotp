@@ -162,8 +162,16 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 					setError(tagRes.error.message)
 					return
 				}
+				setInitialTagIds((prev) => {
+					const next = new Set(prev)
+					if (assigned) {
+						next.add(tagId)
+					} else {
+						next.delete(tagId)
+					}
+					return next
+				})
 			}
-
 			await props.onSave()
 		} catch (_err) {
 			setError('Fehler beim Speichern.')
