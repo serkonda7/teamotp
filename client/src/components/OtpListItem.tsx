@@ -258,8 +258,6 @@ const OtpListItem = (props: Props): JSX.Element => {
 				otp={props.otp}
 				onClose={(): void => {
 					setIsEditing(false)
-					// Tag assignments apply immediately, so refresh on close
-					void props.refetch()
 				}}
 				onSave={async (): Promise<void> => {
 					setIsEditing(false)

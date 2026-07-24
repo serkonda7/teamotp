@@ -44,8 +44,8 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await tagOption.click()
 	await expect(tagOption.locator('input')).toBeChecked()
 
-	// Chip appears on the entry and the member count increases
-	await page.getByRole('button', { name: 'Abbrechen' }).click()
+	// Tag changes are pending until saved; the chip appears and the member count increases
+	await page.getByRole('button', { name: 'Speichern' }).click()
 	await expect(page.locator('.otp-list__tags .tag-chip')).toHaveText('Arbeit')
 
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
@@ -82,7 +82,7 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(page.locator('.otp-list__item')).toHaveCount(1)
 
 	// The clear button resets the filter
-	await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+	await page.getByRole('button', { name: 'Zurücksetzen' }).click()
 	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'false')
 	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
 	await expect(page.locator('.otp-list__item')).toHaveCount(1)

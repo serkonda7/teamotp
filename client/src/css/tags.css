@@ -103,6 +103,16 @@
 	color: var(--color-text-muted);
 }
 
+.edit-tags__label.field-changed {
+	font-style: italic;
+}
+
+.edit-tags__label.field-changed i {
+	color: hsl(35, 100%, 45%);
+	margin-right: 0.2rem;
+	font-style: normal;
+}
+
 .edit-tags__option {
 	cursor: pointer;
 
@@ -189,7 +199,12 @@
 	font-size: 0.78rem;
 	cursor: pointer;
 
-	&:hover {
+	&:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
+	&:not(:disabled):hover {
 		background: var(--color-bg-hover);
 		border-color: var(--color-border-strong);
 		color: var(--color-text);

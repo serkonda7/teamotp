@@ -1,6 +1,9 @@
 # Changelog
 ## unreleased
 
+- Prevent layout shifts in tag filter popup
+- Fix layout shift in edit dialog with unsaved changes
+- Correctly detect tag changes in edit dialog
 - Improve keyboard navigation
   - Tabbing from entry search directly to first entry
   - Tabbing from tag search to tag name input

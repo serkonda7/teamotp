@@ -110,6 +110,8 @@
 
 .form-actions button {
 	flex: 1;
+	/* Keep the change asterisk and label on one line (no wrap above the text) */
+	white-space: nowrap;
 }
 
 .archive-button {

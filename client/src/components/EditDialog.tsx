@@ -25,12 +25,18 @@ type FormFieldProps = {
 	onInput: (value: string) => void
 }
 
+// visible=false hides the asterisk but reserves its space (unlike <Show>),
+// so toggling it never shifts surrounding content.
+const Asterisk = (props: { visible?: boolean }): JSX.Element => (
+	<span style={{ visibility: props.visible === false ? 'hidden' : 'visible' }}>* </span>
+)
+
 const FormField = (props: FormFieldProps): JSX.Element => (
 	<div class="form-row">
 		<div class={`form-group ${props.colClass}`}>
 			<label for={props.id} classList={{ 'field-changed': props.changed }}>
 				<Show when={props.changed}>
-					<i>* </i>
+					<Asterisk />
 				</Show>
 				{props.label}
 			</label>
@@ -55,6 +61,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const [error, setError] = createSignal<string | null>(null)
 	const [allTags, setAllTags] = createSignal<TagWithMemberCount[]>([])
 	const [assignedTagIds, setAssignedTagIds] = createSignal<ReadonlySet<string>>(new Set())
+	const [initialTagIds, setInitialTagIds] = createSignal<ReadonlySet<string>>(new Set())
 
 	onMount(async () => {
 		const [tagsRes, entryTagsRes] = await Promise.all([
@@ -72,10 +79,12 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 			setError(entryTagsRes.error.message)
 			return
 		}
-		setAssignedTagIds(new Set(entryTagsRes.value.map((tag) => tag.id)))
+		const tagIds = new Set(entryTagsRes.value.map((tag) => tag.id))
+		setInitialTagIds(tagIds)
+		setAssignedTagIds(tagIds)
 	})
 
-	async function handleTagToggle(tagId: string, assigned: boolean): Promise<void> {
+	function handleTagToggle(tagId: string, assigned: boolean): void {
 		setError(null)
 
 		const next = new Set(assignedTagIds())
@@ -85,27 +94,26 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 			next.delete(tagId)
 		}
 		setAssignedTagIds(next)
-
-		const res = await set_entry_tag(props.otp.id, tagId, assigned)
-		if (Result.isError(res)) {
-			setAssignedTagIds((current) => {
-				const reverted = new Set(current)
-				if (assigned) {
-					reverted.delete(tagId)
-				} else {
-					reverted.add(tagId)
-				}
-				return reverted
-			})
-			setError(res.error.message)
-		}
 	}
 
 	const isIssuerChanged = (): boolean => issuer().trim() !== props.otp.issuer
 	const isIssuerSecondChanged = (): boolean => issuerSecond().trim() !== props.otp.issuer_second
 	const isLabelChanged = (): boolean => label().trim() !== props.otp.label
+	const isTagsChanged = (): boolean => {
+		const initial = initialTagIds()
+		const current = assignedTagIds()
+		if (initial.size !== current.size) {
+			return true
+		}
+		for (const id of current) {
+			if (!initial.has(id)) {
+				return true
+			}
+		}
+		return false
+	}
 	const hasChanges = (): boolean =>
-		isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged()
+		isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged() || isTagsChanged()
 
 	function handleClose(): void {
 		if (hasChanges()) {
@@ -128,6 +136,36 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 		setSubmitting(true)
 		try {
+			// Update tag assignments first: their baseline (initialTagIds) is
+			// tracked locally, so if the OTP update below fails afterwards,
+			// hasChanges() will not report already-persisted tags as unsaved.
+			const initial = initialTagIds()
+			const current = assignedTagIds()
+			const tagUpdates: { tagId: string; assigned: boolean }[] = [
+				...[...current]
+					.filter((id) => !initial.has(id))
+					.map((tagId) => ({ tagId, assigned: true })),
+				...[...initial]
+					.filter((id) => !current.has(id))
+					.map((tagId) => ({ tagId, assigned: false })),
+			]
+			for (const { tagId, assigned } of tagUpdates) {
+				const tagRes = await set_entry_tag(props.otp.id, tagId, assigned)
+				if (Result.isError(tagRes)) {
+					setError(tagRes.error.message)
+					return
+				}
+				setInitialTagIds((prev) => {
+					const next = new Set(prev)
+					if (assigned) {
+						next.add(tagId)
+					} else {
+						next.delete(tagId)
+					}
+					return next
+				})
+			}
+
 			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
 			const res = await (client.otp[':id'].$post as any)({
 				param: { id: props.otp.id },
@@ -249,7 +287,15 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 					<Show when={allTags().length > 0}>
 						<div class="edit-tags">
-							<span class="edit-tags__label">Tags</span>
+							<span
+								class="edit-tags__label"
+								classList={{ 'field-changed': isTagsChanged() }}
+							>
+								<Show when={isTagsChanged()}>
+									<Asterisk />
+								</Show>
+								Tags
+							</span>
 							<For each={allTags()}>
 								{(tag: TagWithMemberCount): JSX.Element => (
 									<label
@@ -268,10 +314,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 											onChange={(
 												e: Event & { currentTarget: HTMLInputElement },
 											): void => {
-												void handleTagToggle(
-													tag.id,
-													e.currentTarget.checked,
-												)
+												handleTagToggle(tag.id, e.currentTarget.checked)
 											}}
 										/>
 										{tag.name}
@@ -288,10 +331,11 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							disabled={submitting()}
 							classList={{ 'button-changed': hasChanges() }}
 						>
-							<Show when={hasChanges()}>
-								<i>* </i>
-							</Show>
+							<Asterisk visible={hasChanges()} />
 							{submitting() ? 'Speichern...' : 'Speichern'}
+							{/* Balance spacer: matches the reserved asterisk slot so the
+						label stays centered whether or not changes exist */}
+							<Asterisk visible={false} />
 						</button>
 						<button
 							type="button"
