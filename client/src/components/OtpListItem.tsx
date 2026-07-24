@@ -24,6 +24,33 @@ const OtpListItem = (props: Props): JSX.Element => {
 	let refreshIntervalTimer: ReturnType<typeof setInterval> | undefined
 	let isAutoRefreshingCode = false
 
+	let copyRef: HTMLButtonElement | undefined
+	let editRef: HTMLButtonElement | undefined
+	let toggleRef: HTMLButtonElement | undefined
+
+	function focusableEntryButtons(): HTMLButtonElement[] {
+		return [copyRef, editRef, toggleRef].filter(
+			(b): b is HTMLButtonElement => b !== undefined && !b.disabled,
+		)
+	}
+
+	type EntryKeyboardEvent = KeyboardEvent & { currentTarget: HTMLButtonElement }
+
+	function handleEntryArrowKey(event: EntryKeyboardEvent): void {
+		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+			return
+		}
+		event.preventDefault()
+		const list = focusableEntryButtons()
+		const idx = list.indexOf(event.currentTarget)
+		if (idx === -1) {
+			return
+		}
+		const dir = event.key === 'ArrowRight' ? 1 : -1
+		const next = list[(idx + dir + list.length) % list.length]
+		next?.focus()
+	}
+
 	const periodSeconds = Math.max(1, props.otp.period)
 	const periodMs = periodSeconds * 1000
 
@@ -151,11 +178,14 @@ const OtpListItem = (props: Props): JSX.Element => {
 		<li class="otp-list__item">
 			<button
 				type="button"
+				ref={copyRef}
 				class="otp-list__copy"
+				tabindex={2}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					void copyCodeFromCard()
 				}}
+				onKeyDown={handleEntryArrowKey}
 				aria-label={`OTP-Code für ${issuerText} kopieren`}
 				title="Aktuellen Code kopieren"
 				disabled={isLoadingCode()}
@@ -181,11 +211,14 @@ const OtpListItem = (props: Props): JSX.Element => {
 			</div>
 			<button
 				type="button"
+				ref={editRef}
 				class="icon-button otp-list__edit"
+				tabindex={-1}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					setIsEditing(true)
 				}}
+				onKeyDown={handleEntryArrowKey}
 				aria-label={`Eintrag für ${issuerText} bearbeiten`}
 				title="Bearbeiten"
 			>
@@ -193,11 +226,14 @@ const OtpListItem = (props: Props): JSX.Element => {
 			</button>
 			<button
 				type="button"
+				ref={toggleRef}
 				class="icon-button otp-list__toggle"
+				tabindex={-1}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					void toggleCodeVisibility()
 				}}
+				onKeyDown={handleEntryArrowKey}
 				aria-label={isCodeVisible() ? 'Code ausblenden' : 'Code anzeigen'}
 				title={isCodeVisible() ? 'Code ausblenden' : 'Code anzeigen'}
 				disabled={isLoadingCode()}

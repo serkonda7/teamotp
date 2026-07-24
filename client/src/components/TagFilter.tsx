@@ -21,6 +21,7 @@ const TagChip = (props: TagChipProps): JSX.Element => {
 		<button
 			type="button"
 			class="tag-chip tag-filter__chip"
+			tabindex={4}
 			classList={{ 'tag-filter__chip--active': isActive() }}
 			style={{ '--tag-color': props.tag.color }}
 			onClick={(): void => props.onToggle(props.tag.id)}
@@ -45,6 +46,7 @@ const TagFilterButton = (props: TagFilterButtonProps): JSX.Element => (
 		type="button"
 		ref={props.buttonRef}
 		class="icon-button tag-filter__button"
+		tabindex={4}
 		classList={{ 'tag-filter__button--active': props.hasActiveTags() }}
 		onClick={props.onToggle}
 		aria-label="Nach Tags filtern"
@@ -70,6 +72,7 @@ const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => (
 		<button
 			type="button"
 			class="tag-filter__clear"
+			tabindex={4}
 			onClick={props.onClear}
 			disabled={props.activeTagIds.length === 0}
 			title="Tag-Filter zurücksetzen"
