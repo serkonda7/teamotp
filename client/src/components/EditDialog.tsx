@@ -25,12 +25,18 @@ type FormFieldProps = {
 	onInput: (value: string) => void
 }
 
+// visible=false hides the asterisk but reserves its space (unlike <Show>),
+// so toggling it never shifts surrounding content.
+const Asterisk = (props: { visible?: boolean }): JSX.Element => (
+	<span style={{ visibility: props.visible === false ? 'hidden' : 'visible' }}>* </span>
+)
+
 const FormField = (props: FormFieldProps): JSX.Element => (
 	<div class="form-row">
 		<div class={`form-group ${props.colClass}`}>
 			<label for={props.id} classList={{ 'field-changed': props.changed }}>
 				<Show when={props.changed}>
-					<i>* </i>
+					<Asterisk />
 				</Show>
 				{props.label}
 			</label>
@@ -286,7 +292,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 								classList={{ 'field-changed': isTagsChanged() }}
 							>
 								<Show when={isTagsChanged()}>
-									<i>* </i>
+									<Asterisk />
 								</Show>
 								Tags
 							</span>
@@ -325,10 +331,11 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							disabled={submitting()}
 							classList={{ 'button-changed': hasChanges() }}
 						>
-							<Show when={hasChanges()}>
-								<i>* </i>
-							</Show>
+							<Asterisk visible={hasChanges()} />
 							{submitting() ? 'Speichern...' : 'Speichern'}
+							{/* Balance spacer: matches the reserved asterisk slot so the
+						label stays centered whether or not changes exist */}
+							<Asterisk visible={false} />
 						</button>
 						<button
 							type="button"

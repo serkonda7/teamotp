@@ -1,8 +1,8 @@
 # Changelog
-## 0.1.1
-_unreleased_
+## unreleased
 
 - Prevent layout shifts in tag filter popup
+- Fix layout shift in edit dialog with unsaved changes
 - Correctly detect tag changes in edit dialog
 
 
