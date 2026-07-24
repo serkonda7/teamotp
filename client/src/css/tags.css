@@ -189,7 +189,12 @@
 	font-size: 0.78rem;
 	cursor: pointer;
 
-	&:hover {
+	&:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
+	&:not(:disabled):hover {
 		background: var(--color-bg-hover);
 		border-color: var(--color-border-strong);
 		color: var(--color-text);

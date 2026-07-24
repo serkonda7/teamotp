@@ -64,17 +64,16 @@ type TagFilterPopoverProps = {
 
 const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => (
 	<div class="tag-filter__popover">
-		<Show when={props.activeTagIds.length > 0}>
-			<button
-				type="button"
-				class="tag-filter__clear"
-				onClick={props.onClear}
-				title="Tag-Filter zurücksetzen"
-			>
-				<IconFilter2Cancel size={16} stroke="2" aria-hidden="true" />
-				Zurücksetzen
-			</button>
-		</Show>
+		<button
+			type="button"
+			class="tag-filter__clear"
+			onClick={props.onClear}
+			disabled={props.activeTagIds.length === 0}
+			title="Tag-Filter zurücksetzen"
+		>
+			<IconFilter2Cancel size={16} stroke="2" aria-hidden="true" />
+			Zurücksetzen
+		</button>
 		<div class="tag-filter__chips">
 			<For each={props.tags}>
 				{(tag: TagInfo): JSX.Element => (
