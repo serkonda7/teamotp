@@ -1,6 +1,6 @@
 import { IconFilter2, IconFilter2Cancel } from '@tabler/icons-solidjs'
 import type { TagInfo } from 'shared/src/types'
-import { createEffect, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
 
 type Props = {
 	tags: TagInfo[]
@@ -15,19 +15,22 @@ type TagChipProps = {
 	onToggle: (tagId: string) => void
 }
 
-const TagChip = (props: TagChipProps): JSX.Element => (
-	<button
-		type="button"
-		class="tag-chip tag-filter__chip"
-		classList={{ 'tag-filter__chip--active': props.isActive() }}
-		style={{ '--tag-color': props.tag.color }}
-		onClick={(): void => props.onToggle(props.tag.id)}
-		aria-pressed={props.isActive()}
-		title={`Nach Tag "${props.tag.name}" filtern`}
-	>
-		{props.tag.name}
-	</button>
-)
+const TagChip = (props: TagChipProps): JSX.Element => {
+	const isActive = createMemo(props.isActive)
+	return (
+		<button
+			type="button"
+			class="tag-chip tag-filter__chip"
+			classList={{ 'tag-filter__chip--active': isActive() }}
+			style={{ '--tag-color': props.tag.color }}
+			onClick={(): void => props.onToggle(props.tag.id)}
+			aria-pressed={isActive()}
+			title={`Nach Tag "${props.tag.name}" filtern`}
+		>
+			{props.tag.name}
+		</button>
+	)
+}
 
 type TagFilterButtonProps = {
 	buttonRef: (el: HTMLButtonElement) => void
