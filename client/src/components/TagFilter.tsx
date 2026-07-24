@@ -46,6 +46,7 @@ const TagFilter = (props: Props): JSX.Element => {
 				type="button"
 				ref={buttonRef}
 				class="icon-button tag-filter__button"
+				tabindex={4}
 				classList={{ 'tag-filter__button--active': props.activeTagIds.length > 0 }}
 				onClick={(): void => {
 					setOpen((prev) => !prev)
@@ -65,6 +66,7 @@ const TagFilter = (props: Props): JSX.Element => {
 						<button
 							type="button"
 							class="tag-filter__clear"
+							tabindex={4}
 							onClick={(): void => props.onClear()}
 							title="Tag-Filter zurücksetzen"
 						>
@@ -80,6 +82,7 @@ const TagFilter = (props: Props): JSX.Element => {
 									<button
 										type="button"
 										class="tag-chip tag-filter__chip"
+										tabindex={4}
 										classList={{ 'tag-filter__chip--active': isActive() }}
 										style={{ '--tag-color': tag.color }}
 										onClick={(): void => props.onToggle(tag.id)}

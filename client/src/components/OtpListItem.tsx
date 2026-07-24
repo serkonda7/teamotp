@@ -152,6 +152,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 			<button
 				type="button"
 				class="otp-list__copy"
+				tabindex={2}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					void copyCodeFromCard()
@@ -182,6 +183,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 			<button
 				type="button"
 				class="icon-button otp-list__edit"
+				tabindex={-1}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					setIsEditing(true)
@@ -194,6 +196,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 			<button
 				type="button"
 				class="icon-button otp-list__toggle"
+				tabindex={-1}
 				onClick={(event: MouseEventAndTarget): void => {
 					event.stopPropagation()
 					void toggleCodeVisibility()

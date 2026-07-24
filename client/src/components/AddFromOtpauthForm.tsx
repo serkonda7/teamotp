@@ -53,6 +53,7 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 				id="otpauth-url"
 				class="add-entry__input"
 				type="text"
+				tabindex={3}
 				placeholder="otpauth://totp/..."
 				aria-label="OTPAuth URL"
 				value={props.otpauthUrl()}
@@ -65,7 +66,12 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 				spellcheck={false}
 			/>
 
-			<button type="submit" class="add-entry__submit" disabled={props.submitting()}>
+			<button
+				type="submit"
+				class="add-entry__submit"
+				tabindex={3}
+				disabled={props.submitting()}
+			>
 				{props.submitting() ? 'Wird erstellt...' : 'Neuer Eintrag'}
 			</button>
 		</form>

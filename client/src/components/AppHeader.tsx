@@ -63,6 +63,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 						<button
 							type="button"
 							class="icon-button"
+							tabindex={5}
 							onClick={(): void => navigate('/tags')}
 							aria-label="Tags verwalten"
 							title="Tags"
@@ -74,6 +75,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					<button
 						type="button"
 						class="icon-button"
+						tabindex={6}
 						onClick={(): void => navigate('/')}
 						aria-label="Zurück zur Übersicht"
 						title="Übersicht"
@@ -84,13 +86,19 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<button
 					type="button"
 					class="icon-button info-button"
+					tabindex={path() === '/tags' ? 7 : 6}
 					onClick={props.onOpenAbout}
 					aria-label="Über TeamOTP"
 					title="Über"
 				>
 					<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
 				</button>
-				<button type="button" class="logout-button" onClick={props.onLogout}>
+				<button
+					type="button"
+					class="logout-button"
+					tabindex={path() === '/tags' ? 8 : 7}
+					onClick={props.onLogout}
+				>
 					<IconLogout size={18} stroke="2" aria-hidden="true" />
 					Abmelden
 				</button>

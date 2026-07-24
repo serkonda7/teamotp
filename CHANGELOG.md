@@ -1,4 +1,12 @@
 # Changelog
+## unreleased
+
+- Improve keyboard navigation
+  - Tabbing from entry search directly to first entry
+  - Tabbing from tag search to tag name input
+  - Tabbing through entries skips the edit and show buttons
+
+
 ## 0.1.0
 _2026-07-21_
 
