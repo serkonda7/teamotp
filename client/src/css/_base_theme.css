@@ -55,4 +55,64 @@
 		#ffffff 78%,
 		var(--color-danger)
 	);
+
+	color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+	/* Elevation */
+	--shadow-card: 0 4px 6px rgb(0 0 0 / 40%);
+	--shadow-modal: 0 14px 34px rgb(0 0 0 / 55%);
+
+	/* Primary colors */
+	--color-text: var(--palette-white);
+	--color-primary: #22c55e;
+	--color-bg: var(--palette-ink);
+	--color-danger: hsl(4, 85%, 65%);
+
+	/* Semantic colors */
+	--color-bg-hover: color-mix(
+		in srgb,
+		var(--palette-ink) 86%,
+		var(--palette-slate)
+	);
+	--color-border: color-mix(
+		in srgb,
+		var(--palette-ink) 66%,
+		var(--palette-slate)
+	);
+	--color-border-strong: color-mix(
+		in srgb,
+		var(--palette-ink) 52%,
+		var(--palette-slate)
+	);
+	--color-text-muted: color-mix(
+		in srgb,
+		var(--palette-white) 72%,
+		var(--palette-slate)
+	);
+	--color-primary-hover: color-mix(
+		in srgb,
+		var(--color-primary) 80%,
+		#ffffff
+	);
+	--color-primary-disabled: color-mix(
+		in srgb,
+		var(--color-primary) 45%,
+		var(--palette-ink)
+	);
+
+	/* Highlight: warn or danger */
+	--color-danger-bg: color-mix(
+		in srgb,
+		var(--palette-ink) 76%,
+		var(--color-danger)
+	);
+	--color-danger-bg-hover: color-mix(
+		in srgb,
+		var(--palette-ink) 64%,
+		var(--color-danger)
+	);
+
+	color-scheme: dark;
 }
