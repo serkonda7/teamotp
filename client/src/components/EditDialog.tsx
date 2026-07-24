@@ -130,22 +130,9 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 		setSubmitting(true)
 		try {
-			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
-			const res = await (client.otp[':id'].$post as any)({
-				param: { id: props.otp.id },
-				json: {
-					label: labelVal,
-					issuer: issuer().trim(),
-					issuer_second: issuerSecond().trim(),
-				},
-			})
-
-			if (!res.ok) {
-				const msg = await read_api_error(res, 'Fehler beim Update des Eintrags')
-				setError(msg)
-				return
-			}
-
+			// Update tag assignments first: their baseline (initialTagIds) is
+			// tracked locally, so if the OTP update below fails afterwards,
+			// hasChanges() will not report already-persisted tags as unsaved.
 			const initial = initialTagIds()
 			const current = assignedTagIds()
 			const tagUpdates: { tagId: string; assigned: boolean }[] = [
@@ -172,6 +159,23 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 					return next
 				})
 			}
+
+			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
+			const res = await (client.otp[':id'].$post as any)({
+				param: { id: props.otp.id },
+				json: {
+					label: labelVal,
+					issuer: issuer().trim(),
+					issuer_second: issuerSecond().trim(),
+				},
+			})
+
+			if (!res.ok) {
+				const msg = await read_api_error(res, 'Fehler beim Update des Eintrags')
+				setError(msg)
+				return
+			}
+
 			await props.onSave()
 		} catch (_err) {
 			setError('Fehler beim Speichern.')
