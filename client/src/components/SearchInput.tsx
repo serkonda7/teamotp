@@ -44,6 +44,7 @@ const SearchInput = (props: SearchInputProps): JSX.Element => {
 				ref={inputRef}
 				class="search-input__field"
 				type="search"
+				tabindex={1}
 				value={props.value}
 				onInput={(event: InputEventAndTarget): void => {
 					props.onInput(event.currentTarget.value)

@@ -95,6 +95,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 					<input
 						id="tag-name"
 						type="text"
+						tabindex={2}
 						value={name()}
 						onInput={(e: InputEventAndTarget): void => {
 							setName(e.currentTarget.value)
@@ -109,6 +110,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 					<input
 						id="tag-color"
 						type="color"
+						tabindex={3}
 						value={color()}
 						onInput={(e: InputEventAndTarget): void => {
 							setColor(e.currentTarget.value)
@@ -116,7 +118,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 						disabled={submitting()}
 					/>
 				</div>
-				<button type="submit" class="login-button" disabled={submitting()}>
+				<button type="submit" class="login-button" tabindex={4} disabled={submitting()}>
 					{submitting() ? 'Erstellen...' : 'Erstellen'}
 				</button>
 			</form>
@@ -153,6 +155,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 										<button
 											type="button"
 											class="icon-button"
+											tabindex={5}
 											onClick={(): Promise<void> => handleDelete(tag)}
 											aria-label={`Tag ${tag.name} löschen`}
 											title="Löschen"
