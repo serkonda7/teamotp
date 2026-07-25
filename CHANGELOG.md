@@ -1,14 +1,19 @@
 # Changelog
-## unreleased
+## 0.2.0
+_2026-07-25_
 
-- Prevent layout shifts in tag filter popup
-- Fix layout shift in edit dialog with unsaved changes
-- Correctly detect tag changes in edit dialog
+- New features
+  - Dark theme
+- UI and Layout improvmenets
+  - Prevent layout shifts in tag filter popup
+  - Fix layout shift in edit dialog with unsaved changes
 - Improve keyboard navigation
   - Tabbing from entry search directly to first entry
   - Tabbing from tag search to tag name input
   - Tabbing through entries skips the edit and show buttons
   - Use arrow keys to reach those buttons
+- Bug fixes
+  - Correctly detect tag changes in edit dialog
 
 
 ## 0.1.0
