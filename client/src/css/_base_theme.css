@@ -64,11 +64,15 @@
 	--shadow-card: 0 4px 6px rgb(0 0 0 / 40%);
 	--shadow-modal: 0 14px 34px rgb(0 0 0 / 55%);
 
+	/* Palette overrides: neutral grays instead of blue-tinted */
+	--palette-ink: hsl(0, 0%, 9%);
+	--palette-slate: hsl(0, 0%, 45%);
+
 	/* Primary colors */
-	--color-text: var(--palette-white);
-	--color-primary: #22c55e;
+	--color-text: hsl(0, 0%, 84%);
+	--color-primary: #16a34a;
 	--color-bg: var(--palette-ink);
-	--color-danger: hsl(4, 85%, 65%);
+	--color-danger: hsl(4, 88%, 68%);
 
 	/* Semantic colors */
 	--color-bg-hover: color-mix(
@@ -88,7 +92,7 @@
 	);
 	--color-text-muted: color-mix(
 		in srgb,
-		var(--palette-white) 72%,
+		var(--color-text) 78%,
 		var(--palette-slate)
 	);
 	--color-primary-hover: color-mix(
@@ -102,15 +106,15 @@
 		var(--palette-ink)
 	);
 
-	/* Highlight: warn or danger */
+	/* Highlight: warn or danger (dark bg for higher contrast) */
 	--color-danger-bg: color-mix(
 		in srgb,
-		var(--palette-ink) 76%,
+		var(--palette-ink) 88%,
 		var(--color-danger)
 	);
 	--color-danger-bg-hover: color-mix(
 		in srgb,
-		var(--palette-ink) 64%,
+		var(--palette-ink) 78%,
 		var(--color-danger)
 	);
 
