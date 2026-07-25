@@ -3,6 +3,7 @@ import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import { navigate, path } from '../router'
 import SearchInput from './SearchInput'
 import TeamOtpLogo from './TeamOtpLogo'
+import ThemeToggle from './ThemeToggle'
 
 type AppHeaderProps = {
 	onOpenAbout: () => void
@@ -83,10 +84,11 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 						<IconHome size={18} stroke="2" aria-hidden="true" />
 					</button>
 				</Show>
+				<ThemeToggle tabindex={path() === '/tags' ? 7 : 6} />
 				<button
 					type="button"
 					class="icon-button info-button"
-					tabindex={path() === '/tags' ? 7 : 6}
+					tabindex={path() === '/tags' ? 8 : 7}
 					onClick={props.onOpenAbout}
 					aria-label="Über TeamOTP"
 					title="Über"
@@ -96,7 +98,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<button
 					type="button"
 					class="logout-button"
-					tabindex={path() === '/tags' ? 8 : 7}
+					tabindex={path() === '/tags' ? 9 : 8}
 					onClick={props.onLogout}
 				>
 					<IconLogout size={18} stroke="2" aria-hidden="true" />

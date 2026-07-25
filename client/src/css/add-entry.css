@@ -8,7 +8,8 @@
 	padding: 0.58rem 0.7rem;
 	border-radius: var(--corner-radius);
 	border: 2px solid var(--color-border);
-	background: #fff;
+	background: var(--color-bg);
+	color: var(--color-text);
 	font-size: 0.92rem;
 	line-height: 1.35;
 

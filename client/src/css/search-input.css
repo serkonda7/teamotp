@@ -18,6 +18,8 @@
 	padding: 0.45rem 0.6rem 0.45rem 2.1rem;
 	border-radius: var(--corner-radius);
 	border: 2px solid var(--color-border);
+	background: var(--color-bg);
+	color: var(--color-text);
 }
 
 .search-input__field:hover {

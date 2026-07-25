@@ -110,6 +110,26 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(page.getByText('Keine Tags vorhanden.')).toBeVisible()
 })
 
+test('theme toggle switches the theme and persists across reloads', async ({ page }) => {
+	await login(page)
+
+	const html = page.locator('html')
+	const toggle = page.getByRole('button', { name: /Modus wechseln/ })
+
+	const initialTheme = await html.getAttribute('data-theme')
+	const toggledTheme = initialTheme === 'dark' ? 'light' : 'dark'
+
+	await toggle.click()
+	await expect(html).toHaveAttribute('data-theme', toggledTheme)
+
+	// The chosen theme persists across reloads
+	await page.reload()
+	await expect(html).toHaveAttribute('data-theme', toggledTheme)
+
+	await toggle.click()
+	await expect(html).toHaveAttribute('data-theme', initialTheme)
+})
+
 test('clicking the same entry again after 5 seconds copies a fresh code', async ({
 	context,
 	page,

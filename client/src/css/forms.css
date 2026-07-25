@@ -12,8 +12,10 @@
 
 .form-group input {
 	padding: var(--gap-small);
-	border: 1px solid #ccc;
+	border: 1px solid var(--color-border);
 	border-radius: var(--corner-radius);
+	background: var(--color-bg);
+	color: var(--color-text);
 	font-size: 1rem;
 }
 
