@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { login, pinFonts, THEMES, useTheme } from './helpers'
+import { MICROSOFT_APP_URL } from './servers'
 
 for (const theme of THEMES) {
 	test.describe(theme, () => {
@@ -12,18 +13,21 @@ for (const theme of THEMES) {
 			await expect(page).toHaveScreenshot(`login-${theme}.png`, { fullPage: true })
 		})
 
-		test('login page with microsoft provider', async ({ page }) => {
-			// The provider is config driven and off in CI, so force it on to keep
-			// `microsoft-login.css` covered in both themes.
-			await page.route('**/api/auth/providers', async (route): Promise<void> => {
-				await route.fulfill({ json: { local: true, microsoft: true } })
-			})
-			await useTheme(page, theme)
-			await page.goto('/')
-			await expect(page.locator('.microsoft-login-section')).toBeVisible()
-			await pinFonts(page)
+		// Runs against the second app instance, whose backend has the provider
+		// configured, so `microsoft-login.css` is covered in both themes.
+		test.describe('microsoft provider', () => {
+			test.use({ baseURL: MICROSOFT_APP_URL })
 
-			await expect(page).toHaveScreenshot(`login-microsoft-${theme}.png`, { fullPage: true })
+			test('login page', async ({ page }) => {
+				await useTheme(page, theme)
+				await page.goto('/')
+				await expect(page.locator('.microsoft-login-section')).toBeVisible()
+				await pinFonts(page)
+
+				await expect(page).toHaveScreenshot(`login-microsoft-${theme}.png`, {
+					fullPage: true,
+				})
+			})
 		})
 
 		test('overview', async ({ page }) => {

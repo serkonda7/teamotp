@@ -1,5 +1,16 @@
 import { defineConfig, devices } from '@playwright/test'
-import { E2E_DB_PATH } from './tests/e2e/global-setup'
+import {
+	API_URL,
+	APP_URL,
+	CONFIG_PATH,
+	E2E_DB_PATH,
+	MICROSOFT_API_PORT,
+	MICROSOFT_API_URL,
+	MICROSOFT_APP_PORT,
+	MICROSOFT_APP_URL,
+	MICROSOFT_CONFIG_PATH,
+	MICROSOFT_E2E_DB_PATH,
+} from './tests/e2e/servers'
 
 export default defineConfig({
 	testDir: './tests/e2e',
@@ -10,7 +21,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: [['html', { open: 'never' }], ['list']],
 	use: {
-		baseURL: 'http://localhost:5371',
+		baseURL: APP_URL,
 		trace: 'on-first-retry',
 	},
 	expect: {
@@ -25,22 +36,52 @@ export default defineConfig({
 	// No `{platform}` segment: fonts are pinned in the tests, so one baseline set
 	// is meant to be valid on every host.
 	snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
+	// Two app instances, one per server config: the default one and a second one
+	// whose backend has Microsoft auth configured. See `tests/e2e/servers.ts`.
 	webServer: [
 		{
 			command: 'bun run --cwd server dev',
-			url: 'http://localhost:3000/auth/providers',
+			url: `${API_URL}/auth/providers`,
 			reuseExistingServer: false,
 			timeout: 120_000,
 			env: {
 				...process.env,
+				TEAMOTP_CONFIG_PATH: CONFIG_PATH,
 				TEAMOTP_DB_PATH: E2E_DB_PATH,
 			},
 		},
 		{
 			command: 'bun run --cwd client dev',
-			url: 'http://localhost:5371',
+			url: APP_URL,
 			reuseExistingServer: false,
 			timeout: 120_000,
+			env: {
+				...process.env,
+				TEAMOTP_API_URL: API_URL,
+			},
+		},
+		{
+			command: 'bun run --cwd server dev',
+			url: `${MICROSOFT_API_URL}/auth/providers`,
+			reuseExistingServer: false,
+			timeout: 120_000,
+			env: {
+				...process.env,
+				TEAMOTP_CONFIG_PATH: MICROSOFT_CONFIG_PATH,
+				TEAMOTP_DB_PATH: MICROSOFT_E2E_DB_PATH,
+				TEAMOTP_PORT: String(MICROSOFT_API_PORT),
+			},
+		},
+		{
+			command: 'bun run --cwd client dev',
+			url: MICROSOFT_APP_URL,
+			reuseExistingServer: false,
+			timeout: 120_000,
+			env: {
+				...process.env,
+				TEAMOTP_API_URL: MICROSOFT_API_URL,
+				TEAMOTP_CLIENT_PORT: String(MICROSOFT_APP_PORT),
+			},
 		},
 	],
 	projects: [

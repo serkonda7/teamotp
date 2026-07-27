@@ -29,10 +29,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx playwright install chromium --with-deps
-      - name: Setup initial config
-        run: |
-          mkdir -p server/data
-          cp ci/config.smoke.toml server/data/config.toml
+      # The configs come from `tests/e2e/config`, only the data dir for the
+      # test DBs has to exist.
+      - name: Setup data dir
+        run: mkdir -p server/data
       - run: bun run test:e2e
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
