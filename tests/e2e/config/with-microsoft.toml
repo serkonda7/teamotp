@@ -1,0 +1,10 @@
+[auth]
+jwtSecret = "e2e-secret-not-used-anywhere-else"
+
+# Dummy values: the tests only assert that the provider is offered, they never
+# follow the redirect to the Microsoft identity platform.
+[auth.microsoft]
+clientId = "e2e-client-id"
+clientSecret = "e2e-client-secret"
+tenantId = "e2e-tenant-id"
+redirectUri = "http://localhost:3001/auth/callback/microsoft"

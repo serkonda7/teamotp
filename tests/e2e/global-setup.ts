@@ -1,7 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import path from 'node:path'
-
-export const E2E_DB_PATH = path.resolve(process.cwd(), 'server', 'data', 'e2e.db')
+import { E2E_DB_PATH } from './servers'
 
 async function globalSetup(): Promise<void> {
 	execFileSync('bun', ['run', 'tests/e2e/seed-db.ts'], {
