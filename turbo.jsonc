@@ -1,5 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  // Read by `playwright.config.ts`, which runs outside of turbo
+  "globalPassThroughEnv": ["TEAMOTP_E2E_REUSE_SERVERS"],
   "tasks": {
     "dev": {
       "cache": false,

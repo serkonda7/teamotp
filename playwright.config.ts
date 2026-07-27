@@ -12,6 +12,13 @@ import {
 	MICROSOFT_E2E_DB_PATH,
 } from './tests/e2e/servers'
 
+// Opt-in only. A server already listening on one of these ports was not
+// necessarily started with the `env` below, so it may well be pointed at the
+// developer DB -- which `globalSetup` never seeds and the tests would then
+// mutate. Booting fresh instances is the safe default; set this to `1` only
+// when you know the running instances are the E2E ones.
+const reuseExistingServer = process.env.TEAMOTP_E2E_REUSE_SERVERS === '1'
+
 export default defineConfig({
 	testDir: './tests/e2e',
 	globalSetup: './tests/e2e/global-setup.ts',
@@ -43,13 +50,13 @@ export default defineConfig({
 	snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
 	// Two app instances, one per server config: the default one and a second one
 	// whose backend has Microsoft auth configured. See `tests/e2e/servers.ts`.
-	// Locally the instances are reused across runs; `globalSetup` reseeds the DB
-	// either way. CI always boots them fresh.
+	// Both are booted fresh unless reuse is explicitly opted into; `globalSetup`
+	// reseeds the DB either way.
 	webServer: [
 		{
 			command: 'bun run --cwd server dev',
 			url: `${API_URL}/auth/providers`,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -60,7 +67,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd client dev',
 			url: APP_URL,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -70,7 +77,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd server dev',
 			url: `${MICROSOFT_API_URL}/auth/providers`,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -82,7 +89,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd client dev',
 			url: MICROSOFT_APP_URL,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer,
 			timeout: 120_000,
 			env: {
 				...process.env,
