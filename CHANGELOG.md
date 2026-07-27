@@ -1,5 +1,6 @@
 # Changelog
-## unreleased
+## 0.2.1
+_2026-07-26_
 
 - UI: fix dark theme on microsoft login page
 - Technical change: Add visual UI testing
