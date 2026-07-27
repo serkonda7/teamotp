@@ -2,6 +2,7 @@
 ## unreleased
 
 - UI: fix dark theme on microsoft login page
+- Technical change: Add visual UI testing
 
 
 ## 0.2.0
