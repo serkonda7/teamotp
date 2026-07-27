@@ -1,4 +1,9 @@
 # Changelog
+## unreleased
+
+- UI: fix dark theme on microsoft login page
+
+
 ## 0.2.0
 _2026-07-25_
 
