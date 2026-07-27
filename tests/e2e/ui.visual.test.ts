@@ -2,6 +2,11 @@ import { expect, test } from '@playwright/test'
 import { login, pinFonts, THEMES, useTheme } from './helpers'
 import { MICROSOFT_APP_URL } from './servers'
 
+// These tests only read the seeded data, so they may share the app instances.
+// `fullyParallel` is off globally to keep them away from the functional tests,
+// which write. See `playwright.config.ts`.
+test.describe.configure({ mode: 'parallel' })
+
 for (const theme of THEMES) {
 	test.describe(theme, () => {
 		test('login page', async ({ page }) => {

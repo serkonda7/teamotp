@@ -15,10 +15,15 @@ import {
 export default defineConfig({
 	testDir: './tests/e2e',
 	globalSetup: './tests/e2e/global-setup.ts',
-	fullyParallel: true,
+	// Off by design: the functional tests mutate the seeded DB the visual ones
+	// assert against, so they must not interleave. Parallelism is opted into
+	// per file instead -- see `ui.visual.test.ts`.
+	fullyParallel: false,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 1 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	// Two of the runner's four cores; more browsers than that contend for CPU
+	// and start costing screenshot stability.
+	workers: process.env.CI ? 2 : undefined,
 	reporter: [['html', { open: 'never' }], ['list']],
 	use: {
 		baseURL: APP_URL,
@@ -38,11 +43,13 @@ export default defineConfig({
 	snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
 	// Two app instances, one per server config: the default one and a second one
 	// whose backend has Microsoft auth configured. See `tests/e2e/servers.ts`.
+	// Locally the instances are reused across runs; `globalSetup` reseeds the DB
+	// either way. CI always boots them fresh.
 	webServer: [
 		{
 			command: 'bun run --cwd server dev',
 			url: `${API_URL}/auth/providers`,
-			reuseExistingServer: false,
+			reuseExistingServer: !process.env.CI,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -53,7 +60,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd client dev',
 			url: APP_URL,
-			reuseExistingServer: false,
+			reuseExistingServer: !process.env.CI,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -63,7 +70,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd server dev',
 			url: `${MICROSOFT_API_URL}/auth/providers`,
-			reuseExistingServer: false,
+			reuseExistingServer: !process.env.CI,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -75,7 +82,7 @@ export default defineConfig({
 		{
 			command: 'bun run --cwd client dev',
 			url: MICROSOFT_APP_URL,
-			reuseExistingServer: false,
+			reuseExistingServer: !process.env.CI,
 			timeout: 120_000,
 			env: {
 				...process.env,
@@ -90,18 +97,24 @@ export default defineConfig({
 			testIgnore: /.*\.visual\.test\.ts/,
 			use: { ...devices['Desktop Chrome'] },
 		},
+		// The visual projects depend on `chromium` so its DB writes are done before
+		// the first screenshot is taken. They only read, so they may run in
+		// parallel with each other.
+		//
 		// Viewports are set explicitly rather than via device descriptors, whose
 		// `isMobile`/`deviceScaleFactor` values change between Playwright releases
 		// and would silently invalidate every baseline on upgrade.
 		{
 			name: 'visual-desktop',
 			testMatch: /.*\.visual\.test\.ts/,
+			dependencies: ['chromium'],
 			use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
 		},
 		{
 			// Below the 800px header and 860px add-entry breakpoints
 			name: 'visual-narrow',
 			testMatch: /.*\.visual\.test\.ts/,
+			dependencies: ['chromium'],
 			use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 } },
 		},
 	],
