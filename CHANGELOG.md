@@ -1,4 +1,10 @@
 # Changelog
+## unreleased
+
+- Security: Implement session timeouts
+  - 4 hours without activity, or 5 days absolute
+
+
 ## 0.2.1
 _2026-07-26_
 

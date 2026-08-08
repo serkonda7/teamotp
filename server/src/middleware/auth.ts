@@ -2,7 +2,7 @@ import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { verify } from 'hono/jwt'
 import { getConfig } from '../config'
-import { isValidSession } from '../sessions'
+import { isValidSession, touchSession } from '../sessions'
 
 export type JwtPayload = {
 	sub: string // Subject (user email)
@@ -29,6 +29,7 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 			if (!isValidSession(payload.jti)) {
 				return c.json({ error: 'Unauthorized: Session invalidated' }, 401)
 			}
+			touchSession(payload.jti)
 
 			c.set('jwtPayload', payload)
 			await next()
