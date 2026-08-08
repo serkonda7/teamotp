@@ -5,6 +5,7 @@ import type { JSX } from 'solid-js'
 import { createResource, createSignal, For, Show } from 'solid-js'
 import { create_tag, delete_tag, fetch_tags } from '../api'
 import { setTagsChanged } from '../router'
+import { matchesQuery } from '../util/otp_search'
 import { makeArrayRefetch } from '../util/resource_helpers'
 
 const DEFAULT_COLOR = '#16a34a'
@@ -32,13 +33,8 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 	)
 	const refetchTyped = makeArrayRefetch<TagWithMemberCount>(refetch)
 
-	const filteredTags = (): TagWithMemberCount[] => {
-		const query = props.searchQuery.trim().toLocaleLowerCase()
-		if (query.length === 0) {
-			return tags()
-		}
-		return tags().filter((tag) => tag.name.toLocaleLowerCase().includes(query))
-	}
+	const filteredTags = (): TagWithMemberCount[] =>
+		tags().filter((tag) => matchesQuery([tag.name], props.searchQuery))
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
