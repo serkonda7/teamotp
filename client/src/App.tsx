@@ -9,7 +9,7 @@ import {
 	onMount,
 	Show,
 } from 'solid-js'
-import { client, fetch_tags } from './api'
+import { fetch_otps, fetch_tags, UnauthorizedError } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
@@ -127,13 +127,16 @@ function App(): JSX.Element {
 	})
 
 	async function fetchOtps(): Promise<OtpDisplayInfo[]> {
-		const res = await client.otp.$get()
-		if (res.status === 401) {
-			setIsLoggedIn(false)
+		const res = await fetch_otps()
+		if (Result.isError(res)) {
+			if (res.error instanceof UnauthorizedError) {
+				setIsLoggedIn(false)
+			} else {
+				setError(res.error.message)
+			}
 			return []
 		}
-		const data = await res.json()
-		return data as OtpDisplayInfo[]
+		return res.value
 	}
 
 	async function handleLogout(): Promise<void> {

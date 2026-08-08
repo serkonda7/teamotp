@@ -35,7 +35,10 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 		try {
 			const res = await client.otp.$post({ json: Result.unwrap(payload_res) })
 			if (!res.ok) {
-				const msg = await read_api_error(res, `Failed to add OTP entry (${res.status})`)
+				const msg = await read_api_error(
+					res,
+					`Fehler beim Hinzufügen des Eintrags (${res.status})`,
+				)
 				props.setError(msg)
 				return
 			}

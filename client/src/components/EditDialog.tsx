@@ -3,8 +3,7 @@ import { Result } from 'better-result'
 import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createSignal, For, onMount, Show } from 'solid-js'
-import { client, fetch_entry_tags, fetch_tags, set_entry_tag } from '../api'
-import { read_api_error } from '../util/api_error'
+import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
 
 type EditDialogProps = {
 	open: boolean
@@ -166,19 +165,14 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 				})
 			}
 
-			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
-			const res = await (client.otp[':id'].$post as any)({
-				param: { id: props.otp.id },
-				json: {
-					label: labelVal,
-					issuer: issuer().trim(),
-					issuer_second: issuerSecond().trim(),
-				},
+			const res = await update_entry(props.otp.id, {
+				label: labelVal,
+				issuer: issuer().trim(),
+				issuer_second: issuerSecond().trim(),
 			})
 
-			if (!res.ok) {
-				const msg = await read_api_error(res, 'Fehler beim Update des Eintrags')
-				setError(msg)
+			if (Result.isError(res)) {
+				setError(res.error.message)
 				return
 			}
 
@@ -193,7 +187,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	async function handleArchive(): Promise<void> {
 		if (
 			!confirm(
-				`Archive "${props.otp.issuer} (${props.otp.issuer_second}): ${props.otp.label}"?`,
+				`"${props.otp.issuer} (${props.otp.issuer_second}): ${props.otp.label}" wirklich archivieren?`,
 			)
 		) {
 			return
@@ -202,20 +196,16 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 		setError(null)
 		setSubmitting(true)
 		try {
-			// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
-			const res = await (client.otp[':id'].archive.$post as any)({
-				param: { id: props.otp.id },
-			})
+			const res = await archive_entry(props.otp.id)
 
-			if (!res.ok) {
-				const msg = await read_api_error(res, 'Failed to archive OTP entry')
-				setError(msg)
+			if (Result.isError(res)) {
+				setError(res.error.message)
 				return
 			}
 
 			await props.onSave()
 		} catch (_err) {
-			setError('An error occurred while archiving.')
+			setError('Fehler beim Archivieren.')
 		} finally {
 			setSubmitting(false)
 		}
