@@ -14,9 +14,10 @@
     "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
+    "@hono/valibot-validator": "catalog:",
     "@azure/msal-node": "~5.5.0",
     "otplib": "~13.4.1",
-    "valibot": "~1.4.2"
+    "valibot": "catalog:"
   },
   "devDependencies": {
     "drizzle-kit": "catalog:"

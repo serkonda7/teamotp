@@ -44,7 +44,7 @@ describe('Tag routes', () => {
 		})
 
 		expect(response.status).toBe(400)
-		expect(await response.json()).toEqual({ error: 'Fields "name" and "color" are required' })
+		expect(await response.json()).toEqual({ error: 'Field "color" is required' })
 	})
 
 	test('rejects invalid color format', async () => {
@@ -57,7 +57,7 @@ describe('Tag routes', () => {
 
 		expect(response.status).toBe(400)
 		expect(await response.json()).toEqual({
-			error: 'Field "color" must be a hex color like #1a2b3c',
+			error: 'color: Must be a hex color like #1a2b3c',
 		})
 	})
 

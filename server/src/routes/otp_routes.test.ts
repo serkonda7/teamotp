@@ -18,7 +18,7 @@ describe('OTP routes', () => {
 		})
 
 		expect(response.status).toBe(400)
-		expect(await response.json()).toEqual({ error: 'Fields "label" and "secret" are required' })
+		expect(await response.json()).toEqual({ error: 'Field "secret" is required' })
 	})
 
 	test('creates an OTP entry with defaults and lists it', async () => {
@@ -179,7 +179,7 @@ describe('OTP routes', () => {
 			body: 'not valid json{',
 		})
 		expect(response.status).toBe(400)
-		expect(await response.json()).toEqual({ error: 'Invalid JSON body' })
+		expect(await response.json()).toEqual({ error: 'Malformed JSON in request body' })
 	})
 
 	test('partial update changes only the specified field', async () => {
@@ -238,6 +238,106 @@ describe('OTP routes', () => {
 		expect(stored?.issuer).toBe('Stable Issuer')
 		expect(stored?.issuer_second).toBe('Stable Second')
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+	})
+
+	test('rejects an update that targets a non-updatable field', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Protected',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+				digits: 8,
+				period: 60,
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const response = await app.request(`/otp/${id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				secret: 'AAAAAAAAAAAAAAAA',
+				digits: 6,
+				period: 30,
+				archived_at: '2020-01-01T00:00:00.000Z',
+			}),
+		})
+
+		expect(response.status).toBe(400)
+		expect(await response.json()).toEqual({ error: 'Field "secret" is not allowed' })
+
+		const stored = getEntryById(id)
+		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
+		expect(stored?.digits).toBe(8)
+		expect(stored?.period).toBe(60)
+		expect(stored?.archived_at).toBeNull()
+	})
+
+	test('rejects an update that tries to rewrite the primary key', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Keep my id',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const response = await app.request(`/otp/${id}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ id: 'hijacked' }),
+		})
+
+		expect(response.status).toBe(400)
+		expect(await response.json()).toEqual({ error: 'Field "id" is not allowed' })
+
+		expect(getEntryById(id)).not.toBeNull()
+		expect(getEntryById('hijacked')).toBeNull()
+	})
+
+	test('rejects a secret that is not Base32 and stores nothing', async () => {
+		const headers = await getAuthHeaders()
+		const response = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'Broken', secret: '!!!!not-base32!!!!' }),
+		})
+
+		expect(response.status).toBe(400)
+		expect(await response.json()).toEqual({ error: 'secret: Secret must be Base32' })
+		expect(db.select().from(entries).all()).toEqual([])
+	})
+
+	// The schema regex accepts this, but otplib cannot decode it. Without the
+	// second check the row would be stored and every code fetch would 500.
+	test('rejects a Base32-shaped secret that cannot generate a code', async () => {
+		const headers = await getAuthHeaders()
+		const response = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'Undecodable', secret: 'JBSWY3DPEHPK3PXPJ' }),
+		})
+
+		expect(response.status).toBe(400)
+		expect(db.select().from(entries).all()).toEqual([])
+	})
+
+	test('normalizes a lowercase secret on create', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ label: 'Lowercase', secret: 'jbswy3dpehpk3pxp' }),
+		})
+
+		expect(createResponse.status).toBe(201)
+		const { id } = (await createResponse.json()) as { id: string }
+		expect(getEntryById(id)?.secret).toBe('JBSWY3DPEHPK3PXP')
 	})
 
 	test('archives an entry and returns archivedAt', async () => {

@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
+import { Result } from 'better-result'
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
@@ -12,6 +13,7 @@ import type {
 	TagInfo,
 	TagWithMemberCount,
 } from 'shared/src/types'
+import { generateTotpCode } from './otp'
 import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { SERVER_ROOT } from './util/server_root'
@@ -92,7 +94,14 @@ function listAllEntryTagsGrouped(): Map<string, TagInfo[]> {
 	return grouped
 }
 
-export function createEntry(obj: NewOtpEntry): OtpEntry {
+/**
+ * Creates an entry, but only if its secret actually produces a code.
+ *
+ * The check lives here rather than in the route so no caller can store a row
+ * that permanently fails on read: a secret the schema accepts can still be
+ * rejected by the otplib guardrails.
+ */
+export function createEntry(obj: NewOtpEntry): Result<OtpEntry, Error> {
 	const id = Bun.randomUUIDv7()
 	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
 
@@ -108,9 +117,14 @@ export function createEntry(obj: NewOtpEntry): OtpEntry {
 		archived_at: null,
 	}
 
+	const code_res = generateTotpCode(entry)
+	if (Result.isError(code_res)) {
+		return code_res
+	}
+
 	db.insert(entries).values(entry).run()
 
-	return entry
+	return Result.ok(entry)
 }
 
 export function getEntryById(id: string): OtpEntry | null {
@@ -118,8 +132,30 @@ export function getEntryById(id: string): OtpEntry | null {
 	return (row as OtpEntry | null) ?? null
 }
 
+/**
+ * Applies the updatable fields of an entry.
+ *
+ * The whitelist is enforced here and not only at the route boundary: spreading
+ * a caller-supplied object into `.set()` would make this a mass-assignment
+ * primitive for every future call site, including ones that forget to validate.
+ */
 export function updateEntry(id: string, updated: UpdateOtpEntry): void {
-	db.update(entries).set(updated).where(eq(entries.id, id)).run()
+	// Explicit keys only — never spread a caller-supplied object into .set()
+	const fields: Partial<typeof entries.$inferInsert> = {}
+	if (updated.label !== undefined) {
+		fields.label = updated.label
+	}
+	if (updated.issuer !== undefined) {
+		fields.issuer = updated.issuer
+	}
+	if (updated.issuer_second !== undefined) {
+		fields.issuer_second = updated.issuer_second
+	}
+
+	if (Object.keys(fields).length === 0) {
+		return
+	}
+	db.update(entries).set(fields).where(eq(entries.id, id)).run()
 }
 
 export function archiveEntry(id: string): string | null {

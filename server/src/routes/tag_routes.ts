@@ -1,9 +1,9 @@
+import { vValidator } from '@hono/valibot-validator'
 import { Hono } from 'hono'
-import type { NewTag } from 'shared/src/types'
+import { NewTagSchema } from 'shared/src/schemas'
 import { createTag, deleteTag, getTagByName, listTags } from '../db'
 import { authMiddleware } from '../middleware/auth'
-
-const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/
+import { onValidationError } from '../middleware/validation'
 
 export const tagApp = new Hono()
 	.use(authMiddleware)
@@ -14,31 +14,13 @@ export const tagApp = new Hono()
 	})
 
 	// POST /tags — create a new tag, return its id
-	.post('/', async (c) => {
-		let body: NewTag
-		try {
-			body = await c.req.json()
-		} catch {
-			return c.json({ error: 'Invalid JSON body' }, 400)
-		}
-
-		if (!body || typeof body !== 'object') {
-			return c.json({ error: 'Invalid JSON body' }, 400)
-		}
-
-		const name = body.name?.trim() ?? ''
-		const color = body.color ?? ''
-		if (!name || !color) {
-			return c.json({ error: 'Fields "name" and "color" are required' }, 400)
-		}
-		if (!HEX_COLOR_PATTERN.test(color)) {
-			return c.json({ error: 'Field "color" must be a hex color like #1a2b3c' }, 400)
-		}
-		if (getTagByName(name)) {
+	.post('/', vValidator('json', NewTagSchema, onValidationError), (c) => {
+		const body = c.req.valid('json')
+		if (getTagByName(body.name)) {
 			return c.json({ error: 'A tag with this name already exists' }, 409)
 		}
 
-		const tag = createTag({ name, color })
+		const tag = createTag(body)
 		return c.json({ id: tag.id }, 201)
 	})
 

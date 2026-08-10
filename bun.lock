@@ -40,12 +40,13 @@
       "version": "0.0.0-dev",
       "dependencies": {
         "@azure/msal-node": "~5.5.0",
+        "@hono/valibot-validator": "catalog:",
         "better-result": "catalog:",
         "drizzle-orm": "catalog:",
         "hono": "catalog:",
         "otplib": "~13.4.1",
         "shared": "workspace:*",
-        "valibot": "~1.4.2",
+        "valibot": "catalog:",
       },
       "devDependencies": {
         "drizzle-kit": "catalog:",
@@ -67,13 +68,18 @@
     "shared": {
       "name": "shared",
       "version": "0.0.0-dev",
+      "dependencies": {
+        "valibot": "catalog:",
+      },
     },
   },
   "catalog": {
+    "@hono/valibot-validator": "~0.6.1",
     "better-result": "~3.0.0",
     "drizzle-kit": "~0.31.10",
     "drizzle-orm": "~0.45.2",
     "hono": "~4.13.1",
+    "valibot": "~1.4.2",
   },
   "packages": {
     "@azure/msal-common": ["@azure/msal-common@16.12.0", "", {}, "sha512-hgLgfRdbG2AmhXPygebf1KYJEvse86+ZZLWufdiTKaGRYEUqOzHdlf6AS1IiuUCHWbynkgbHc451jSNkbfhWlg=="],
@@ -193,6 +199,8 @@
     "@esbuild/win32-ia32": ["@esbuild/win32-ia32@0.23.1", "", { "os": "win32", "cpu": "ia32" }, "sha512-BcaL0Vn6QwCwre3Y717nVHZbAa4UBEigzFm6VdsVdT/MbZ38xoj1X9HPkZhbmaBGUD1W8vxAfffbDe8bA6AKnQ=="],
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.23.1", "", { "os": "win32", "cpu": "x64" }, "sha512-BHpFFeslkWrXWyUPnbKm+xYYVYruCinGcftSBaa8zoF9hZO4BcSCFUvHVTtzpIY6YzUnYtuEhZ+C9iEXjxnasg=="],
+
+    "@hono/valibot-validator": ["@hono/valibot-validator@0.6.1", "", { "peerDependencies": { "hono": ">=3.9.0", "valibot": "^1.0.0 || ^1.0.0-beta.4 || ^1.0.0-rc" } }, "sha512-rqKhQJI8IVR8gRRNHHf2wGtIT7sKEqV1KoGL5f2SocNytl+tBNn4EtRu4zfk/D6axgWSswnaxeiuJhM5yNFrCg=="],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 

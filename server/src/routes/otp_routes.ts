@@ -1,6 +1,7 @@
+import { vValidator } from '@hono/valibot-validator'
 import { Result } from 'better-result'
 import { Hono } from 'hono'
-import type { NewOtpEntry } from 'shared/src/types'
+import { NewOtpEntrySchema, UpdateOtpEntrySchema } from 'shared/src/schemas'
 import {
 	archiveEntry,
 	assignTag,
@@ -13,8 +14,8 @@ import {
 	updateEntry,
 } from '../db'
 import { authMiddleware } from '../middleware/auth'
+import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'
-import type { UpdateOtpEntry } from '../types'
 
 export const otpApp = new Hono()
 	.use(authMiddleware)
@@ -26,21 +27,13 @@ export const otpApp = new Hono()
 	})
 
 	// POST /otp — create a new entry, return its id
-	.post('/', async (c) => {
-		let body: NewOtpEntry
-		try {
-			body = await c.req.json()
-		} catch {
-			return c.json({ error: 'Invalid JSON body' }, 400)
+	.post('/', vValidator('json', NewOtpEntrySchema, onValidationError), (c) => {
+		const entry_res = createEntry(c.req.valid('json'))
+		if (Result.isError(entry_res)) {
+			return c.json({ error: entry_res.error.message }, 400)
 		}
 
-		// TODO server-side validation of fields
-		if (!body.label || !body.secret) {
-			return c.json({ error: 'Fields "label" and "secret" are required' }, 400)
-		}
-
-		const entry = createEntry(body)
-		return c.json({ id: entry.id }, 201)
+		return c.json({ id: Result.unwrap(entry_res).id }, 201)
 	})
 
 	// GET /otp/:id — get the current TOTP code for an entry
@@ -60,7 +53,7 @@ export const otpApp = new Hono()
 	})
 
 	// POST /otp/:id — update an existing entry
-	.post('/:id', async (c) => {
+	.post('/:id', vValidator('json', UpdateOtpEntrySchema, onValidationError), (c) => {
 		const id = c.req.param('id')
 
 		const entry = getEntryById(id)
@@ -68,18 +61,7 @@ export const otpApp = new Hono()
 			return c.json({ error: 'OTP entry not found' }, 404)
 		}
 
-		let body: UpdateOtpEntry
-		try {
-			body = await c.req.json()
-		} catch {
-			return c.json({ error: 'Invalid JSON body' }, 400)
-		}
-
-		// Prevent crash by empty body
-		const hasFields = Object.values(body).some((v) => v !== undefined)
-		if (hasFields) {
-			updateEntry(id, body)
-		}
+		updateEntry(id, c.req.valid('json'))
 		return c.json({ success: true })
 	})
 
