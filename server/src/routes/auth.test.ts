@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, setSystemTime, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, setSystemTime, test } from 'bun:test'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
 import { db } from '../db'
 import { app } from '../index'
@@ -7,6 +7,10 @@ import { createAuthCookie } from '../tests/helpers'
 
 beforeEach(async () => {
 	db.delete(users).run()
+})
+
+afterEach(() => {
+	setSystemTime() // back to the real clock, even if a test threw
 })
 
 describe('Auth routes', () => {
@@ -79,7 +83,6 @@ describe('Auth routes', () => {
 
 		setSystemTime(new Date(Date.now() + SESSION_IDLE_TIMEOUT_S * 1000))
 		const response = await app.request('/auth/me', { headers: { Cookie: cookie } })
-		setSystemTime()
 
 		expect(response.status).toBe(401)
 	})
@@ -94,7 +97,6 @@ describe('Auth routes', () => {
 
 		setSystemTime(new Date(Date.now() + (SESSION_IDLE_TIMEOUT_S - 60) * 1000))
 		const second = await app.request('/auth/me', { headers: { Cookie: cookie } })
-		setSystemTime()
 
 		expect(first.status).toBe(200)
 		expect(second.status).toBe(200)
