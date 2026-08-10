@@ -211,7 +211,7 @@ describe('OTP routes', () => {
 		expect(stored?.secret).toBe('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP')
 	})
 
-	test('empty update body leaves entry unchanged', async () => {
+	test('rejects an empty update body and leaves the entry unchanged', async () => {
 		const headers = await getAuthHeaders()
 		const createResponse = await app.request('/otp', {
 			method: 'POST',
@@ -230,8 +230,8 @@ describe('OTP routes', () => {
 			headers: { 'content-type': 'application/json', ...headers },
 			body: JSON.stringify({}),
 		})
-		expect(updateResponse.status).toBe(200)
-		expect(await updateResponse.json()).toEqual({ success: true })
+		expect(updateResponse.status).toBe(400)
+		expect(await updateResponse.json()).toEqual({ error: 'No fields to update' })
 
 		const stored = getEntryById(id)
 		expect(stored?.label).toBe('Stable Label')

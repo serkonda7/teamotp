@@ -39,11 +39,16 @@ export const NewOtpEntrySchema = v.object({
 
 // strictObject: unknown keys are REJECTED, not silently stripped, so an attempt
 // to write `secret` or `id` through the update endpoint fails loudly with a 400.
-export const UpdateOtpEntrySchema = v.strictObject({
-	label: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(200))),
-	issuer: v.optional(v.pipe(v.string(), v.maxLength(200))),
-	issuer_second: v.optional(v.pipe(v.string(), v.maxLength(200))),
-})
+// Every field is optional, but a payload has to carry at least one of them —
+// an empty body is a caller mistake, not a no-op update.
+export const UpdateOtpEntrySchema = v.pipe(
+	v.strictObject({
+		label: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(200))),
+		issuer: v.optional(v.pipe(v.string(), v.maxLength(200))),
+		issuer_second: v.optional(v.pipe(v.string(), v.maxLength(200))),
+	}),
+	v.check((obj) => Object.keys(obj).length > 0, 'No fields to update'),
+)
 
 export const NewTagSchema = v.object({
 	name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(50)),
