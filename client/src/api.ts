@@ -5,6 +5,7 @@ import type { AppType } from 'server/src/index'
 import type { UpdateOtpEntry } from 'server/src/types'
 import type { OtpDisplayInfo, TagInfo, TagWithMemberCount } from 'shared/src/types'
 import { read_api_error } from './util/api_error'
+import { note_server_activity } from './util/idle_timeout'
 
 /** RPC client */
 export const client = hc<AppType>('/api')
@@ -38,6 +39,10 @@ async function to_result<T>(res: Response, fallback: string): Promise<Result<T, 
 		unauthorized_handler?.()
 		return Result.err(new UnauthorizedError())
 	}
+
+	// Any other answer means the session passed the auth middleware, which
+	// restarted the idle window on the server. Keep the client mirror in sync.
+	note_server_activity()
 
 	if (!res.ok) {
 		const msg = await read_api_error(res, `${fallback} (${res.status})`)

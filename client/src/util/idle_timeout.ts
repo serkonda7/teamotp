@@ -7,39 +7,44 @@
  */
 import { SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
 
-/** User interactions that count as activity, matching what causes API requests. */
-const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'focus'] as const
-
 /** How often the elapsed idle time is checked. */
 const CHECK_INTERVAL_MS = 60 * 1000
 
+/** When the server last confirmed the session, mirroring its `last_seen_at`. */
+let last_server_activity = Date.now()
+
 /**
- * Calls `on_timeout` once the user has been inactive for the session idle timeout.
- * Returns a function that stops the timer and removes all listeners.
+ * Restarts the idle window, to be called whenever the server answered an
+ * authenticated request and therefore refreshed the session on its side.
+ *
+ * Only requests count. Interaction that stays in the browser, like scrolling or
+ * filtering the list, never renews the server session, so treating it as
+ * activity would keep the codes on screen after the session is already gone.
+ */
+export function note_server_activity(): void {
+	last_server_activity = Date.now()
+}
+
+/**
+ * Calls `on_timeout` once the server session has not been renewed for the idle
+ * timeout. Returns a function that stops the timer.
  *
  * Compares timestamps instead of using a single long timer, because a timer does
  * not run while the device is suspended and would fire far too late.
  */
 export function start_idle_timer(on_timeout: () => void): () => void {
-	let last_activity = Date.now()
+	// Starting implies a just confirmed session, either a login or the `/me` check
+	note_server_activity()
 	let stopped = false
 
-	function on_activity(): void {
-		last_activity = Date.now()
-	}
-
 	const interval = setInterval(() => {
-		if (Date.now() - last_activity < SESSION_IDLE_TIMEOUT_S * 1000) {
+		if (Date.now() - last_server_activity < SESSION_IDLE_TIMEOUT_S * 1000) {
 			return
 		}
 
 		stop()
 		on_timeout()
 	}, CHECK_INTERVAL_MS)
-
-	for (const event of ACTIVITY_EVENTS) {
-		window.addEventListener(event, on_activity, { passive: true })
-	}
 
 	function stop(): void {
 		if (stopped) {
@@ -48,9 +53,6 @@ export function start_idle_timer(on_timeout: () => void): () => void {
 		stopped = true
 
 		clearInterval(interval)
-		for (const event of ACTIVITY_EVENTS) {
-			window.removeEventListener(event, on_activity)
-		}
 	}
 
 	return stop
