@@ -5,6 +5,7 @@ import type { AppType } from 'server/src/index'
 import type { UpdateOtpEntry } from 'server/src/types'
 import type { OtpDisplayInfo, TagInfo, TagWithMemberCount } from 'shared/src/types'
 import { read_api_error } from './util/api_error'
+import { note_server_activity } from './util/idle_timeout'
 
 /** RPC client */
 export const client = hc<AppType>('/api')
@@ -17,12 +18,32 @@ export class UnauthorizedError extends Error {
 	}
 }
 
+/** Notified on every 401, so the UI can return to the login page. */
+let unauthorized_handler: (() => void) | null = null
+
+/**
+ * Registers the callback for rejected requests. A 401 can happen at any time
+ * because sessions time out, so this is handled centrally instead of per call.
+ */
+export function set_unauthorized_handler(handler: () => void): void {
+	unauthorized_handler = handler
+}
+
 /**
  * Wraps a fetch response in a Result: reads a typed API error on failure,
  * otherwise returns the parsed JSON body typed as `T`. Chain `.map()` on the
  * result to project a single field.
  */
 async function to_result<T>(res: Response, fallback: string): Promise<Result<T, Error>> {
+	if (res.status === 401) {
+		unauthorized_handler?.()
+		return Result.err(new UnauthorizedError())
+	}
+
+	// Any other answer means the session passed the auth middleware, which
+	// restarted the idle window on the server. Keep the client mirror in sync.
+	note_server_activity()
+
 	if (!res.ok) {
 		const msg = await read_api_error(res, `${fallback} (${res.status})`)
 		return Result.err(new Error(msg))
@@ -34,9 +55,6 @@ async function to_result<T>(res: Response, fallback: string): Promise<Result<T, 
 /** Fetches all OTP entries for the list view. */
 export async function fetch_otps(): Promise<Result<OtpDisplayInfo[], Error>> {
 	const res = await client.otp.$get()
-	if (res.status === 401) {
-		return Result.err(new UnauthorizedError())
-	}
 	return to_result<OtpDisplayInfo[]>(res, 'Fehler beim Laden der Einträge')
 }
 

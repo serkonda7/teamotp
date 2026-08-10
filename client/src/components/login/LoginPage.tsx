@@ -7,6 +7,8 @@ import MicrosoftSignInSection from './MicrosoftSignInSection'
 
 type Props = {
 	onLoginSuccess: () => void
+	/** Set when the previous session timed out, to explain why the login page is shown again. */
+	sessionExpired: boolean
 }
 
 type Providers = { local: boolean; microsoft: boolean }
@@ -104,6 +106,11 @@ const LoginPage = (props: Props): JSX.Element => {
 				<h1 class="login-title">
 					<TeamOtpLogo class="login-title__logo" />
 				</h1>
+				<Show when={props.sessionExpired}>
+					<div class="login-notice">
+						Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.
+					</div>
+				</Show>
 				<Show when={hasMicrosoftProvider()} fallback={localLoginForm()}>
 					<MicrosoftSignInSection localLoginForm={localLoginForm()} />
 				</Show>

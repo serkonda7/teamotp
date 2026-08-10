@@ -6,10 +6,11 @@ import {
 	createResource,
 	createSignal,
 	type JSX,
+	onCleanup,
 	onMount,
 	Show,
 } from 'solid-js'
-import { fetch_otps, fetch_tags, UnauthorizedError } from './api'
+import { fetch_otps, fetch_tags, set_unauthorized_handler, UnauthorizedError } from './api'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
@@ -18,11 +19,13 @@ import OtpList from './components/OtpList'
 import TagFilter from './components/TagFilter'
 import TagsPage from './components/TagsPage'
 import { navigate, path, setTagsChanged, tagsChanged } from './router'
+import { start_idle_timer } from './util/idle_timeout'
 import { otpMatchesSearch, otpMatchesTags } from './util/otp_search'
 import { makeArrayRefetch } from './util/resource_helpers'
 
 function App(): JSX.Element {
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
+	const [sessionExpired, setSessionExpired] = createSignal(false)
 
 	const [otps, { refetch }] = createResource(
 		isLoggedIn,
@@ -142,21 +145,64 @@ function App(): JSX.Element {
 	async function handleLogout(): Promise<void> {
 		try {
 			await fetch('/api/auth/logout', { method: 'POST' })
-			setIsLoggedIn(false)
-			setSearchQuery('')
-			setTagSearchQuery('')
-			setActiveTagIds([])
-			navigate('/')
 		} catch (err) {
 			console.error('Logout failed', err)
+		} finally {
+			clearSession()
+			navigate('/')
 		}
 	}
+
+	/** Drops everything the logged in view holds, so nothing survives into the next session. */
+	function clearSession(): void {
+		setIsLoggedIn(false)
+		setSearchQuery('')
+		setTagSearchQuery('')
+		setActiveTagIds([])
+		setError(null)
+	}
+
+	/** Returns to the login page with a notice, after a timeout or a logout elsewhere. */
+	function handleSessionEnd(): void {
+		if (!isLoggedIn()) {
+			return
+		}
+
+		clearSession()
+		setSessionExpired(true)
+		navigate('/')
+	}
+
+	// A 401 can answer any request once the server session timed out
+	set_unauthorized_handler(handleSessionEnd)
+
+	// Clear the view as soon as the session times out, without waiting for a request
+	createEffect(() => {
+		if (!isLoggedIn()) {
+			return
+		}
+
+		const stop = start_idle_timer(() => {
+			// Release the server session right away instead of leaving it to expire
+			void fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+			handleSessionEnd()
+		})
+		onCleanup(stop)
+	})
 
 	return (
 		<Show when={isLoggedIn() !== null} fallback={<div>Laden...</div>}>
 			<Show
 				when={isLoggedIn()}
-				fallback={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />}
+				fallback={
+					<LoginPage
+						sessionExpired={sessionExpired()}
+						onLoginSuccess={() => {
+							setSessionExpired(false)
+							setIsLoggedIn(true)
+						}}
+					/>
+				}
 			>
 				<div>
 					<AppHeader
