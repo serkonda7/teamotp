@@ -71,8 +71,7 @@ export async function update_entry(
 	id: string,
 	fields: UpdateOtpEntry,
 ): Promise<Result<null, Error>> {
-	// biome-ignore lint/suspicious/noExplicitAny: Hono RPC POST with params does not infer json parameter without server schema validator
-	const res = await (client.otp[':id'].$post as any)({ param: { id }, json: fields })
+	const res = await client.otp[':id'].$post({ param: { id }, json: fields })
 	return to_result<null>(res, 'Fehler beim Update des Eintrags')
 }
 

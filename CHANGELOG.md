@@ -3,6 +3,12 @@
 
 - Security: Implement session timeouts
   - 4 hours without activity, or 5 days absolute
+- Improvements
+  - Data validation for request bodies
+- Bug Fixes
+  - Prevent override of unallowed fields during OTP update
+  - Reject OTP updates that contain no fields
+  - Reject invalid OTP secret values
 
 
 ## 0.2.1

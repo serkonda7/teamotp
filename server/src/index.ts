@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { HTTPException } from 'hono/http-exception'
 import { initConfig, load_config_file } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
@@ -27,6 +28,17 @@ function resolve_config_path(): string {
 
 export const app = new Hono()
 	.use('/*', cors())
+	// Aborted requests (e.g. a malformed JSON body rejected by a validator) must
+	// answer with the same `{ error }` shape as the handlers, because that is the
+	// only field the client reads.
+	.onError((err, c) => {
+		if (err instanceof HTTPException) {
+			return c.json({ error: err.message }, err.status)
+		}
+
+		console.error(err)
+		return c.json({ error: 'Internal server error' }, 500)
+	})
 	.route('/auth', authApp)
 	.route('/otp', otpApp)
 	.route('/tags', tagApp)
