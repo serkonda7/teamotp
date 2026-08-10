@@ -145,10 +145,11 @@ function App(): JSX.Element {
 	async function handleLogout(): Promise<void> {
 		try {
 			await fetch('/api/auth/logout', { method: 'POST' })
-			clearSession()
-			navigate('/')
 		} catch (err) {
 			console.error('Logout failed', err)
+		} finally {
+			clearSession()
+			navigate('/')
 		}
 	}
 
