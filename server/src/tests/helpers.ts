@@ -1,8 +1,9 @@
 import { sign } from 'hono/jwt'
 import { db } from '../db'
+import { getSigningKey } from '../keys'
 import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
-import { createSessionId } from '../sessions'
+import { createSession } from '../sessions'
 
 const TEST_USER_ID = '00000000-0000-7000-8000-000000000001'
 
@@ -21,13 +22,13 @@ export async function createAuthCookie(
 	ensureTestUser()
 	const payload: JwtPayload = {
 		sub: 'test@example.com',
-		jti: createSessionId(TEST_USER_ID),
+		jti: createSession(TEST_USER_ID),
 		iat: now,
 		exp: now + 60 * 60, // 1 hour expiration
 		...payloadOverrides,
 	}
 
-	const token = await sign(payload, 'test_secret', JWT_ALGO)
+	const token = await sign(payload, getSigningKey(), JWT_ALGO)
 	return `auth_token=${token}`
 }
 

@@ -3,10 +3,10 @@ import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/s
 import { db } from './db'
 import { users } from './schema'
 import {
-	createSessionId,
+	createSession,
 	invalidateSession,
 	isValidSession,
-	sweepExpiredSessions,
+	sweepExpired,
 	touchSession,
 } from './sessions'
 
@@ -33,7 +33,7 @@ describe('Session Store', () => {
 	})
 
 	test('successfully invalidates an existing session', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		expect(isValidSession(sid)).toBe(true)
 		invalidateSession(sid)
 		expect(isValidSession(sid)).toBe(false)
@@ -42,19 +42,19 @@ describe('Session Store', () => {
 
 describe('Session timeout', () => {
 	test('session stays valid right before the idle timeout', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S - 60)
 		expect(isValidSession(sid)).toBe(true)
 	})
 
 	test('session expires after the idle timeout', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S)
 		expect(isValidSession(sid)).toBe(false)
 	})
 
 	test('activity extends the idle window', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S - 60)
 		touchSession(sid)
 		advance(SESSION_IDLE_TIMEOUT_S - 60)
@@ -62,7 +62,7 @@ describe('Session timeout', () => {
 	})
 
 	test('activity does not extend the absolute lifetime', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		const step = SESSION_IDLE_TIMEOUT_S - 60
 		for (let elapsed = 0; elapsed < SESSION_ABSOLUTE_TIMEOUT_S; elapsed += step) {
 			advance(step)
@@ -72,7 +72,7 @@ describe('Session timeout', () => {
 	})
 
 	test('touching an expired session does not revive it', () => {
-		const sid = createSessionId(TEST_USER_ID)
+		const sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S)
 		touchSession(sid)
 		expect(isValidSession(sid)).toBe(false)
@@ -82,21 +82,21 @@ describe('Session timeout', () => {
 describe('Session sweep', () => {
 	beforeEach(() => {
 		advance(SESSION_ABSOLUTE_TIMEOUT_S)
-		sweepExpiredSessions()
+		sweepExpired()
 		setSystemTime()
 	})
 
 	test('removes only timed out sessions', () => {
-		const old_sid = createSessionId(TEST_USER_ID)
+		const old_sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S)
-		const fresh_sid = createSessionId(TEST_USER_ID)
-		expect(sweepExpiredSessions()).toBe(1)
+		const fresh_sid = createSession(TEST_USER_ID)
+		expect(sweepExpired()).toBe(1)
 		expect(isValidSession(old_sid)).toBe(false)
 		expect(isValidSession(fresh_sid)).toBe(true)
 	})
 
 	test('removes nothing while all sessions are active', () => {
-		createSessionId(TEST_USER_ID)
-		expect(sweepExpiredSessions()).toBe(0)
+		createSession(TEST_USER_ID)
+		expect(sweepExpired()).toBe(0)
 	})
 })

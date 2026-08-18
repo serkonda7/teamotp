@@ -7,6 +7,7 @@ import { getSigningKey } from './keys'
 import { JWT_ALGO, type JwtPayload } from './middleware/auth'
 import { auth_states, sessions } from './schema'
 import type { User } from './types'
+import { nowSeconds } from './util/time'
 
 export const SESSION_COOKIE_OPTS: CookieOptions = {
 	httpOnly: true,
@@ -17,10 +18,6 @@ export const SESSION_COOKIE_OPTS: CookieOptions = {
 }
 
 export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000
-
-function nowSeconds(): number {
-	return Math.floor(Date.now() / 1000)
-}
 
 export function createSession(userId: string): string {
 	const id = crypto.randomUUID()
@@ -35,11 +32,6 @@ export function createSession(userId: string): string {
 		})
 		.run()
 	return id
-}
-
-/** Compatibility name retained for callers that only need a session identifier. */
-export function createSessionId(userId: string): string {
-	return createSession(userId)
 }
 
 export function isValidSession(sid: string): boolean {
@@ -74,23 +66,17 @@ export function sweepExpired(): number {
 		lte(sessions.expires_at, now),
 		lte(sessions.last_seen_at, now - SESSION_IDLE_TIMEOUT_S),
 	)
-	const sessionsRemoved = db
-		.select({ id: sessions.id })
-		.from(sessions)
-		.where(expiredSessions)
-		.all().length
+	const sessionsRemoved = db.delete(sessions).where(expiredSessions).run() as unknown as {
+		changes: number
+	}
 	const statesRemoved = db
-		.select({ state: auth_states.state })
-		.from(auth_states)
+		.delete(auth_states)
 		.where(lte(auth_states.expires_at, now))
-		.all().length
-	db.delete(sessions).where(expiredSessions).run()
-	db.delete(auth_states).where(lte(auth_states.expires_at, now)).run()
-	return sessionsRemoved + statesRemoved
+		.run() as unknown as {
+		changes: number
+	}
+	return sessionsRemoved.changes + statesRemoved.changes
 }
-
-/** Existing name retained for tests and external callers. */
-export const sweepExpiredSessions: typeof sweepExpired = sweepExpired
 
 export async function get_signed_jwt(user: User): Promise<string> {
 	const now = nowSeconds()

@@ -7,8 +7,11 @@ import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { auth_states } from '../schema'
 import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessions'
+import { nowSeconds } from '../util/time'
 
 export const authApp = new Hono()
+export const AUTH_STATE_TTL_S = 10 * 60
+export { nowSeconds }
 
 // ---------------------------------------------------------------------------
 // Microsoft / MSAL helpers
@@ -59,7 +62,7 @@ authApp.get('/login/microsoft', async (c) => {
 	const state = crypto.createNewGuid()
 
 	db.insert(auth_states)
-		.values({ state, verifier, expires_at: Math.floor(Date.now() / 1000) + 10 * 60 })
+		.values({ state, verifier, expires_at: nowSeconds() + AUTH_STATE_TTL_S })
 		.run()
 
 	const authCodeUrl = await getMsalClient().getAuthCodeUrl({
@@ -75,7 +78,7 @@ authApp.get('/login/microsoft', async (c) => {
 		secure: process.env.NODE_ENV === 'production',
 		sameSite: 'Lax',
 		path: '/',
-		maxAge: 600,
+		maxAge: AUTH_STATE_TTL_S,
 	})
 
 	return c.redirect(authCodeUrl)
@@ -102,7 +105,7 @@ authApp.get('/callback/microsoft', async (c) => {
 	}
 
 	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
-	if (!pending || pending.expires_at <= Math.floor(Date.now() / 1000)) {
+	if (!pending || pending.expires_at <= nowSeconds()) {
 		return c.json({ error: 'Auth state expired' }, 400)
 	}
 	db.delete(auth_states).where(eq(auth_states.state, state)).run()
