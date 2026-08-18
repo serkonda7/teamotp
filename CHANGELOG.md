@@ -6,6 +6,7 @@
 - Improvements
   - Data validation for request bodies
 - Bug Fixes
+  - Fix stale M365 login
   - Prevent override of unallowed fields during OTP update
   - Reject OTP updates that contain no fields
   - Reject invalid OTP secret values

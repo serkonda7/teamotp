@@ -6,7 +6,7 @@ import { initConfig, load_config_file } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
-import { SESSION_SWEEP_INTERVAL_MS, sweepExpiredSessions } from './sessions'
+import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
 import { SERVER_ROOT } from './util/server_root'
 
 // Precedence for the config path:
@@ -56,7 +56,8 @@ if (import.meta.main) {
 
 	// Drop timed out sessions even while nobody tries to use them.
 	// Scheduled here and not at module scope, so it never keeps a test process alive.
-	setInterval(sweepExpiredSessions, SESSION_SWEEP_INTERVAL_MS).unref()
+	sweepExpired()
+	setInterval(sweepExpired, SESSION_SWEEP_INTERVAL_MS).unref()
 
 	// TODO read port from config file
 	const server = Bun.serve({
