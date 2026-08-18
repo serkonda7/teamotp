@@ -10,8 +10,8 @@ import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessi
 import { nowSeconds } from '../util/time'
 
 export const authApp = new Hono()
-export const AUTH_STATE_TTL_S = 10 * 60
-export { nowSeconds }
+
+const AUTH_STATE_TTL_S = 10 * 60
 
 // ---------------------------------------------------------------------------
 // Microsoft / MSAL helpers

@@ -66,16 +66,17 @@ export function sweepExpired(): number {
 		lte(sessions.expires_at, now),
 		lte(sessions.last_seen_at, now - SESSION_IDLE_TIMEOUT_S),
 	)
-	const sessionsRemoved = db.delete(sessions).where(expiredSessions).run() as unknown as {
-		changes: number
-	}
+	const sessionsRemoved = db
+		.delete(sessions)
+		.where(expiredSessions)
+		.returning({ id: sessions.id })
+		.all().length
 	const statesRemoved = db
 		.delete(auth_states)
 		.where(lte(auth_states.expires_at, now))
-		.run() as unknown as {
-		changes: number
-	}
-	return sessionsRemoved.changes + statesRemoved.changes
+		.returning({ state: auth_states.state })
+		.all().length
+	return sessionsRemoved + statesRemoved
 }
 
 export async function get_signed_jwt(user: User): Promise<string> {
