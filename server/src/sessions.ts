@@ -1,8 +1,12 @@
+import { eq, lte, or } from 'drizzle-orm'
 import { sign } from 'hono/jwt'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
-import { getConfig } from './config'
+import { db } from './db'
+import { getSigningKey } from './keys'
 import { JWT_ALGO, type JwtPayload } from './middleware/auth'
+import { auth_states, sessions } from './schema'
+import type { User } from './types'
 
 export const SESSION_COOKIE_OPTS: CookieOptions = {
 	httpOnly: true,
@@ -12,111 +16,90 @@ export const SESSION_COOKIE_OPTS: CookieOptions = {
 	maxAge: SESSION_ABSOLUTE_TIMEOUT_S,
 }
 
-/** Interval of the background sweep that drops timed out sessions. */
-export const SESSION_SWEEP_INTERVAL_MS = 10 * 60 * 1000
-
-type ActiveSession = {
-	/** Unix seconds of the login, start of the absolute lifetime. */
-	created_at: number
-	/** Unix seconds of the last authenticated request, start of the idle window. */
-	last_seen_at: number
-}
-
-/** Tracks valid ative sessions. */
-const activeSessions = new Map<string, ActiveSession>()
+export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000
 
 function nowSeconds(): number {
 	return Math.floor(Date.now() / 1000)
 }
 
-/** Checks both timeouts: idle since the last request, absolute since the login. */
-function isExpired(session: ActiveSession, now: number): boolean {
-	return (
-		now - session.last_seen_at >= SESSION_IDLE_TIMEOUT_S ||
-		now - session.created_at >= SESSION_ABSOLUTE_TIMEOUT_S
-	)
-}
-
-/**
- * Creates new active session ID.
- */
-export function createSessionId(): string {
-	const sid = crypto.randomUUID()
+export function createSession(userId: string): string {
+	const id = crypto.randomUUID()
 	const now = nowSeconds()
-	activeSessions.set(sid, { created_at: now, last_seen_at: now })
-	return sid
+	db.insert(sessions)
+		.values({
+			id,
+			user_id: userId,
+			created_at: now,
+			last_seen_at: now,
+			expires_at: now + SESSION_ABSOLUTE_TIMEOUT_S,
+		})
+		.run()
+	return id
 }
 
-/** Checks if session ID is in the allowlist and has not timed out. */
+/** Compatibility name retained for callers that only need a session identifier. */
+export function createSessionId(userId: string): string {
+	return createSession(userId)
+}
+
 export function isValidSession(sid: string): boolean {
-	const session = activeSessions.get(sid)
+	const session = db.select().from(sessions).where(eq(sessions.id, sid)).get()
 	if (!session) {
 		return false
 	}
 
-	if (isExpired(session, nowSeconds())) {
-		activeSessions.delete(sid)
+	const now = nowSeconds()
+	if (session.expires_at <= now || session.last_seen_at + SESSION_IDLE_TIMEOUT_S <= now) {
+		db.delete(sessions).where(eq(sessions.id, sid)).run()
 		return false
 	}
-
 	return true
 }
 
-/**
- * Restarts the idle window of a session.
- * Called for every authenticated request, so an active user is never logged out.
- */
 export function touchSession(sid: string): void {
-	const session = activeSessions.get(sid)
-	if (!session) {
+	if (!isValidSession(sid)) {
 		return
 	}
-
-	// Never revive an already timed out session, even if a caller skipped the check
-	const now = nowSeconds()
-	if (isExpired(session, now)) {
-		activeSessions.delete(sid)
-		return
-	}
-
-	session.last_seen_at = now
+	db.update(sessions).set({ last_seen_at: nowSeconds() }).where(eq(sessions.id, sid)).run()
 }
 
-/** Removes session ID from the allowlist, effectively logging out the session. */
 export function invalidateSession(sid: string): void {
-	activeSessions.delete(sid)
+	db.delete(sessions).where(eq(sessions.id, sid)).run()
 }
 
-/**
- * Drops all timed out sessions and returns how many were removed.
- * Without this the store only shrinks when an expired session is used again.
- */
-export function sweepExpiredSessions(): number {
+/** Removes expired sessions and PKCE states in one scheduled sweep. */
+export function sweepExpired(): number {
 	const now = nowSeconds()
-	let removed = 0
-
-	for (const [sid, session] of activeSessions) {
-		if (isExpired(session, now)) {
-			activeSessions.delete(sid)
-			removed++
-		}
-	}
-
-	return removed
+	const expiredSessions = or(
+		lte(sessions.expires_at, now),
+		lte(sessions.last_seen_at, now - SESSION_IDLE_TIMEOUT_S),
+	)
+	const sessionsRemoved = db
+		.select({ id: sessions.id })
+		.from(sessions)
+		.where(expiredSessions)
+		.all().length
+	const statesRemoved = db
+		.select({ state: auth_states.state })
+		.from(auth_states)
+		.where(lte(auth_states.expires_at, now))
+		.all().length
+	db.delete(sessions).where(expiredSessions).run()
+	db.delete(auth_states).where(lte(auth_states.expires_at, now)).run()
+	return sessionsRemoved + statesRemoved
 }
 
-/** Creates and signes a new session JWT. */
-export async function get_signed_jwt(email: string): Promise<string> {
-	const now = Math.floor(Date.now() / 1000)
-	const sid = createSessionId()
-	const exp = now + SESSION_ABSOLUTE_TIMEOUT_S
+/** Existing name retained for tests and external callers. */
+export const sweepExpiredSessions: typeof sweepExpired = sweepExpired
 
+export async function get_signed_jwt(user: User): Promise<string> {
+	const now = nowSeconds()
+	const sid = createSession(user.id)
 	const payload: JwtPayload = {
-		sub: email,
+		sub: user.email,
 		jti: sid,
 		iat: now,
-		exp,
+		exp: now + SESSION_ABSOLUTE_TIMEOUT_S,
 	}
-
-	return await sign(payload, getConfig().auth.jwtSecret, JWT_ALGO)
+	return await sign(payload, getSigningKey(), JWT_ALGO)
 }

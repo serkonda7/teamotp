@@ -1,9 +1,11 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
+import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { getConfig } from '../config'
-import { getUserByEmail, upsertMicrosoftUser } from '../db'
+import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
+import { auth_states } from '../schema'
 import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessions'
 
 export const authApp = new Hono()
@@ -31,18 +33,6 @@ function getMsalClient(): ConfidentialClientApplication {
 	return _msalClient
 }
 
-// In-memory store for pending auth state: state → { verifier, expiresAt }
-const pendingStates = new Map<string, { verifier: string; expiresAt: number }>()
-
-function cleanExpiredStates(): void {
-	const now = Date.now()
-	for (const [key, val] of pendingStates) {
-		if (val.expiresAt < now) {
-			pendingStates.delete(key)
-		}
-	}
-}
-
 // ---------------------------------------------------------------------------
 // Providers capability endpoint
 // ---------------------------------------------------------------------------
@@ -64,13 +54,13 @@ authApp.get('/login/microsoft', async (c) => {
 	if (!msAuth) {
 		return c.json({ error: 'Microsoft auth not configured' }, 404)
 	}
-	cleanExpiredStates()
-
 	const crypto = new CryptoProvider()
 	const { verifier, challenge } = await crypto.generatePkceCodes()
 	const state = crypto.createNewGuid()
 
-	pendingStates.set(state, { verifier, expiresAt: Date.now() + 10 * 60 * 1000 })
+	db.insert(auth_states)
+		.values({ state, verifier, expires_at: Math.floor(Date.now() / 1000) + 10 * 60 })
+		.run()
 
 	const authCodeUrl = await getMsalClient().getAuthCodeUrl({
 		scopes: ['openid', 'profile', 'email'],
@@ -111,11 +101,11 @@ authApp.get('/callback/microsoft', async (c) => {
 		return c.json({ error: 'Invalid or missing state' }, 400)
 	}
 
-	const pending = pendingStates.get(state)
-	if (!pending || pending.expiresAt < Date.now()) {
+	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
+	if (!pending || pending.expires_at <= Math.floor(Date.now() / 1000)) {
 		return c.json({ error: 'Auth state expired' }, 400)
 	}
-	pendingStates.delete(state)
+	db.delete(auth_states).where(eq(auth_states.state, state)).run()
 
 	let tokenResponse: Awaited<ReturnType<ConfidentialClientApplication['acquireTokenByCode']>>
 	try {
@@ -148,7 +138,7 @@ authApp.get('/callback/microsoft', async (c) => {
 
 	const user = upsertMicrosoftUser({ providerId: oid, email })
 
-	const token = await get_signed_jwt(user.email)
+	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
 
 	deleteCookie(c, 'ms_auth_state', { path: '/' })
@@ -176,7 +166,7 @@ authApp.post('/login', async (c) => {
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
-	const token = await get_signed_jwt(user.email)
+	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
 
 	return c.json({ success: true })

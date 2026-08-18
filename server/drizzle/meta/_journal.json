@@ -43,6 +43,13 @@
       "when": 1784542979699,
       "tag": "0005_mean_groot",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1787037211605,
+      "tag": "0006_dark_stepford_cuckoos",
+      "breakpoints": true
     }
   ]
 }
