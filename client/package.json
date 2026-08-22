@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "solid-devtools": "~0.34.3",
-    "vite": "~8.2.1",
+    "vite": "~8.2.2",
     "vite-plugin-entry-shaking": "~0.5.2",
     "vite-plugin-solid": "~2.11.14"
   },
@@ -19,7 +19,7 @@
     "hono": "catalog:",
     "server": "workspace:*",
     "shared": "workspace:*",
-    "solid-js": "~1.9.14",
+    "solid-js": "~1.9.15",
     "@tabler/icons-solidjs": "~3.46.0"
   }
 }

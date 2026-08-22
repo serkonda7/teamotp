@@ -4,7 +4,7 @@ import { hc } from 'hono/client'
 import type { AppType } from 'server/src/index'
 import type { UpdateOtpEntry } from 'server/src/types'
 import type { OtpDisplayInfo, TagInfo, TagWithMemberCount } from 'shared/src/types'
-import { read_api_error } from './util/api_error'
+import { type ApiResponse, read_api_error } from './util/api_error'
 import { note_server_activity } from './util/idle_timeout'
 
 /** RPC client */
@@ -34,7 +34,7 @@ export function set_unauthorized_handler(handler: () => void): void {
  * otherwise returns the parsed JSON body typed as `T`. Chain `.map()` on the
  * result to project a single field.
  */
-async function to_result<T>(res: Response, fallback: string): Promise<Result<T, Error>> {
+async function to_result<T>(res: ApiResponse, fallback: string): Promise<Result<T, Error>> {
 	if (res.status === 401) {
 		unauthorized_handler?.()
 		return Result.err(new UnauthorizedError())

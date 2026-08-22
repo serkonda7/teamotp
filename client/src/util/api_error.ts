@@ -1,4 +1,6 @@
-export async function read_api_error(response: Response, fallback_msg: string): Promise<string> {
+export type ApiResponse = Pick<Response, 'ok' | 'status' | 'json'>
+
+export async function read_api_error(response: ApiResponse, fallback_msg: string): Promise<string> {
 	const data = await response.json().catch(() => null)
 
 	if (typeof data === 'object' && data && 'error' in data) {
