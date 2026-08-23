@@ -4,18 +4,12 @@ Solid foundation overall — good aria-labels (German), dark mode, empty states,
 
 ## High impact
 
-**1. Native `confirm()` for destructive actions** — `client/src/components/EditDialog.tsx:119`, `EditDialog.tsx:189`, `client/src/components/TagsPage.tsx:65`
-Blocking browser dialogs look jarring, aren't themeable, and can't be styled for your design system. Replace with an in-app confirmation dialog component (you already have modal CSS/patterns to reuse).
-
 **2. No focus management in modals** — `client/src/components/EditDialog.tsx:214-350`, AboutDialog
 - No focus trap: Tab escapes behind the backdrop while the dialog is open.
 - Focus isn't moved into the dialog on open, nor returned to the trigger on close.
 - Background content is only hidden from screen readers, not isolated from interaction (`aria-hidden` alone doesn't stop Tab/clicks). Require `inert` (or equivalent keyboard + pointer isolation) on background content while a modal is open — do not treat `aria-hidden` as an alternative to `inert`; keep `aria-hidden` supplemental only.
 
 A small shared `<Modal>` component fixing all three would replace the duplicated backdrop code in both dialogs.
-
-**3. Escape doesn't close dialogs** — `client/src/components/EditDialog.tsx`
-The TagFilter popover handles Escape (`TagFilter.tsx:112-117`) but neither `EditDialog` nor `AboutDialog` does. Users expect Esc = cancel everywhere.
 
 **4. Copy is discoverable only via hover/title** — `client/src/components/OtpListItem.tsx:179-192`
 The whole card is a copy button but nothing visually indicates it until hover; on touch devices there's no hint at all. Consider showing a copy affordance/icon inside the card, and making it work via keyboard Enter (it does, since it's a button — good).

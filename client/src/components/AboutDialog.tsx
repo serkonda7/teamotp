@@ -1,5 +1,5 @@
 import { IconBrandGithub, IconX } from '@tabler/icons-solidjs'
-import { type JSX, Show } from 'solid-js'
+import { type JSX, onCleanup, onMount, Show } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AboutDialogProps = {
@@ -33,8 +33,21 @@ const SourceLink = (): JSX.Element => (
 	</a>
 )
 
-const AboutDialog = (props: AboutDialogProps): JSX.Element => (
-	<Show when={props.open}>
+function AboutDialogContent(props: AboutDialogProps): JSX.Element {
+	const handleKeyDown = (event: KeyboardEvent): void => {
+		if (event.key === 'Escape') {
+			props.onClose()
+		}
+	}
+
+	onMount(() => {
+		document.addEventListener('keydown', handleKeyDown)
+		onCleanup(() => {
+			document.removeEventListener('keydown', handleKeyDown)
+		})
+	})
+
+	return (
 		<div class="modal-backdrop" role="presentation">
 			<button
 				type="button"
@@ -58,6 +71,12 @@ const AboutDialog = (props: AboutDialogProps): JSX.Element => (
 				<SourceLink />
 			</div>
 		</div>
+	)
+}
+
+const AboutDialog = (props: AboutDialogProps): JSX.Element => (
+	<Show when={props.open}>
+		<AboutDialogContent {...props} />
 	</Show>
 )
 

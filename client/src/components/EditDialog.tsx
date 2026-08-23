@@ -2,7 +2,7 @@ import { IconX } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createSignal, For, onMount, Show } from 'solid-js'
+import { createSignal, For, onCleanup, onMount, Show } from 'solid-js'
 import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
 
 type EditDialogProps = {
@@ -122,6 +122,19 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 		}
 		props.onClose()
 	}
+
+	const handleKeyDown = (event: KeyboardEvent): void => {
+		if (event.key === 'Escape') {
+			handleClose()
+		}
+	}
+
+	onMount(() => {
+		document.addEventListener('keydown', handleKeyDown)
+		onCleanup(() => {
+			document.removeEventListener('keydown', handleKeyDown)
+		})
+	})
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()

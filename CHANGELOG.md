@@ -11,6 +11,8 @@
   - Rate-limit login endpoints per client IP (429 with `Retry-After`, configurable via `auth.loginRateLimit`)
   - Remove wildcard CORS: dev and prod are same-origin, cookies were only guarded by `SameSite`
   - Remove test-only config and DB branches from the production binary
+- UI and UX
+  - All dialogs can be closed with <kbd>Esc</kbd>
 - Improvements
   - Config: Configurable listener (`server.host` / `server.port`; `TEAMOTP_PORT` env var still overrides)
   - Config validation errors now name the failing field paths
