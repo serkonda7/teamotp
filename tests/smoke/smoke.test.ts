@@ -2,7 +2,7 @@
 
 import { beforeAll, describe, expect, test } from 'bun:test'
 
-const API_BASE = 'http://localhost:3000'
+// The API is not published directly; Caddy proxies /api to the server over TLS.
 const WEB_BASE = 'https://localhost'
 
 async function wait_for_fetch(
@@ -32,12 +32,15 @@ async function wait_for_fetch(
 	throw lastError
 }
 
-async function fetch_https(url: string): Promise<Response> {
-	return await fetch(url, { tls: { rejectUnauthorized: false } })
+async function fetch_https(url: string, init?: RequestInit): Promise<Response> {
+	return await fetch(url, {
+		...init,
+		tls: { rejectUnauthorized: false },
+	})
 }
 
 function apiUrl(path: string): string {
-	return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
+	return webUrl(`/api${path.startsWith('/') ? path : `/${path}`}`)
 }
 
 function webUrl(path = '/'): string {
@@ -51,7 +54,7 @@ describe('OTP API smoke test', () => {
 	})
 
 	test('API responds to auth requests', async () => {
-		const loginRes = await fetch(apiUrl('/auth/login'), {
+		const loginRes = await fetch_https(apiUrl('/auth/login'), {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ email: 'bad' }), // missing pass

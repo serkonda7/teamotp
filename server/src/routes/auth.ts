@@ -5,8 +5,9 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
+import { rate_limit } from '../middleware/rate_limit'
 import { auth_states } from '../schema'
-import { get_signed_jwt, invalidateSession, SESSION_COOKIE_OPTS } from '../sessions'
+import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
 import { nowSeconds } from '../util/time'
 
 export const authApp = new Hono()
@@ -75,7 +76,7 @@ authApp.get('/login/microsoft', async (c) => {
 
 	setCookie(c, 'ms_auth_state', state, {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
+		secure: config.auth.secureCookies,
 		sameSite: 'Lax',
 		path: '/',
 		maxAge: AUTH_STATE_TTL_S,
@@ -88,7 +89,7 @@ authApp.get('/login/microsoft', async (c) => {
 // Microsoft callback – exchange code, issue session JWT, redirect to app
 // ---------------------------------------------------------------------------
 
-authApp.get('/callback/microsoft', async (c) => {
+authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const config = getConfig()
 	const msAuth = config.auth.microsoft
 
@@ -142,14 +143,14 @@ authApp.get('/callback/microsoft', async (c) => {
 	const user = upsertMicrosoftUser({ providerId: oid, email })
 
 	const token = await get_signed_jwt(user)
-	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
+	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
 	deleteCookie(c, 'ms_auth_state', { path: '/' })
 
 	return c.redirect(config.frontendUrl ?? '/')
 })
 
-authApp.post('/login', async (c) => {
+authApp.post('/login', rate_limit(), async (c) => {
 	const body = await c.req.json().catch(() => null)
 	if (!body?.email || !body.password) {
 		return c.json({ error: 'Email and password are required' }, 400)
@@ -170,7 +171,7 @@ authApp.post('/login', async (c) => {
 	}
 
 	const token = await get_signed_jwt(user)
-	setCookie(c, 'auth_token', token, SESSION_COOKIE_OPTS)
+	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
 	return c.json({ success: true })
 })

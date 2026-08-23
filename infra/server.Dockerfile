@@ -34,6 +34,8 @@ FROM debian:stable-slim
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 COPY --from=builder /app/server/dist/backend.bin ./
 COPY --from=builder /app/server-cli/dist/cli.bin ./cli.bin
 COPY --from=builder /app/server/drizzle ./drizzle

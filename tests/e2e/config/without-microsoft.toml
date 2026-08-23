@@ -1,2 +1,7 @@
 [auth]
-jwtSecret = "e2e-secret-not-used-anywhere-else"
+appKey = "e2e-secret-not-used-anywhere-else"
+secureCookies = false # e2e runs over plain HTTP
+
+# Parallel workers share one source IP, so keep the login budget generous
+[auth.loginRateLimit]
+maxAttempts = 10000

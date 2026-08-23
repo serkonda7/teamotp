@@ -2,6 +2,7 @@ import { eq, lte, or } from 'drizzle-orm'
 import { sign } from 'hono/jwt'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
+import { getConfig } from './config'
 import { db } from './db'
 import { getSigningKey } from './keys'
 import { JWT_ALGO, type JwtPayload } from './middleware/auth'
@@ -9,12 +10,14 @@ import { auth_states, sessions } from './schema'
 import type { User } from './types'
 import { nowSeconds } from './util/time'
 
-export const SESSION_COOKIE_OPTS: CookieOptions = {
-	httpOnly: true,
-	secure: process.env.NODE_ENV === 'production',
-	sameSite: 'Strict',
-	path: '/',
-	maxAge: SESSION_ABSOLUTE_TIMEOUT_S,
+export function getSessionCookieOpts(): CookieOptions {
+	return {
+		httpOnly: true,
+		secure: getConfig().auth.secureCookies,
+		sameSite: 'Strict',
+		path: '/',
+		maxAge: SESSION_ABSOLUTE_TIMEOUT_S,
+	}
 }
 
 export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000

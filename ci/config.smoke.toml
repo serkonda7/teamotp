@@ -1,2 +1,7 @@
 [auth]
-jwtSecret = "your-super-secret-change-me"
+appKey = "your-super-secret-change-me-app-key"
+secureCookies = false # smoke test runs over plain HTTP
+
+# Smoke tests share one source IP, so keep the login budget generous
+[auth.loginRateLimit]
+maxAttempts = 10000

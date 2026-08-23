@@ -1,4 +1,21 @@
 # Changelog
+## unreleased
+### Breaking Changes
+- Config: Rename `auth.jwtSecret` to `auth.appKey`
+  - The deprecated alias will be removed in 0.4.0
+- Docker no longer published API on port 3000
+
+### Other Changes
+- Security improvements
+  - Add `Secure` flag to session cookies
+  - Rate-limit login endpoints per client IP (429 with `Retry-After`, configurable via `auth.loginRateLimit`)
+  - Remove wildcard CORS: dev and prod are same-origin, cookies were only guarded by `SameSite`
+  - Remove test-only config and DB branches from the production binary
+- Improvements
+  - Config: Configurable listener (`server.host` / `server.port`; `TEAMOTP_PORT` env var still overrides)
+  - Config validation errors now name the failing field paths
+
+
 ## 0.2.2
 _2026-08-18_
 

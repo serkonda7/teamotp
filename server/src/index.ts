@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
-import { initConfig, load_config_file } from './config'
+import { type AppConfig, initConfig, load_config_file, resolve_listen_port } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
@@ -27,7 +26,6 @@ function resolve_config_path(): string {
 }
 
 export const app = new Hono()
-	.use('/*', cors())
 	// Aborted requests (e.g. a malformed JSON body rejected by a validator) must
 	// answer with the same `{ error }` shape as the handlers, because that is the
 	// only field the client reads.
@@ -47,8 +45,10 @@ export type AppType = typeof app
 if (import.meta.main) {
 	// Load and set
 	const configResult = load_config_file(resolve_config_path())
+	let config: AppConfig
 	if (configResult.isOk()) {
-		initConfig(configResult.value)
+		config = configResult.value
+		initConfig(config)
 	} else {
 		console.error(`Failed to start server: ${configResult.error.message}`)
 		process.exit(1)
@@ -59,10 +59,9 @@ if (import.meta.main) {
 	sweepExpired()
 	setInterval(sweepExpired, SESSION_SWEEP_INTERVAL_MS).unref()
 
-	// TODO read port from config file
 	const server = Bun.serve({
-		hostname: '0.0.0.0',
-		port: Number(Bun.env.TEAMOTP_PORT?.trim() || 3000),
+		hostname: config.server.host,
+		port: resolve_listen_port(config),
 		fetch: app.fetch,
 	})
 

@@ -1,17 +1,39 @@
 import { afterEach, beforeEach, describe, expect, setSystemTime, test } from 'bun:test'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
+import * as v from 'valibot'
+import { type AppConfig, configSchema, getConfig, initConfig } from '../config'
 import { db } from '../db'
 import { app } from '../index'
+import { reset_rate_limits } from '../middleware/rate_limit'
 import { users } from '../schema'
 import { createAuthCookie } from '../tests/helpers'
 
 beforeEach(async () => {
 	db.delete(users).run()
+	reset_rate_limits()
 })
 
 afterEach(() => {
 	setSystemTime() // back to the real clock, even if a test threw
+	initConfig(originalConfig) // restore config overridden by a cookie test
 })
+
+const originalConfig: AppConfig = JSON.parse(JSON.stringify(getConfig()))
+
+function loginRequest(): Promise<Response> {
+	return Promise.resolve(
+		app.request('/auth/login', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ email: 'test@example.com', password: 'correct_password' }),
+		}),
+	)
+}
+
+async function insertLoginUser(): Promise<void> {
+	const hash = await Bun.password.hash('correct_password')
+	db.insert(users).values({ id: 'u1', email: 'test@example.com', password_hash: hash }).run()
+}
 
 describe('Auth routes', () => {
 	test('requires email and password or returns 400', async () => {
@@ -45,19 +67,27 @@ describe('Auth routes', () => {
 	})
 
 	test('accepts valid login and returns cookie', async () => {
-		const hash = await Bun.password.hash('correct_password')
-		db.insert(users).values({ id: 'u1', email: 'test@example.com', password_hash: hash }).run()
+		await insertLoginUser()
 
-		const response = await app.request('/auth/login', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ email: 'test@example.com', password: 'correct_password' }),
-		})
+		const response = await loginRequest()
 
 		expect(response.status).toBe(200)
 		const setCookie = response.headers.get('set-cookie')
 		expect(setCookie).not.toBeNull()
 		expect(setCookie).toContain('auth_token=')
+	})
+
+	test('sets the Secure flag on the session cookie by default', async () => {
+		await insertLoginUser()
+		// Parse a config input that omits secureCookies, so the schema default is used
+		const { secureCookies: _omitted, ...auth } = originalConfig.auth
+		const parsedAuth = v.parse(configSchema.entries.auth, auth) as AppConfig['auth']
+		initConfig({ ...originalConfig, auth: parsedAuth })
+
+		const response = await loginRequest()
+
+		const setCookie = response.headers.get('set-cookie')
+		expect(setCookie).toContain('Secure')
 	})
 
 	test('logs out successfully (clears cookie)', async () => {

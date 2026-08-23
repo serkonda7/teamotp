@@ -21,8 +21,6 @@ import { SERVER_ROOT } from './util/server_root'
 const data_dir = path.join(SERVER_ROOT, 'data')
 // TODO enrypt entire DB
 
-const is_test_run = Bun.env.NODE_ENV === 'test'
-
 // Create or open the database file and run migrations
 const migrations_folder = path.join(SERVER_ROOT, 'drizzle')
 if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
@@ -37,13 +35,16 @@ export const db = drizzle(sqlite)
 migrate(db, { migrationsFolder: migrations_folder })
 
 // Precedence for DB path:
-// 1. TEAMOTP_DB_PATH env var
-// 2. if test: in-memory DB
-// 3. teamotp.db
+// 1. TEAMOTP_DB_PATH env var (`:memory:` for an in-memory DB)
+// 2. teamotp.db
 function resolve_db_path(): string {
 	const configured_path = Bun.env.TEAMOTP_DB_PATH?.trim()
 	if (!configured_path) {
-		return is_test_run ? ':memory:' : path.join(data_dir, 'teamotp.db')
+		return path.join(data_dir, 'teamotp.db')
+	}
+
+	if (configured_path === ':memory:') {
+		return configured_path
 	}
 
 	if (path.isAbsolute(configured_path)) {
