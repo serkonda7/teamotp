@@ -3,7 +3,7 @@
 ### Breaking Changes
 - Config: Rename `auth.jwtSecret` to `auth.appKey`
   - The deprecated alias will be removed in 0.4.0
-- Docker no longer published API on port 3000
+- Docker no longer publishes API on port 3000
 
 ### Other Changes
 - Security improvements
@@ -14,6 +14,8 @@
 - Improvements
   - Config: Configurable listener (`server.host` / `server.port`; `TEAMOTP_PORT` env var still overrides)
   - Config validation errors now name the failing field paths
+- Technical
+  - Update runtime to Bun 1.4.0
 
 
 ## 0.2.2
