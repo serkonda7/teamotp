@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, setSystemTime, test } from 'bun:test'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
-import { type AppConfig, getConfig, initConfig } from '../config'
+import * as v from 'valibot'
+import { type AppConfig, configSchema, getConfig, initConfig } from '../config'
 import { db } from '../db'
 import { app } from '../index'
 import { reset_rate_limits } from '../middleware/rate_limit'
@@ -78,8 +79,10 @@ describe('Auth routes', () => {
 
 	test('sets the Secure flag on the session cookie by default', async () => {
 		await insertLoginUser()
-		// Init config withou secureCookies, so the default is used
-		initConfig({ ...originalConfig, auth: { ...originalConfig.auth } })
+		// Parse a config input that omits secureCookies, so the schema default is used
+		const { secureCookies: _omitted, ...auth } = originalConfig.auth
+		const parsedAuth = v.parse(configSchema.entries.auth, auth) as AppConfig['auth']
+		initConfig({ ...originalConfig, auth: parsedAuth })
 
 		const response = await loginRequest()
 
