@@ -8,6 +8,7 @@ import * as v from 'valibot'
 const configSchema = v.object({
 	auth: v.object({
 		jwtSecret: v.string(),
+		secureCookies: v.optional(v.boolean(), true), // Only disable for plain-HTTP local development
 		microsoft: v.optional(
 			v.object({
 				clientId: v.string(),

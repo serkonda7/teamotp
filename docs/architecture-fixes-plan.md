@@ -10,7 +10,7 @@ the `appKey` the encryption key is derived from). Phase 8 should come last.
 
 | # | Phase | Fixes | Effort | Breaking |
 | - | ----- | ----- | ------ | -------- |
-| 3 | Deployment hardening + key/config layout | insecure cookies, exposed port, CORS, no rate limit, hardcoded port, test-config leak | M | config key rename |
+| 3 | Deployment hardening + key/config layout | exposed port, CORS, no rate limit, hardcoded port, test-config leak | M | config key rename |
 | 4 | Email normalization | login lockout, duplicate MS accounts | S | needs data migration |
 | 5 | Audit log + user approval | no accountability, JIT provisioning | M | new users need approval |
 | 6 | Archive + tag semantics | archived entries serve codes, tag case collisions | S | no |
@@ -22,17 +22,21 @@ the `appKey` the encryption key is derived from). Phase 8 should come last.
 
 ## Phase 3 — Deployment hardening and key/config layout
 
-**Problem.** Both cookies use `secure: process.env.NODE_ENV === 'production'`
-(`sessions.ts:8`, `auth.ts:85`), but `NODE_ENV` is never set to `production` in any
-Dockerfile, compose file or script — so the real HTTPS deployment ships session
-cookies **without the `Secure` flag**. The inverse is worse: `config.ts:70` and
-`db.ts:22` are compiled into the production binary, so booting it with
-`NODE_ENV=test` silently swaps in the hardcoded public secret `'test_secret'`.
-Alongside these, the config schema is missing three things the code wants: a
-listening port (`// TODO read port from config` at `index.ts:29`), a key layout that
-Phase 7 can extend, and any rate limit on the login endpoints.
+**Done already:** insecure cookies. Both cookies are now `Secure` by default via the
+config-driven `auth.secureCookies` flag (`sessions.ts:12`, `auth.ts:78`); plain-HTTP
+dev/e2e/smoke configs set it to `false` explicitly.
 
-### 3.1 Config schema: one app key, explicit cookies, configurable listener
+**Problem.**
+The inverse is worse than the original `NODE_ENV` issue: the `NODE_ENV=test` block at
+`config.ts:70-79` is compiled into
+the production binary, so booting it with `NODE_ENV=test` silently swaps in the
+hardcoded public secret `'test_secret'`. (`db.ts:24` has its own test branch that
+only affects the DB path.) Alongside these, the config schema is missing three things
+the code wants: a listening port (`// TODO read port from config` at `index.ts:62`,
+which currently reads `TEAMOTP_PORT` instead), a key layout that Phase 7 can extend,
+and any rate limit on the login endpoints.
+
+### 3.1 Config schema: one app key, configurable listener
 
 Rework `configSchema` in `server/src/config.ts`:
 
@@ -44,7 +48,6 @@ const configSchema = v.object({
 		appKey: v.pipe(v.string(), v.minLength(32)),
 		jwtSecret: v.optional(v.string()), // deprecated alias, see 3.2
 		jwtKeyVersion: v.optional(v.number(), 1),
-		secureCookies: v.optional(v.boolean(), true),
 		loginRateLimit: v.optional(
 			v.object({
 				maxAttempts: v.optional(v.number(), 10),
@@ -65,12 +68,18 @@ const configSchema = v.object({
 })
 ```
 
-Then replace both `process.env.NODE_ENV === 'production'` checks with
-`getConfig().auth.secureCookies`. Local HTTP development sets
-`secureCookies = false` in `server/data/config.toml`. Explicit configuration beats an
-ambient env var that nobody sets.
+Read `server.host` / `server.port` at `index.ts:62-67` and delete the TODO.
+**Precedence must be: config value is the default, `TEAMOTP_PORT` env var overrides.**
+The env var cannot be dropped: `playwright.config.ts:86` starts two API instances on
+different ports with the same config file, so removing it breaks e2e. Document this
+precedence in the README config block.
 
-Read `server.host` / `server.port` in `index.ts:30-34` and delete the TODO.
+Also fold the config-error-detail work into this phase (it only matters once the
+schema triples): `load_config_file` currently collapses every valibot issue into
+`Invalid configuration at ${path}` (`config.ts:45`). Include the failing field paths
+in the message — otherwise a misconfigured deployment gives an operator nothing to
+act on. This matters most for the `appKey`/`jwtSecret` either-or check, where a bare
+"invalid configuration" on a key rename is actively misleading.
 
 ### 3.2 Derive subkeys from `appKey` instead of reusing one secret
 
@@ -107,8 +116,14 @@ single-key design, and it costs one config field to avoid.
 **Migration for the rename.** Accept `jwtSecret` as a deprecated alias for one
 release: if `appKey` is absent and `jwtSecret` is present, use it and log a warning
 naming the file and the new key. Add a valibot check that at least one is set, with a
-message that names both. Update the README config block, `ci/config.smoke.toml`, and
-the test config. Removing the alias is a `0.4.0` item.
+message that names both. Update every config that names the key:
+
+- `README.md` config block (line ~18)
+- `ci/config.smoke.toml`
+- `tests/e2e/config/with-microsoft.toml`
+- `tests/e2e/config/without-microsoft.toml`
+
+Removing the alias is a `0.4.0` item.
 
 > Existing deployments keep working on the alias, but note in the CHANGELOG that the
 > derivation changes the effective signing key even when the same string is reused —
@@ -133,8 +148,17 @@ Two things to get right:
   and fall back to the socket address. Do not trust the header when it can be set by
   an untrusted party — with the Phase 3.4 port change, Caddy is the only ingress, so
   this is safe here.
+- **Bound the map.** Trusting a client-supplied XFF entry means an attacker can spray
+  arbitrary fake IPs, each creating a fresh `Map` entry — and "evict on read" never
+  evicts keys nobody re-reads. Cap the map (e.g. evict the oldest entry past ~10k
+  keys) or piggyback cleanup on the existing `sweepExpired()` interval.
 - **Reset the counter on success**, so one user's typo streak cannot lock out a
   shared office NAT for the full window.
+
+**Tests/e2e share one source IP**, so parallel Playwright workers can exhaust a small
+budget fast. Either keep the defaults generous enough or document
+`loginRateLimit.maxAttempts = <high>` in the e2e configs; add whatever is chosen to
+the config files touched in 3.2.
 
 > In-memory is a deliberate scope call: unlike sessions, a rate-limit counter losing
 > state on restart is a minor availability-favouring failure, not a correctness bug.
@@ -150,16 +174,23 @@ Create `server/bunfig.toml`:
 preload = ["./src/tests/setup.ts"]
 ```
 
-Move the `NODE_ENV === 'test'` block out of `config.ts:69-79` into that new
+Move the `NODE_ENV === 'test'` block out of `config.ts:70-79` into that new
 `setup.ts`, which calls `initConfig(...)` with the test config and sets
 `Bun.env.TEAMOTP_DB_PATH = ':memory:'`. Because preload runs before test files
 import anything, `db.ts` still sees the in-memory path at import time, so
-`is_test_run` (`db.ts:22`) can be deleted too. After this, neither the hardcoded
+`is_test_run` (`db.ts:24`) can be deleted too. After this, neither the hardcoded
 secret nor the test DB branch exists in the shipped binary.
 
-The test config uses `appKey` (not the deprecated alias), and `TEST_SECRET` in
-`server/src/tests/helpers.ts:5` must become a call to `getSigningKey()` — otherwise
-every test cookie is signed with a key the middleware no longer derives.
+Two details:
+
+- The test config must use a **≥32-char** `appKey` (not the deprecated alias, not
+  the old 11-char `'test_secret'`) or it fails `minLength(32)`.
+- `bunfig.toml` is only picked up when `bun test` runs with cwd = `server/` (which
+  turbo does via `server/package.json`). A root-level `bun test server/src/...`
+  silently skips the preload — worth a comment in the file.
+
+`helpers.ts` already signs test cookies with `getSigningKey()`, so it needs no
+change here.
 
 ### 3.5 Close the network exposure
 
@@ -168,8 +199,10 @@ every test cookie is signed with a key the middleware no longer derives.
   downstream from mistaking the container for a dev environment).
 - `docker-compose.yml`: delete the `ports: ["3000:3000"]` mapping from the `server`
   service. Caddy reaches it over the compose network; publishing it exposes the API
-  over plain HTTP and bypasses TLS entirely. Use `127.0.0.1:3000:3000` if local
-  debugging access is wanted.
+  over plain HTTP and bypasses TLS entirely. For local debugging, document a
+  bind-mounted override (e.g. a `compose.override.yml` with `127.0.0.1:3000:3000`)
+  rather than letting operators re-add the public mapping the next time they debug
+  TLS issues.
 - `server/src/index.ts:13`: remove `.use('/*', cors())`. Both dev (Vite proxies
   `/api` → `:3000`) and prod (Caddy `handle_path /api*`) are same-origin, so CORS is
   not needed. If it must stay, restrict it to `getConfig().frontendUrl` with
@@ -178,11 +211,12 @@ every test cookie is signed with a key the middleware no longer derives.
 
 ### 3.6 Tests
 
-- Config: `secureCookies` defaults to `true` and `server.port` to `3000` when absent.
+- Config: `server.port` defaults to `3000` when absent.
+- Config: `TEAMOTP_PORT` overrides `server.port` (guards the e2e multi-instance
+  setup permanently).
+- Config: error message includes failing field paths (the 3.1 work).
 - Config: `jwtSecret` alone still loads (with a warning); neither key set → a load
   error naming both.
-- Login route: response `Set-Cookie` contains `Secure` when configured true, omits
-  it when false.
 - Keys: `getSigningKey()` is stable across calls, differs from
   `getSecretEncryptionKey()`, and changes when `jwtKeyVersion` is bumped.
 - Rate limit: the (n+1)th login attempt in a window → **429** with `Retry-After`;
@@ -500,16 +534,14 @@ forced logout), 4 (`normalize-emails` must be run), 5 (new users need approval),
 operator-facing entries. Phases 3, 4, 6 and 7 have migration steps that can fail on
 real data — those belong in an "Upgrade notes" section, not a one-line bullet.
 
-**README.** Update the config block for `appKey`, `jwtKeyVersion`, `secureCookies`,
-`loginRateLimit` and `server.port`, and the "Other admin tasks" section for the new
-CLI commands. Call out the `jwtSecret` deprecation with its removal release.
+**README.** Update the config block for `appKey`, `jwtKeyVersion`,
+`loginRateLimit` and `server.port` (including the `TEAMOTP_PORT` override
+precedence), and the "Other admin tasks" section for the new CLI commands. Call out
+the `jwtSecret` deprecation with its removal release.
 
-**Config validation.** `load_config_file` currently collapses every valibot issue
-into `Invalid configuration at ${path}` (`config.ts:45`). Phase 3 roughly triples the
-schema, so include the failing field paths in the message — otherwise a
-misconfigured deployment gives an operator nothing to act on. This matters most for
-the `appKey`/`jwtSecret` either-or check, where a bare "invalid configuration" on a
-key rename is actively misleading.
+**Config validation.** Covered as part of Phase 3.1: `load_config_file` collapses
+every valibot issue into `Invalid configuration at ${path}` (`config.ts:45`), and the
+failing field paths must appear in the message once the schema triples.
 
 **Sequencing note.** Phase 3 is the hinge: it renames the config key Phase 2's
 `keys.ts` reads and produces the derivation Phase 7 consumes. If phases are split

@@ -16,6 +16,7 @@ frontendUrl = "http://localhost:5371"
 
 [auth]
 jwtSecret = "your-super-secret-change-me" # Required
+secureCookies = false # Optional for testing. Defaults to `true`
 
 # Optional: enable M365 login via Entra IP App
 [auth.microsoft]

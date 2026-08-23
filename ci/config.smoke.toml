@@ -1,2 +1,3 @@
 [auth]
 jwtSecret = "your-super-secret-change-me"
+secureCookies = false # smoke test runs over plain HTTP

@@ -1,4 +1,9 @@
 # Changelog
+## unreleased
+- Security
+  - Add `Secure` flag to session cookies
+
+
 ## 0.2.2
 _2026-08-18_
 

@@ -1,2 +1,3 @@
 [auth]
 jwtSecret = "e2e-secret-not-used-anywhere-else"
+secureCookies = false # e2e runs over plain HTTP
