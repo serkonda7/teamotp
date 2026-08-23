@@ -11,30 +11,10 @@ Solid foundation overall — good aria-labels (German), dark mode, empty states,
 
 A small shared `<Modal>` component fixing all three would replace the duplicated backdrop code in both dialogs.
 
-**4. Copy is discoverable only via hover/title** — `client/src/components/OtpListItem.tsx:179-192`
-The whole card is a copy button but nothing visually indicates it until hover; on touch devices there's no hint at all. Consider showing a copy affordance/icon inside the card, and making it work via keyboard Enter (it does, since it's a button — good).
-
 ## Medium
-
-**5. Loading states are bare text** — `client/src/App.tsx:194`, `OtpList.tsx:16`, `TagsPage.tsx:122`
-"Laden..." causes layout jumps. Skeleton cards matching the OTP grid shape would feel much smoother.
 
 **6. Error banners never dismiss and have no recovery** — `client/src/App.tsx:240-242`
 Inline errors persist until another action clears them. Add a dismiss button and a "retry" action where relevant (e.g., failed entry fetch). Also no global toast system — copy success uses per-item toast but failures go to a separate banner at page top, far from the item.
-
-**7. `prefers-reduced-motion` not respected**
-Timer bar animation, header shadow transitions etc. run unconditionally. Add:
-
-```css
-@media (prefers-reduced-motion: reduce) {
-	* {
-		animation: none;
-		transition: none;
-	}
-}
-```
-
-(at minimum for the countdown bar).
 
 **8. Manual `tabindex={1..9}` sprinkled everywhere** — `client/src/components/AppHeader.tsx:67-101`, TagFilter, OtpListItem
 This is fragile and fights the natural DOM order; every new control needs renumbering (the tags/home toggle already causes branching tabindex values). Remove positive tabindexes entirely — DOM order already matches visual order here.
@@ -44,7 +24,6 @@ This is fragile and fights the natural DOM order; every new control needs renumb
 
 ## Low / polish
 
-- **No i18n layer** — German strings hardcoded across ~10 components. Fine if German-only forever, painful otherwise.
 - **Search debounce missing** — every keystroke rewrites history state (`App.tsx:96-121`); harmless with `replaceState` but filtering large lists per keystroke could use a ~150ms debounce.
 - **Tag filter popover has no role** — consider `role="group"` + `aria-label`, and arrow-key navigation between chips like the OTP items have.
 - **Copy toast position** — appears per-item which is good, but 1400ms is short for screen reader users despite `aria-live`; consider 2–3s.

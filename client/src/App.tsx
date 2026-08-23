@@ -173,6 +173,74 @@ function App(): JSX.Element {
 		navigate('/')
 	}
 
+	function handleLoginSuccess(): void {
+		setSessionExpired(false)
+		setIsLoggedIn(true)
+	}
+
+	function tagFilterSlot(): JSX.Element {
+		return (
+			<Show when={path() !== '/tags' && allTags().length > 0}>
+				<TagFilter
+					tags={allTags()}
+					activeTagIds={activeTagIds()}
+					onToggle={toggleTagFilter}
+					onClear={clearTagFilter}
+				/>
+			</Show>
+		)
+	}
+
+	function mainView(): JSX.Element {
+		return (
+			<div>
+				<AppHeader
+					onOpenAbout={() => setAboutOpen(true)}
+					onLogout={handleLogout}
+					searchQuery={searchQuery()}
+					onSearchInput={setSearchQuery}
+					tagSearchQuery={tagSearchQuery()}
+					onTagSearchInput={setTagSearchQuery}
+				>
+					{tagFilterSlot()}
+				</AppHeader>
+				<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
+
+				<Show when={path() === '/tags'} fallback={otpView()}>
+					<TagsPage searchQuery={tagSearchQuery()} />
+				</Show>
+			</div>
+		)
+	}
+
+	function otpView(): JSX.Element {
+		return (
+			<>
+				<AddFromOtpauthForm
+					otpauthUrl={otpauthUrl}
+					setOtpauthUrl={setOtpauthUrl}
+					submitting={submitting}
+					setSubmitting={setSubmitting}
+					setError={setError}
+					refetch={refetchTyped}
+				/>
+
+				<Show when={error()}>
+					<div class="app-inline-error">{error()}</div>
+				</Show>
+
+				<OtpList
+					otps={filteredOtps()}
+					loading={otps.loading}
+					searchQuery={searchQuery()}
+					tagFilterActive={activeTagIds().length > 0}
+					setError={setError}
+					refetch={refetchTyped}
+				/>
+			</>
+		)
+	}
+
 	// A 401 can answer any request once the server session timed out
 	set_unauthorized_handler(handleSessionEnd)
 
@@ -192,69 +260,8 @@ function App(): JSX.Element {
 
 	return (
 		<Show when={isLoggedIn() !== null} fallback={<div>Laden...</div>}>
-			<Show
-				when={isLoggedIn()}
-				fallback={
-					<LoginPage
-						sessionExpired={sessionExpired()}
-						onLoginSuccess={() => {
-							setSessionExpired(false)
-							setIsLoggedIn(true)
-						}}
-					/>
-				}
-			>
-				<div>
-					<AppHeader
-						onOpenAbout={() => setAboutOpen(true)}
-						onLogout={handleLogout}
-						searchQuery={searchQuery()}
-						onSearchInput={setSearchQuery}
-						tagSearchQuery={tagSearchQuery()}
-						onTagSearchInput={setTagSearchQuery}
-					>
-						<Show when={path() !== '/tags' && allTags().length > 0}>
-							<TagFilter
-								tags={allTags()}
-								activeTagIds={activeTagIds()}
-								onToggle={toggleTagFilter}
-								onClear={clearTagFilter}
-							/>
-						</Show>
-					</AppHeader>
-					<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
-
-					<Show
-						when={path() === '/tags'}
-						fallback={
-							<>
-								<AddFromOtpauthForm
-									otpauthUrl={otpauthUrl}
-									setOtpauthUrl={setOtpauthUrl}
-									submitting={submitting}
-									setSubmitting={setSubmitting}
-									setError={setError}
-									refetch={refetchTyped}
-								/>
-
-								<Show when={error()}>
-									<div class="app-inline-error">{error()}</div>
-								</Show>
-
-								<OtpList
-									otps={filteredOtps()}
-									loading={otps.loading}
-									searchQuery={searchQuery()}
-									tagFilterActive={activeTagIds().length > 0}
-									setError={setError}
-									refetch={refetchTyped}
-								/>
-							</>
-						}
-					>
-						<TagsPage searchQuery={tagSearchQuery()} />
-					</Show>
-				</div>
+			<Show when={isLoggedIn()} fallback={<LoginPage sessionExpired={sessionExpired()} onLoginSuccess={handleLoginSuccess} />}>
+				{mainView()}
 			</Show>
 		</Show>
 	)
