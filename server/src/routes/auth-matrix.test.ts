@@ -8,8 +8,10 @@
  * - Access control: Tests each endpoint with all defined roles / access profiles
  */
 
-import { describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { type AppConfig, getConfig, initConfig } from '../config'
 import { app } from '../index'
+import { reset_rate_limits } from '../middleware/rate_limit'
 import { createAuthCookie } from '../tests/helpers'
 
 //
@@ -17,6 +19,8 @@ import { createAuthCookie } from '../tests/helpers'
 //
 
 const ACCEPTED_CODES = [200, 302, 400, 404]
+
+const originalConfig: AppConfig = JSON.parse(JSON.stringify(getConfig()))
 
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as const
 
@@ -145,6 +149,18 @@ function testEndpointAccess(endpoint: Endpoint, role: Role): void {
 }
 
 describe('Auth Matrix', () => {
+	beforeEach(() => {
+		// The matrix hits the rate-limited login endpoints far past the configured budget
+		initConfig({
+			...originalConfig,
+			auth: {
+				...originalConfig.auth,
+				loginRateLimit: { maxAttempts: 10000, windowSeconds: 300 },
+			},
+		})
+		reset_rate_limits()
+	})
+
 	for (const role of ALL_ROLES) {
 		describe(`Role: ${Role[role]}`, () => {
 			for (const endpoint of endpoints) {
@@ -152,4 +168,8 @@ describe('Auth Matrix', () => {
 			}
 		})
 	}
+
+	afterEach(() => {
+		initConfig(originalConfig)
+	})
 })

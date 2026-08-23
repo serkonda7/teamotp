@@ -14,9 +14,23 @@ bun run infra/updater.ts
 # Optional: frontend base URL if app runs on different port, default: `/`
 frontendUrl = "http://localhost:5371"
 
+# Optional: API listener. Defaults to host `0.0.0.0`, port `3000`.
+# The `TEAMOTP_PORT` environment variable overrides `server.port`.
+[server]
+host = "0.0.0.0"
+port = 3000
+
 [auth]
-jwtSecret = "your-super-secret-change-me" # Required
+# Required, at least 32 characters.
+# Renamed from `jwtSecret` (deprecated alias, removed in 0.4.0).
+appKey = "your-super-secret-change-me-app-key"
+jwtKeyVersion = 1 # Optional: bump to rotate the signing key (logs out all sessions)
 secureCookies = false # Optional for testing. Defaults to `true`
+
+# Optional: fixed-window login rate limit per client IP. Defaults below.
+[auth.loginRateLimit]
+maxAttempts = 10
+windowSeconds = 300
 
 # Optional: enable M365 login via Entra IP App
 [auth.microsoft]

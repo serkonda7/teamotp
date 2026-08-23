@@ -5,6 +5,7 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
+import { rate_limit } from '../middleware/rate_limit'
 import { auth_states } from '../schema'
 import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
 import { nowSeconds } from '../util/time'
@@ -88,7 +89,7 @@ authApp.get('/login/microsoft', async (c) => {
 // Microsoft callback – exchange code, issue session JWT, redirect to app
 // ---------------------------------------------------------------------------
 
-authApp.get('/callback/microsoft', async (c) => {
+authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const config = getConfig()
 	const msAuth = config.auth.microsoft
 
@@ -149,7 +150,7 @@ authApp.get('/callback/microsoft', async (c) => {
 	return c.redirect(config.frontendUrl ?? '/')
 })
 
-authApp.post('/login', async (c) => {
+authApp.post('/login', rate_limit(), async (c) => {
 	const body = await c.req.json().catch(() => null)
 	if (!body?.email || !body.password) {
 		return c.json({ error: 'Email and password are required' }, 400)

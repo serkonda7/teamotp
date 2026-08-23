@@ -7,8 +7,8 @@ services:
       TEAMOTP_DB_PATH: "teamotp.db"
     volumes:
       - ./server/data:/app/data
-    ports:
-      - "3000:3000"
+    # No published port: Caddy reaches the API over the compose network.
+    # Publishing 3000 would expose the API over plain HTTP and bypass TLS.
     restart: unless-stopped
 
   client:

@@ -3,11 +3,13 @@ import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/s
 import { type AppConfig, getConfig, initConfig } from '../config'
 import { db } from '../db'
 import { app } from '../index'
+import { reset_rate_limits } from '../middleware/rate_limit'
 import { users } from '../schema'
 import { createAuthCookie } from '../tests/helpers'
 
 beforeEach(async () => {
 	db.delete(users).run()
+	reset_rate_limits()
 })
 
 afterEach(() => {
