@@ -14,11 +14,9 @@ bun run infra/updater.ts
 # Optional: frontend base URL if app runs on different port, default: `/`
 frontendUrl = "http://localhost:5371"
 
-# Optional: API listener. Defaults to host `0.0.0.0`, port `3000`.
-# The `TEAMOTP_PORT` environment variable overrides `server.port`.
-[server]
+# Optional
 host = "0.0.0.0"
-port = 3000
+port = 3000 # Only for non-docker environments. Overridden by `TEAMOTP_PORT` env var
 
 [auth]
 # Required, at least 32 characters.
@@ -39,6 +37,13 @@ tenantId     = "<tenant ID>"
 clientSecret = "<client secret value>"
 redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
 ```
+
+#### API port in Docker deployments
+In Docker (docker-compose) the internal API port is fixed at `3000`: Caddy
+proxies to `server:3000`, and the compose file pins `TEAMOTP_PORT` so any
+`server.port` from the config file is ignored. Operators only configure the
+published host ports (`80`/`443`). The `server.port` config option and the
+`TEAMOTP_PORT` variable apply to non-Docker runs only.
 
 
 ### Other admin tasks

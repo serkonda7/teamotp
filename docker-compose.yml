@@ -5,6 +5,9 @@ services:
       dockerfile: infra/server.Dockerfile
     environment:
       TEAMOTP_DB_PATH: "teamotp.db"
+      # Internal port is an implementation detail: Caddy proxies to `server:3000`.
+      # This overrides any `server.port` from the bind-mounted config file.
+      TEAMOTP_PORT: "3000"
     volumes:
       - ./server/data:/app/data
     # No published port: Caddy reaches the API over the compose network.

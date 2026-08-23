@@ -10,7 +10,7 @@ Blocking browser dialogs look jarring, aren't themeable, and can't be styled for
 **2. No focus management in modals** — `client/src/components/EditDialog.tsx:214-350`, AboutDialog
 - No focus trap: Tab escapes behind the backdrop while the dialog is open.
 - Focus isn't moved into the dialog on open, nor returned to the trigger on close.
-- Background content isn't inert (`aria-hidden` or `inert`), so screen readers can wander out.
+- Background content is only hidden from screen readers, not isolated from interaction (`aria-hidden` alone doesn't stop Tab/clicks). Require `inert` (or equivalent keyboard + pointer isolation) on background content while a modal is open — do not treat `aria-hidden` as an alternative to `inert`; keep `aria-hidden` supplemental only.
 
 A small shared `<Modal>` component fixing all three would replace the duplicated backdrop code in both dialogs.
 
@@ -55,7 +55,7 @@ This is fragile and fights the natural DOM order; every new control needs renumb
 - **Tag filter popover has no role** — consider `role="group"` + `aria-label`, and arrow-key navigation between chips like the OTP items have.
 - **Copy toast position** — appears per-item which is good, but 1400ms is short for screen reader users despite `aria-live`; consider 2–3s.
 - **Session-expired flow is nice**, but after idle logout the search input autofocus steals focus on the login page — verify that's intended.
-- **`otp-list__copy` disabled during load** (`OtpListItem.tsx:191`) removes it from tab order mid-interaction; prefer `aria-busy` over disabling so focus isn't dropped.
+- **`otp-list__copy` disabled during load** (`OtpListItem.tsx:191`): disabling removes the focused control from tab order mid-interaction — but only the control that is *focused* when it becomes disabled is affected. Do not replace `disabled` with `aria-busy` alone: `aria-busy` does not block activation. Keep `disabled` on controls that must not activate, or use `aria-disabled` paired with explicit guards in every affected handler.
 
 ## Suggested first pass
 
