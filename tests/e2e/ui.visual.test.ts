@@ -27,6 +27,8 @@ for (const theme of THEMES) {
 				await useTheme(page, theme)
 				await page.goto('/')
 				await expect(page.locator('.microsoft-login-section')).toBeVisible()
+				await expect(page.locator('.local-login-details')).toHaveCount(0)
+				await expect(page.getByText('Lokales Konto verwenden')).toHaveCount(0)
 				await pinFonts(page)
 
 				await expect(page).toHaveScreenshot(`login-microsoft-${theme}.png`, {
