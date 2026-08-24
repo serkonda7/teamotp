@@ -9,6 +9,7 @@
 
 ### Other Changes
 - Security improvements
+  - Add config `disableLocalLogin` for hardening M365-only production deployments
   - Add `Secure` flag to session cookies
   - Rate-limit login endpoints per client IP (429 with `Retry-After`, configurable via `auth.loginRateLimit`)
   - Remove wildcard CORS: dev and prod are same-origin, cookies were only guarded by `SameSite`
@@ -18,6 +19,7 @@
 - Improvements
   - Config: Configurable listener (`server.host` / `server.port`; `TEAMOTP_PORT` env var still overrides)
   - Config validation errors now name the failing field paths
+  - Redirect back to login page on M365 callback errors
 - Technical
   - Update runtime to Bun 1.4.0
 

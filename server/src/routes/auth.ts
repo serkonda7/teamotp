@@ -37,6 +37,17 @@ function getMsalClient(): ConfidentialClientApplication {
 	return _msalClient
 }
 
+function withErrorParam(base: string, error: string): string {
+	try {
+		const url = new URL(base)
+		url.searchParams.set('error', error)
+		return url.toString()
+	} catch {
+		const sep = base.includes('?') ? '&' : '?'
+		return `${base}${sep}error=${error}`
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Providers capability endpoint
 // ---------------------------------------------------------------------------
@@ -102,12 +113,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const stateCookie = getCookie(c, 'ms_auth_state')
 
 	if (!code || !state || state !== stateCookie) {
-		return c.json({ error: 'Invalid or missing state' }, 400)
+		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'invalid_state'))
 	}
 
 	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
 	if (!pending || pending.expires_at <= nowSeconds()) {
-		return c.json({ error: 'Auth state expired' }, 400)
+		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'expired_state'))
 	}
 	db.delete(auth_states).where(eq(auth_states.state, state)).run()
 

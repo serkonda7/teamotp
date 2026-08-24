@@ -31,6 +31,28 @@ const LoginPage = (props: Props): JSX.Element => {
 	const [error, setError] = createSignal<string | null>(null)
 	const [isSubmitting, setIsSubmitting] = createSignal(false)
 
+	const [oauthError] = createSignal<string | null>(
+		(() => {
+			if (typeof window === 'undefined') {
+				return null
+			}
+			const params = new URLSearchParams(window.location.search)
+			const code = params.get('error')
+			if (code !== 'invalid_state' && code !== 'expired_state') {
+				return null
+			}
+			params.delete('error')
+			history.replaceState(
+				null,
+				'',
+				`${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`,
+			)
+			return code === 'invalid_state'
+				? 'Anmeldung fehlgeschlagen: Ungültiger Status. Bitte erneut versuchen.'
+				: 'Anmeldung abgelaufen. Bitte erneut versuchen.'
+		})(),
+	)
+
 	const [providers] = createResource(fetchProviders)
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
@@ -114,6 +136,9 @@ const LoginPage = (props: Props): JSX.Element => {
 					<div class="login-notice">
 						Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.
 					</div>
+				</Show>
+				<Show when={oauthError()}>
+					<div class="login-error">{oauthError()}</div>
 				</Show>
 				<Show when={isProvidersKnown() && hasMicrosoftProvider()}>
 					<MicrosoftSignInSection
