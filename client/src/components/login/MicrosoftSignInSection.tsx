@@ -5,7 +5,7 @@ import '../../css/microsoft-login.css'
 
 type Props = {
 	localLoginForm: JSX.Element
-	showLocal?: boolean
+	showLocal: boolean
 }
 
 const MicrosoftSignInSection = (props: Props): JSX.Element => (
@@ -16,7 +16,7 @@ const MicrosoftSignInSection = (props: Props): JSX.Element => (
 			</span>
 			<span class="ms-text">Mit Microsoft anmelden</span>
 		</a>
-		<Show when={props.showLocal ?? true}>
+		<Show when={props.showLocal}>
 			<details class="local-login-details">
 				<summary>Lokales Konto verwenden</summary>
 				{props.localLoginForm}
