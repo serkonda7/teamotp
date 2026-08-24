@@ -1,5 +1,7 @@
 # Changelog
-## unreleased
+## 0.3.0
+_2026-08-24_
+
 ### Breaking Changes
 - Config: Rename `auth.jwtSecret` to `auth.appKey`
   - The deprecated alias will be removed in 0.4.0
