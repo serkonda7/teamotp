@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
+import { Show } from 'solid-js'
 import msLogo from '../../img/ms-symbollockup_mssymbol_19.svg'
 import '../../css/microsoft-login.css'
 
 type Props = {
 	localLoginForm: JSX.Element
+	showLocal?: boolean
 }
 
 const MicrosoftSignInSection = (props: Props): JSX.Element => (
@@ -14,10 +16,12 @@ const MicrosoftSignInSection = (props: Props): JSX.Element => (
 			</span>
 			<span class="ms-text">Mit Microsoft anmelden</span>
 		</a>
-		<details class="local-login-details">
-			<summary>Lokales Konto verwenden</summary>
-			{props.localLoginForm}
-		</details>
+		<Show when={props.showLocal ?? true}>
+			<details class="local-login-details">
+				<summary>Lokales Konto verwenden</summary>
+				{props.localLoginForm}
+			</details>
+		</Show>
 	</div>
 )
 

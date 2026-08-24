@@ -64,7 +64,8 @@ const LoginPage = (props: Props): JSX.Element => {
 		}
 	}
 
-	const hasMicrosoftProvider = (): boolean => providers()?.microsoft
+	const hasMicrosoftProvider = (): boolean => !!providers()?.microsoft
+	const hasLocalProvider = (): boolean => !!providers()?.local
 
 	const localLoginForm = (): JSX.Element => (
 		<form onSubmit={handleSubmit} class="login-form">
@@ -111,9 +112,13 @@ const LoginPage = (props: Props): JSX.Element => {
 						Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.
 					</div>
 				</Show>
-				<Show when={hasMicrosoftProvider()} fallback={localLoginForm()}>
-					<MicrosoftSignInSection localLoginForm={localLoginForm()} />
+				<Show when={hasMicrosoftProvider()}>
+					<MicrosoftSignInSection
+						localLoginForm={localLoginForm()}
+						showLocal={hasLocalProvider()}
+					/>
 				</Show>
+				<Show when={!hasMicrosoftProvider() && hasLocalProvider()}>{localLoginForm()}</Show>
 			</div>
 		</div>
 	)

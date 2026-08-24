@@ -43,7 +43,7 @@ function getMsalClient(): ConfidentialClientApplication {
 
 authApp.get('/providers', (c) => {
 	return c.json({
-		local: true,
+		local: !getConfig().auth.disableLocalLogin,
 		microsoft: !!getConfig().auth.microsoft,
 	})
 })
@@ -151,6 +151,9 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 })
 
 authApp.post('/login', rate_limit(), async (c) => {
+	if (getConfig().auth.disableLocalLogin) {
+		return c.json({ error: 'Local login is disabled' }, 404)
+	}
 	const body = await c.req.json().catch(() => null)
 	if (!body?.email || !body.password) {
 		return c.json({ error: 'Email and password are required' }, 400)

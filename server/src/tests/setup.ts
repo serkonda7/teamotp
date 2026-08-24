@@ -11,6 +11,7 @@ initConfig({
 		jwtKeyVersion: 1,
 		loginRateLimit: { maxAttempts: 10, windowSeconds: 300 },
 		secureCookies: true,
+		disableLocalLogin: false,
 	},
 	server: { host: '127.0.0.1', port: 3000 },
 })
