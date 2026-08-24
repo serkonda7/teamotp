@@ -19,11 +19,10 @@ host = "0.0.0.0"
 port = 3000 # Only for non-docker environments. Overridden by `TEAMOTP_PORT` env var
 
 [auth]
-# Required, at least 32 characters.
-# Renamed from `jwtSecret` (deprecated alias, removed in 0.4.0).
-appKey = "your-super-secret-change-me-app-key"
-jwtKeyVersion = 1 # Optional: bump to rotate the signing key (logs out all sessions)
-secureCookies = false # Optional for testing. Defaults to `true`
+appKey = "your-super-secret-change-me-app-key" # Required, >= 32 characters.
+jwtKeyVersion = 1         # Optional: bump to rotate the signing key (logs out all sessions)
+secureCookies = false     # Optional for testing. Defaults to `true`
+disableLocalLogin = false # Optional
 
 # Optional: fixed-window login rate limit per client IP. Defaults below.
 [auth.loginRateLimit]
