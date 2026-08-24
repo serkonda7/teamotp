@@ -16,6 +16,7 @@ import type {
 import { generateTotpCode } from './otp'
 import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
+import { normalize_email } from './util/email'
 import { SERVER_ROOT } from './util/server_root'
 
 const data_dir = path.join(SERVER_ROOT, 'data')
@@ -32,6 +33,7 @@ const sqlite = new Database(db_path, { create: true, strict: true })
 sqlite.exec('PRAGMA foreign_keys = ON')
 
 export const db = drizzle(sqlite)
+export const sqliteHandle: Database = sqlite // Expose underlying Bun SQLite for server-cli
 migrate(db, { migrationsFolder: migrations_folder })
 
 // Precedence for DB path:
@@ -238,7 +240,8 @@ export function unassignTag(entryId: string, tagId: string): void {
 }
 
 export function getUserByEmail(email: string): User | null {
-	const row = db.select().from(users).where(eq(users.email, email)).get()
+	const normalized = normalize_email(email)
+	const row = db.select().from(users).where(eq(users.email, normalized)).get()
 	return (row as User | null) ?? null
 }
 
@@ -248,6 +251,11 @@ export function getUserByProviderId(providerId: string): User | null {
 }
 
 export function upsertMicrosoftUser(params: { providerId: string; email: string }): User {
+	const normalizedEmail = normalize_email(params.email)
+	if (!normalizedEmail) {
+		throw new Error('Email cannot be empty')
+	}
+
 	// User exists
 	const existing = getUserByProviderId(params.providerId)
 	if (existing) {
@@ -255,7 +263,7 @@ export function upsertMicrosoftUser(params: { providerId: string; email: string 
 	}
 
 	// Local user with mail exists. Link Microsoft provider to existing user
-	const existingByEmail = getUserByEmail(params.email)
+	const existingByEmail = getUserByEmail(normalizedEmail)
 	if (existingByEmail) {
 		db.update(users)
 			.set({ provider: 'microsoft', provider_id: params.providerId })
@@ -278,7 +286,7 @@ export function upsertMicrosoftUser(params: { providerId: string; email: string 
 	const id = Bun.randomUUIDv7()
 	const user: User = {
 		id,
-		email: params.email,
+		email: normalizedEmail,
 		password_hash: null,
 		provider: 'microsoft',
 		provider_id: params.providerId,

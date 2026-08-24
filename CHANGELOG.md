@@ -3,6 +3,8 @@
 ### Breaking Changes
 - Config: Rename `auth.jwtSecret` to `auth.appKey`
   - The deprecated alias will be removed in 0.4.0
+- Normalize e-mails to lowercase
+  - Run `cli.bin normalize-emails` once after upgrade
 - Docker no longer publishes API on port 3000
 
 ### Other Changes
