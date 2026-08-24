@@ -51,6 +51,10 @@ published host ports (`80`/`443`). The `server.port` config option and the
 # Create local user (password prompted interactively)
 docker compose exec server ./cli.bin create-user max@muster.de
 bun server-cli/src/cli.ts create-user max@muster.de
+
+# Normalize emails to lowercase (run once after upgrading to 0.3.0)
+docker compose exec server ./cli.bin normalize-emails
+bun server-cli/src/cli.ts normalize-emails
 ```
 
 
