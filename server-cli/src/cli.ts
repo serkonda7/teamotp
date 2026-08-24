@@ -8,7 +8,8 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 	const { users } = await import('server/src/schema')
 	const { normalize_email } = await import('server/src/util/email')
 
-	if (!email || !password) {
+	const normalizedEmail = normalize_email(email)
+	if (!normalizedEmail || !password) {
 		return Result.err(new Error('Email and password are required.'))
 	}
 
@@ -20,7 +21,7 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 		db.insert(users)
 			.values({
 				id,
-				email: normalize_email(email),
+				email: normalizedEmail,
 				password_hash,
 			})
 			.run()
@@ -41,6 +42,25 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 
 	try {
 		const allUsers = db.select().from(users).all()
+
+		// Abort if any email normalizes to empty (whitespace-only) — report affected row IDs
+		const emptyEmailUsers = allUsers.filter((u) => normalize_email(u.email) === '')
+		if (emptyEmailUsers.length > 0) {
+			console.error('Found users with empty email after normalization (whitespace-only):')
+			for (const u of emptyEmailUsers) {
+				console.error(
+					`  id=${u.id} email="${u.email}" provider=${u.provider} provider_id=${u.provider_id ?? ''}`,
+				)
+			}
+			console.error(
+				'Aborting without changes. Fix or remove these rows manually before re-running.',
+			)
+			return Result.err(
+				new Error(
+					`Found ${emptyEmailUsers.length} user(s) with empty normalized email; aborting`,
+				),
+			)
+		}
 
 		// Group by normalized email
 		const groups = new Map<string, typeof allUsers>()
@@ -67,13 +87,17 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 			for (const { normalized, users: members } of collisions) {
 				console.error(`  "${normalized}" collides:`)
 				for (const u of members) {
-					console.error(`    id=${u.id} email="${u.email}" provider=${u.provider} provider_id=${u.provider_id ?? ''}`)
+					console.error(
+						`    id=${u.id} email="${u.email}" provider=${u.provider} provider_id=${u.provider_id ?? ''}`,
+					)
 				}
 			}
 			console.error(
 				'Aborting without changes. Resolve duplicates manually (decide which row and provider_id survives) before re-running.',
 			)
-			return Result.err(new Error(`Found ${collisions.length} colliding email group(s); aborting`))
+			return Result.err(
+				new Error(`Found ${collisions.length} colliding email group(s); aborting`),
+			)
 		}
 
 		// Determine rows that actually need an update

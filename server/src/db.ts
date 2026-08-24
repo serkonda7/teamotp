@@ -33,6 +33,7 @@ const sqlite = new Database(db_path, { create: true, strict: true })
 sqlite.exec('PRAGMA foreign_keys = ON')
 
 export const db = drizzle(sqlite)
+export const sqliteHandle: Database = sqlite // Expose underlying Bun SQLite for server-cli
 migrate(db, { migrationsFolder: migrations_folder })
 
 // Precedence for DB path:
@@ -251,6 +252,9 @@ export function getUserByProviderId(providerId: string): User | null {
 
 export function upsertMicrosoftUser(params: { providerId: string; email: string }): User {
 	const normalizedEmail = normalize_email(params.email)
+	if (!normalizedEmail) {
+		throw new Error('Email cannot be empty')
+	}
 
 	// User exists
 	const existing = getUserByProviderId(params.providerId)

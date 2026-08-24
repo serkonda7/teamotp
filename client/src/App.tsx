@@ -260,7 +260,15 @@ function App(): JSX.Element {
 
 	return (
 		<Show when={isLoggedIn() !== null} fallback={<div>Laden...</div>}>
-			<Show when={isLoggedIn()} fallback={<LoginPage sessionExpired={sessionExpired()} onLoginSuccess={handleLoginSuccess} />}>
+			<Show
+				when={isLoggedIn()}
+				fallback={
+					<LoginPage
+						sessionExpired={sessionExpired()}
+						onLoginSuccess={handleLoginSuccess}
+					/>
+				}
+			>
 				{mainView()}
 			</Show>
 		</Show>
