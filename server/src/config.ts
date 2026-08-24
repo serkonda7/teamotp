@@ -20,6 +20,7 @@ export const configSchema = v.object({
 			{},
 		),
 		secureCookies: v.optional(v.boolean(), true), // Only disable for plain-HTTP local development
+		disableLocalLogin: v.optional(v.boolean(), false),
 		microsoft: v.optional(
 			v.object({
 				clientId: v.string(),
@@ -100,6 +101,14 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
 		}
 	}
 	delete output.auth.jwtSecret
+
+	if (output.auth.disableLocalLogin && !output.auth.microsoft) {
+		return Result.err(
+			new Error(
+				`Invalid configuration at ${path}: 'auth.disableLocalLogin' may only be set when '[auth.microsoft]' is configured`,
+			),
+		)
+	}
 
 	return Result.ok(output as AppConfig)
 }

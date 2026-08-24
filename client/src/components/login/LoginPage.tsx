@@ -13,12 +13,16 @@ type Props = {
 
 type Providers = { local: boolean; microsoft: boolean }
 
-async function fetchProviders(): Promise<Providers> {
-	const res = await fetch('/api/auth/providers')
-	if (!res.ok) {
-		return { local: true, microsoft: false }
+async function fetchProviders(): Promise<Providers | undefined> {
+	try {
+		const res = await fetch('/api/auth/providers')
+		if (!res.ok) {
+			return undefined
+		}
+		return (await res.json()) as Providers
+	} catch {
+		return undefined
 	}
-	return res.json() as Promise<Providers>
 }
 
 const LoginPage = (props: Props): JSX.Element => {
@@ -27,9 +31,7 @@ const LoginPage = (props: Props): JSX.Element => {
 	const [error, setError] = createSignal<string | null>(null)
 	const [isSubmitting, setIsSubmitting] = createSignal(false)
 
-	const [providers] = createResource(fetchProviders, {
-		initialValue: { local: true, microsoft: false },
-	})
+	const [providers] = createResource(fetchProviders)
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -64,7 +66,9 @@ const LoginPage = (props: Props): JSX.Element => {
 		}
 	}
 
-	const hasMicrosoftProvider = (): boolean => providers()?.microsoft
+	const hasMicrosoftProvider = (): boolean => providers()?.microsoft === true
+	const hasLocalProvider = (): boolean => providers()?.local === true
+	const isProvidersKnown = (): boolean => providers() !== undefined
 
 	const localLoginForm = (): JSX.Element => (
 		<form onSubmit={handleSubmit} class="login-form">
@@ -111,8 +115,14 @@ const LoginPage = (props: Props): JSX.Element => {
 						Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.
 					</div>
 				</Show>
-				<Show when={hasMicrosoftProvider()} fallback={localLoginForm()}>
-					<MicrosoftSignInSection localLoginForm={localLoginForm()} />
+				<Show when={isProvidersKnown() && hasMicrosoftProvider()}>
+					<MicrosoftSignInSection
+						localLoginForm={localLoginForm()}
+						showLocal={hasLocalProvider()}
+					/>
+				</Show>
+				<Show when={isProvidersKnown() && !hasMicrosoftProvider() && hasLocalProvider()}>
+					{localLoginForm()}
 				</Show>
 			</div>
 		</div>

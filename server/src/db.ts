@@ -29,6 +29,9 @@ if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
 }
 const db_path = resolve_db_path()
 console.log(`Using DB: ${db_path}`)
+if (db_path !== ':memory:') {
+	fs.mkdirSync(path.dirname(db_path), { recursive: true })
+}
 const sqlite = new Database(db_path, { create: true, strict: true })
 sqlite.exec('PRAGMA foreign_keys = ON')
 
