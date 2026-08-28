@@ -10,6 +10,8 @@ type Props = {
 	otp: OtpDisplayInfo
 	setError: (e: string | null) => void
 	refetch: () => Promise<OtpDisplayInfo[]>
+	autoFocus?: boolean
+	onFocused?: () => void
 }
 
 const OtpListItem = (props: Props): JSX.Element => {
@@ -50,6 +52,14 @@ const OtpListItem = (props: Props): JSX.Element => {
 		const next = list[(idx + dir + list.length) % list.length]
 		next?.focus()
 	}
+
+	createEffect(() => {
+		if (props.autoFocus && copyRef) {
+			copyRef.focus()
+			copyRef.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+			props.onFocused?.()
+		}
+	})
 
 	const periodSeconds = Math.max(1, props.otp.period)
 	const periodMs = periodSeconds * 1000
@@ -175,7 +185,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 	}
 
 	return (
-		<li class="otp-list__item">
+		<li class="otp-list__item" data-otp-id={props.otp.id}>
 			<button
 				type="button"
 				ref={copyRef}

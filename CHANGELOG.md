@@ -9,6 +9,7 @@
 - UI and UX
   - Simplify logout button
   - Focus M365 login button on load / logout
+  - Focus newly created entries
 - Improvements
   - Login: better error messages and banner design
 - Bug Fixes

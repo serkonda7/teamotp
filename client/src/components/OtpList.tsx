@@ -10,6 +10,8 @@ type Props = {
 	tagFilterActive: boolean
 	setError: (e: string | null) => void
 	refetch: () => Promise<OtpDisplayInfo[]>
+	focusedId?: () => string | null
+	onFocused?: () => void
 }
 
 const OtpList = (props: Props): JSX.Element => (
@@ -37,7 +39,13 @@ const OtpList = (props: Props): JSX.Element => (
 			<ul class="otp-list otp-list--grid">
 				<For each={props.otps}>
 					{(otp: OtpDisplayInfo): JSX.Element => (
-						<OtpListItem otp={otp} setError={props.setError} refetch={props.refetch} />
+						<OtpListItem
+							otp={otp}
+							setError={props.setError}
+							refetch={props.refetch}
+							autoFocus={props.focusedId?.() === otp.id}
+							onFocused={props.onFocused}
+						/>
 					)}
 				</For>
 			</ul>

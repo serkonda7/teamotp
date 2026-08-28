@@ -12,6 +12,7 @@ type Props = {
 	setSubmitting: (b: boolean) => void
 	setError: (e: string | null) => void
 	refetch: () => Promise<OtpDisplayInfo[]>
+	onCreated: (id: string) => void
 }
 
 const AddFromOtpauthForm = (props: Props): JSX.Element => {
@@ -43,8 +44,12 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 				return
 			}
 
+			const data = (await res.json()) as { id: string }
 			props.setOtpauthUrl('')
 			await props.refetch()
+			if (data?.id) {
+				props.onCreated(data.id)
+			}
 		} finally {
 			props.setSubmitting(false)
 		}

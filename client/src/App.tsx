@@ -50,6 +50,7 @@ function App(): JSX.Element {
 	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
 	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
 	const [activeTagIds, setActiveTagIds] = createSignal<string[]>([])
+	const [focusedEntryId, setFocusedEntryId] = createSignal<string | null>(null)
 
 	const [allTags, { refetch: refetchTags }] = createResource(
 		isLoggedIn,
@@ -159,6 +160,7 @@ function App(): JSX.Element {
 		setSearchQuery('')
 		setTagSearchQuery('')
 		setActiveTagIds([])
+		setFocusedEntryId(null)
 		setError(null)
 	}
 
@@ -223,6 +225,7 @@ function App(): JSX.Element {
 					setSubmitting={setSubmitting}
 					setError={setError}
 					refetch={refetchTyped}
+					onCreated={setFocusedEntryId}
 				/>
 
 				<Show when={error()}>
@@ -236,6 +239,8 @@ function App(): JSX.Element {
 					tagFilterActive={activeTagIds().length > 0}
 					setError={setError}
 					refetch={refetchTyped}
+					focusedId={focusedEntryId}
+					onFocused={() => setFocusedEntryId(null)}
 				/>
 			</>
 		)

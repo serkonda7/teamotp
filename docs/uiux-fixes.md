@@ -1,7 +1,4 @@
 # Client UI/UX Review
-
-Solid foundation overall — good aria-labels (German), dark mode, empty states, keyboard roving in list items, and URL-persisted search. Findings by priority:
-
 ## High impact
 
 **2. No focus management in modals** — `client/src/components/EditDialog.tsx:214-350`, AboutDialog
@@ -26,10 +23,3 @@ This is fragile and fights the natural DOM order; every new control needs renumb
 
 - **Search debounce missing** — every keystroke rewrites history state (`App.tsx:96-121`); harmless with `replaceState` but filtering large lists per keystroke could use a ~150ms debounce.
 - **Tag filter popover has no role** — consider `role="group"` + `aria-label`, and arrow-key navigation between chips like the OTP items have.
-- **Copy toast position** — appears per-item which is good, but 1400ms is short for screen reader users despite `aria-live`; consider 2–3s.
-- **Session-expired flow is nice**, but after idle logout the search input autofocus steals focus on the login page — verify that's intended.
-- **`otp-list__copy` disabled during load** (`OtpListItem.tsx:191`): disabling removes the focused control from tab order mid-interaction — but only the control that is *focused* when it becomes disabled is affected. Do not replace `disabled` with `aria-busy` alone: `aria-busy` does not block activation. Keep `disabled` on controls that must not activate, or use `aria-disabled` paired with explicit guards in every affected handler.
-
-## Suggested first pass
-
-Shared `<Modal>` with focus trap + Esc handling (#2/#3), then replacing `confirm()` with an in-app dialog (#1).
