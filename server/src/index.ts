@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
+import { AUDIT_SWEEP_INTERVAL_MS, pruneExpiredAuditLogs } from './audit'
 import { type AppConfig, initConfig, load_config_file, resolve_listen_port } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
-import { AUDIT_SWEEP_INTERVAL_MS, pruneExpiredAuditLogs } from './audit'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
 import { SERVER_ROOT } from './util/server_root'
 

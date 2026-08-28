@@ -1,7 +1,12 @@
 # Changelog
 ## unreleased
 
-- Login: improve error messages and banner design
+- New Feature: Audit log
+  - Logs important actions
+  - Default retention 90 days
+  - Configurable via `audit.retentionDays`
+- Improvements
+  - Login: better error messages and banner design
 
 
 ## 0.3.0

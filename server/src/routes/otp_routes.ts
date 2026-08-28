@@ -2,6 +2,7 @@ import { vValidator } from '@hono/valibot-validator'
 import { Result } from 'better-result'
 import { Hono } from 'hono'
 import { NewOtpEntrySchema, UpdateOtpEntrySchema } from 'shared/src/schemas'
+import { logAccess } from '../audit'
 import {
 	archiveEntry,
 	assignTag,
@@ -13,7 +14,6 @@ import {
 	unassignTag,
 	updateEntry,
 } from '../db'
-import { logAccess } from '../audit'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'

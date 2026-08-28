@@ -2,8 +2,8 @@ import { eq, lt } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { getConfig } from './config'
 import { db } from './db'
-import { access_log, sessions, users } from './schema'
 import type { JwtPayload } from './middleware/auth'
+import { access_log, sessions, users } from './schema'
 import { nowSeconds } from './util/time'
 
 export type AuditAction =
@@ -108,7 +108,11 @@ function getRetentionCutoffSeconds(now: number): number {
 	let retentionDays = 90
 	try {
 		const cfg = getConfig()
-		if (cfg.audit?.retentionDays && Number.isInteger(cfg.audit.retentionDays) && cfg.audit.retentionDays >= 1) {
+		if (
+			cfg.audit?.retentionDays &&
+			Number.isInteger(cfg.audit.retentionDays) &&
+			cfg.audit.retentionDays >= 1
+		) {
 			retentionDays = cfg.audit.retentionDays
 		}
 	} catch {
