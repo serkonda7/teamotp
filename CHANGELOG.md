@@ -1,5 +1,6 @@
 # Changelog
-## unreleased
+## 0.4.0
+_2026-08-28_
 
 - Config: Remove deprecated `auth.jwtSecret`
 - New Feature: Audit log
