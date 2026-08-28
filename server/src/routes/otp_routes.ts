@@ -13,6 +13,7 @@ import {
 	unassignTag,
 	updateEntry,
 } from '../db'
+import { logAccess } from '../audit'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'
@@ -33,7 +34,9 @@ export const otpApp = new Hono()
 			return c.json({ error: entry_res.error.message }, 400)
 		}
 
-		return c.json({ id: Result.unwrap(entry_res).id }, 201)
+		const entry = Result.unwrap(entry_res)
+		logAccess(c, 'entry.create', entry.id)
+		return c.json({ id: entry.id }, 201)
 	})
 
 	// GET /otp/:id — get the current TOTP code for an entry
@@ -49,7 +52,9 @@ export const otpApp = new Hono()
 		if (Result.isError(code_res)) {
 			return c.json({ error: code_res.error.message }, 500)
 		}
-		return c.json({ code: Result.unwrap(code_res) })
+		const code = Result.unwrap(code_res)
+		logAccess(c, 'code.reveal', id)
+		return c.json({ code })
 	})
 
 	// POST /otp/:id — update an existing entry
@@ -62,6 +67,7 @@ export const otpApp = new Hono()
 		}
 
 		updateEntry(id, c.req.valid('json'))
+		logAccess(c, 'entry.update', id)
 		return c.json({ success: true })
 	})
 
@@ -73,6 +79,7 @@ export const otpApp = new Hono()
 			return c.json({ error: 'OTP entry not found' }, 404)
 		}
 
+		logAccess(c, 'entry.archive', id)
 		return c.json({ archivedAt })
 	})
 

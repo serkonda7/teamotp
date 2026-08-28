@@ -1,6 +1,7 @@
 import { vValidator } from '@hono/valibot-validator'
 import { Hono } from 'hono'
 import { NewTagSchema } from 'shared/src/schemas'
+import { logAccess } from '../audit'
 import { createTag, deleteTag, getTagByName, listTags } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
@@ -21,6 +22,7 @@ export const tagApp = new Hono()
 		}
 
 		const tag = createTag(body)
+		logAccess(c, 'tag.create', tag.id)
 		return c.json({ id: tag.id }, 201)
 	})
 
@@ -31,5 +33,6 @@ export const tagApp = new Hono()
 			return c.json({ error: 'Tag not found' }, 404)
 		}
 
+		logAccess(c, 'tag.delete', id)
 		return c.json({ success: true })
 	})
