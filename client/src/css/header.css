@@ -41,21 +41,17 @@
 	justify-self: end;
 }
 
-.logout-button {
-	display: inline-flex;
-	align-items: center;
-	min-width: max-content;
-	gap: 0.35rem;
-	background-color: var(--color-danger-bg);
+.icon-button.logout-button {
 	color: var(--color-danger);
-	border: 1px solid var(--color-danger);
-	border-radius: var(--corner-radius);
-	padding: 0.4rem 0.8rem;
-	cursor: pointer;
+	border-color: var(--color-danger);
+	background-color: var(--color-danger-bg);
 }
 
-.logout-button:hover {
+.icon-button.logout-button:hover,
+.icon-button.logout-button:hover:enabled {
 	background-color: var(--color-danger-bg-hover);
+	color: var(--color-danger);
+	border-color: var(--color-danger);
 }
 
 @media (max-width: 800px) {

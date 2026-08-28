@@ -97,12 +97,13 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				</button>
 				<button
 					type="button"
-					class="logout-button"
+					class="icon-button logout-button"
 					tabindex={path() === '/tags' ? 9 : 8}
 					onClick={props.onLogout}
+					aria-label="Abmelden"
+					title="Abmelden"
 				>
 					<IconLogout size={18} stroke="2" aria-hidden="true" />
-					Abmelden
 				</button>
 			</div>
 		</header>
