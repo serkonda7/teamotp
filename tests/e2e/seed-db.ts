@@ -48,6 +48,7 @@ const e2e_entries = [
 const e2e_tag_1 = {
 	id: 'e2e-tag-1',
 	name: 'Server',
+	normalized_name: 'server',
 	color: '#3b82f6',
 }
 
