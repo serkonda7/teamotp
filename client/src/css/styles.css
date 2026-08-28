@@ -76,6 +76,7 @@ a[target="_blank"]::after {
 	color: var(--color-text-muted);
 	cursor: pointer;
 	flex-shrink: 0;
+	line-height: 0;
 
 	&:hover:enabled {
 		color: var(--color-text);
@@ -92,4 +93,10 @@ a[target="_blank"]::after {
 		cursor: default;
 		opacity: 0.6;
 	}
+}
+
+.icon-button svg,
+.icon-button .tabler-icon {
+	display: block;
+	flex-shrink: 0;
 }
