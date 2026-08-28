@@ -29,7 +29,7 @@ disableLocalLogin = false # Optional
 maxAttempts = 10
 windowSeconds = 300
 
-# Optional: enable M365 login via Entra IP App
+# Optional: enable M365 login via Entra ID App
 [auth.microsoft]
 clientId     = "<client ID>"
 tenantId     = "<tenant ID>"
