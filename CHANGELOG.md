@@ -1,4 +1,9 @@
 # Changelog
+## unreleased
+
+- Login: improve error messages and banner design
+
+
 ## 0.3.0
 _2026-08-24_
 

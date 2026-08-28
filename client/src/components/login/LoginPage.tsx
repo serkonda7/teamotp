@@ -47,9 +47,7 @@ const LoginPage = (props: Props): JSX.Element => {
 				'',
 				`${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`,
 			)
-			return code === 'invalid_state'
-				? 'Anmeldung fehlgeschlagen: Ungültiger Status. Bitte erneut versuchen.'
-				: 'Anmeldung abgelaufen. Bitte erneut versuchen.'
+			return 'Anmeldung abgelaufen.' // Show simple generic error to avoid info overload
 		})(),
 	)
 
