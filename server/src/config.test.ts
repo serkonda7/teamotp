@@ -80,30 +80,7 @@ describe('load_config_file', () => {
 		expect(error.message).toContain('auth.appKey')
 	})
 
-	test('jwtSecret alone still loads with a deprecation warning', () => {
-		const warnings: string[] = []
-		const originalWarn = console.warn
-		console.warn = (msg: string): void => {
-			warnings.push(msg)
-		}
-
-		try {
-			const path = write_config(`
-				[auth]
-				jwtSecret = "legacy-secret-value-0123456789abcdef"
-			`)
-
-			const config = expect_ok(load_config_file(path))
-
-			expect(config.auth.appKey).toBe('legacy-secret-value-0123456789abcdef')
-			expect(warnings.join('\n')).toContain('auth.appKey')
-			expect(JSON.stringify(config)).not.toContain('jwtSecret')
-		} finally {
-			console.warn = originalWarn
-		}
-	})
-
-	test('neither appKey nor jwtSecret set → error naming both', () => {
+	test('missing appKey → error naming auth.appKey', () => {
 		const path = write_config(`
 			[auth]
 			secureCookies = false
@@ -112,6 +89,5 @@ describe('load_config_file', () => {
 		const error = expect_err(load_config_file(path))
 
 		expect(error.message).toContain('auth.appKey')
-		expect(error.message).toContain('auth.jwtSecret')
 	})
 })

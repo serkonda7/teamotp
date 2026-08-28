@@ -7,10 +7,8 @@ import * as v from 'valibot'
  */
 export const configSchema = v.strictObject({
 	auth: v.strictObject({
-		// Renamed from `jwtSecret`: this key now backs JWT signing AND (Phase 7)
-		// secret encryption, via separate HKDF-derived subkeys (see `keys.ts`).
-		appKey: v.optional(v.pipe(v.string(), v.minLength(32))),
-		jwtSecret: v.optional(v.string()), // Deprecated alias for `appKey`, removal planned for 0.4.0
+		// Backs JWT signing and secret encryption via separate HKDF-derived subkeys (see `keys.ts`).
+		appKey: v.pipe(v.string(), v.minLength(32)),
 		jwtKeyVersion: v.optional(v.number(), 1),
 		loginRateLimit: v.optional(
 			v.strictObject({
@@ -48,10 +46,7 @@ export const configSchema = v.strictObject({
 
 type RawConfig = v.InferOutput<typeof configSchema>
 
-/** Normalized config shape: exactly one of `appKey` (alias resolved away). */
-export type AppConfig = Omit<RawConfig, 'auth'> & {
-	auth: Omit<RawConfig['auth'], 'appKey' | 'jwtSecret'> & { appKey: string }
-}
+export type AppConfig = RawConfig
 
 /** Formats valibot issues into `field.path: message` pairs, so a misconfigured deployment tells the operator what to fix. */
 function format_issues(issues: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]]): string {
@@ -63,12 +58,7 @@ function format_issues(issues: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]]
 		.join('; ')
 }
 
-/**
- * Loads and validates the configuration file from given path.
- *
- * Accepts the deprecated `auth.jwtSecret` alias for one release: it is used as
- * `auth.appKey` with a warning. Removing the alias is a 0.4.0 item.
- */
+/** Loads and validates the configuration file from given path. */
 export function load_config_file(path: string): Result<AppConfig, Error> {
 	if (!fs.existsSync(path)) {
 		return Result.err(new Error(`Configuration file missing at ${path}`))
@@ -91,22 +81,7 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
 		)
 	}
 
-	const output = structuredClone(config_res.output) as RawConfig
-	if (!output.auth.appKey) {
-		if (output.auth.jwtSecret) {
-			console.warn(
-				`Deprecated config key 'auth.jwtSecret' at ${path}: rename it to 'auth.appKey' (alias removal planned for 0.4.0).`,
-			)
-			output.auth.appKey = output.auth.jwtSecret
-		} else {
-			return Result.err(
-				new Error(
-					`Invalid configuration at ${path}: either 'auth.appKey' or its deprecated alias 'auth.jwtSecret' must be set`,
-				),
-			)
-		}
-	}
-	delete output.auth.jwtSecret
+	const output = config_res.output as AppConfig
 
 	if (output.auth.disableLocalLogin && !output.auth.microsoft) {
 		return Result.err(
@@ -116,7 +91,7 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
 		)
 	}
 
-	return Result.ok(output as AppConfig)
+	return Result.ok(output)
 }
 
 /**

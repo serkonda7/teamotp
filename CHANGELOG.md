@@ -1,6 +1,7 @@
 # Changelog
 ## unreleased
 
+- Config: Remove deprecated `auth.jwtSecret`
 - New Feature: Audit log
   - Logs important actions
   - Default retention 90 days
