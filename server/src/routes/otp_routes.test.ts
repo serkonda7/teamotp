@@ -416,4 +416,54 @@ describe('OTP routes', () => {
 		expect(archiveResponse.status).toBe(404)
 		expect(await archiveResponse.json()).toEqual({ error: 'OTP entry not found' })
 	})
+
+	test('returns 410 when fetching code for archived entry', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Archived code test',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+
+		const codeBefore = await app.request(`/otp/${id}`, { headers: { ...headers } })
+		expect(codeBefore.status).toBe(200)
+
+		const archiveResponse = await app.request(`/otp/${id}/archive`, {
+			method: 'POST',
+			headers: { ...headers },
+		})
+		expect(archiveResponse.status).toBe(200)
+
+		const codeAfter = await app.request(`/otp/${id}`, { headers: { ...headers } })
+		expect(codeAfter.status).toBe(410)
+		expect(await codeAfter.json()).toEqual({ error: 'OTP entry is archived' })
+	})
+
+	test('returns 410 even when re-fetching archived entry after list includes it', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/otp', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({
+				label: 'Archived visibility',
+				secret: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			}),
+		})
+		const { id } = (await createResponse.json()) as { id: string }
+		await app.request(`/otp/${id}/archive`, { method: 'POST', headers: { ...headers } })
+
+		const withArchived = await app.request('/otp?includeArchived=true', {
+			headers: { ...headers },
+		})
+		expect(withArchived.status).toBe(200)
+		const list = (await withArchived.json()) as { id: string }[]
+		expect(list.some((e) => e.id === id)).toBe(true)
+
+		const codeResponse = await app.request(`/otp/${id}`, { headers: { ...headers } })
+		expect(codeResponse.status).toBe(410)
+	})
 })

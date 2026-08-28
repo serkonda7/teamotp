@@ -7,6 +7,9 @@
   - Configurable via `audit.retentionDays`
 - Improvements
   - Login: better error messages and banner design
+- Bug Fixes
+  - Prevent tag name collisions
+  - Archived OTP entries no longer serve codes: `GET /otp/:id` now returns `410 Gone`
 
 
 ## 0.3.0

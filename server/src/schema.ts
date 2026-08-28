@@ -14,7 +14,8 @@ export const entries = sqliteTable('entries', {
 
 export const tags = sqliteTable('tags', {
 	id: text('id').primaryKey(),
-	name: text('name').notNull().unique(),
+	name: text('name').notNull(),
+	normalized_name: text('normalized_name').notNull().unique(),
 	color: text('color').notNull(),
 })
 

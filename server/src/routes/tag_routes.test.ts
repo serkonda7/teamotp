@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
+import { eq } from 'drizzle-orm'
 import { db } from '../db'
 import { app } from '../index'
 import { entries, entry_tags, tags } from '../schema'
@@ -92,6 +93,51 @@ describe('Tag routes', () => {
 
 		expect(response.status).toBe(409)
 		expect(await response.json()).toEqual({ error: 'A tag with this name already exists' })
+	})
+
+	test('rejects case-insensitive duplicate tag names with 409', async () => {
+		const headers = await getAuthHeaders()
+		await createTagViaApi(headers, 'Prod')
+
+		for (const variant of ['prod', 'PROD', 'pRoD']) {
+			const response = await app.request('/tags', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json', ...headers },
+				body: JSON.stringify({ name: variant, color: '#00ff00' }),
+			})
+			expect(response.status).toBe(409)
+			expect(await response.json()).toEqual({ error: 'A tag with this name already exists' })
+		}
+	})
+
+	test('preserves display case but normalizes internally for uniqueness', async () => {
+		const headers = await getAuthHeaders()
+		const createResponse = await app.request('/tags', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', ...headers },
+			body: JSON.stringify({ name: 'MiXeD', color: '#123456' }),
+		})
+		expect(createResponse.status).toBe(201)
+		const listResponse = await app.request('/tags', { headers: { ...headers } })
+		const tagList = (await listResponse.json()) as { name: string }[]
+		expect(tagList[0]?.name).toBe('MiXeD')
+
+		// internal normalized_name is lowercased
+		const { id } = (await createResponse.json()) as { id: string }
+		const row = db.select().from(tags).where(eq(tags.id, id)).get() as unknown as {
+			normalized_name: string
+		}
+		expect(row.normalized_name).toBe('mixed')
+
+		const entryId = await createEntryViaApi(headers)
+		await app.request(`/otp/${entryId}/tags/${id}`, {
+			method: 'PUT',
+			headers: { ...headers },
+		})
+		const entryTags = (await (
+			await app.request(`/otp/${entryId}/tags`, { headers: { ...headers } })
+		).json()) as { name: string }[]
+		expect(entryTags[0]?.name).toBe('MiXeD')
 	})
 
 	test('deletes a tag and returns 404 for unknown ids', async () => {

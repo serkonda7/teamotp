@@ -47,6 +47,9 @@ export const otpApp = new Hono()
 		if (!entry) {
 			return c.json({ error: 'OTP entry not found' }, 404)
 		}
+		if (entry.archived_at) {
+			return c.json({ error: 'OTP entry is archived' }, 410)
+		}
 
 		const code_res = generateTotpCode(entry)
 		if (Result.isError(code_res)) {

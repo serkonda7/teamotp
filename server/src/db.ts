@@ -194,22 +194,38 @@ export function listTags(): TagWithMemberCount[] {
 }
 
 export function createTag(obj: NewTag): TagInfo {
+	const displayName = obj.name.trim()
 	const tag: TagInfo = {
 		id: Bun.randomUUIDv7(),
-		name: obj.name.trim(),
+		name: displayName,
 		color: obj.color.toLowerCase(),
 	}
-	db.insert(tags).values(tag).run()
+	db.insert(tags)
+		.values({
+			id: tag.id,
+			name: displayName,
+			normalized_name: displayName.toLowerCase(),
+			color: tag.color,
+		})
+		.run()
 	return tag
 }
 
 export function getTagById(id: string): TagInfo | null {
-	const row = db.select().from(tags).where(eq(tags.id, id)).get()
+	const row = db
+		.select({ id: tags.id, name: tags.name, color: tags.color })
+		.from(tags)
+		.where(eq(tags.id, id))
+		.get()
 	return row ?? null
 }
 
 export function getTagByName(name: string): TagInfo | null {
-	const row = db.select().from(tags).where(eq(tags.name, name)).get()
+	const row = db
+		.select({ id: tags.id, name: tags.name, color: tags.color })
+		.from(tags)
+		.where(eq(tags.normalized_name, name.trim().toLowerCase()))
+		.get()
 	return row ?? null
 }
 
