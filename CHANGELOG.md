@@ -7,6 +7,7 @@
   - Default retention 90 days
   - Configurable via `audit.retentionDays`
 - UI and UX
+  - Edit dialog: Improve button layout
   - Simplify logout button
   - Focus M365 login button on load / logout
   - Focus newly created entries

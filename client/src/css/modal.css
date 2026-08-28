@@ -26,7 +26,6 @@
 	border-radius: var(--corner-radius);
 	box-shadow: var(--shadow-modal);
 	padding: 1rem;
-	padding-right: 3.25rem;
 	width: min(28rem, 100%);
 	display: grid;
 	gap: 0.7rem;
@@ -103,19 +102,38 @@
 }
 
 .form-actions {
+	position: relative;
 	display: flex;
+	justify-content: center;
+	align-items: center;
 	gap: var(--gap-small);
 	margin-top: 0.5rem;
+	/* Reserve symmetric side space so the absolutely positioned
+	   archive button (bottom-left of the dialog) never overlaps
+	   the centered save/cancel buttons, while keeping them
+	   centered as if the archive button wouldn't exist. */
+	padding-inline: 3rem;
 }
 
-.form-actions button {
-	flex: 1;
+.form-actions .login-button,
+.form-actions .cancel-button {
+	flex: 0 0 auto;
+	min-width: 7rem;
+	margin-top: 0;
 	/* Keep the change asterisk and label on one line (no wrap above the text) */
 	white-space: nowrap;
 }
 
 .archive-button {
-	padding: var(--gap-small) calc(var(--gap-small) * 2);
+	position: absolute;
+	left: 0;
+	top: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.2rem;
+	height: 2.2rem;
+	padding: 0;
 	background-color: var(--color-danger-bg);
 	color: var(--color-danger);
 	border: 1px solid var(--color-danger);
@@ -123,14 +141,12 @@
 	font-size: 1rem;
 	font-weight: 600;
 	cursor: pointer;
-	margin-top: 0.5rem;
 	transition:
 		background-color 0.2s,
 		border-color 0.2s,
 		color 0.2s;
-	margin-left: auto;
-	flex: 0 1 auto;
-	min-width: 8rem;
+	line-height: 0;
+	transform: translateY(-50%);
 }
 
 .archive-button:hover:not(:disabled) {
@@ -142,4 +158,15 @@
 .archive-button:disabled {
 	cursor: not-allowed;
 	opacity: 0.6;
+}
+
+@media (max-width: 380px) {
+	.form-actions {
+		padding-inline: 2.6rem;
+	}
+
+	.form-actions .login-button,
+	.form-actions .cancel-button {
+		min-width: 5.5rem;
+	}
 }

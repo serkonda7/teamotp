@@ -16,9 +16,6 @@ Inline errors persist until another action clears them. Add a dismiss button and
 **8. Manual `tabindex={1..9}` sprinkled everywhere** — `client/src/components/AppHeader.tsx:67-101`, TagFilter, OtpListItem
 This is fragile and fights the natural DOM order; every new control needs renumbering (the tags/home toggle already causes branching tabindex values). Remove positive tabindexes entirely — DOM order already matches visual order here.
 
-**9. Archive button placement/risk** — `client/src/components/EditDialog.tsx:338-345`
-"Archivieren" sits directly next to "Abbrechen"/"Speichern" in the same row as the primary action. Move destructive actions away from primary ones (separate row/left-aligned, danger styling).
-
 ## Low / polish
 
 - **Search debounce missing** — every keystroke rewrites history state (`App.tsx:96-121`); harmless with `replaceState` but filtering large lists per keystroke could use a ~150ms debounce.

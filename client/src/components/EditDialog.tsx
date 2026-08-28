@@ -1,4 +1,4 @@
-import { IconX } from '@tabler/icons-solidjs'
+import { IconArchive, IconX } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
@@ -329,6 +329,16 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 					<div class="form-actions">
 						<button
+							type="button"
+							class="archive-button"
+							onClick={(): Promise<void> => handleArchive()}
+							disabled={submitting()}
+							aria-label="Archivieren"
+							title="Archivieren"
+						>
+							<IconArchive size={18} stroke="2" aria-hidden="true" />
+						</button>
+						<button
 							type="submit"
 							class="login-button"
 							disabled={submitting()}
@@ -347,14 +357,6 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							disabled={submitting()}
 						>
 							Abbrechen
-						</button>
-						<button
-							type="button"
-							class="archive-button"
-							onClick={(): Promise<void> => handleArchive()}
-							disabled={submitting()}
-						>
-							Archivieren
 						</button>
 					</div>
 				</form>
