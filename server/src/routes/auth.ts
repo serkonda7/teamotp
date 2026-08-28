@@ -2,6 +2,7 @@ import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import { logLoginAttempt } from '../audit'
 import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
@@ -113,11 +114,13 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const stateCookie = getCookie(c, 'ms_auth_state')
 
 	if (!code || !state || state !== stateCookie) {
+		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'invalid_state'))
 	}
 
 	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
 	if (!pending || pending.expires_at <= nowSeconds()) {
+		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'expired_state'))
 	}
 	db.delete(auth_states).where(eq(auth_states.state, state)).run()
@@ -132,10 +135,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 		})
 	} catch (err) {
 		console.error('MSAL token exchange failed:', err)
+		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.json({ error: 'Token exchange failed' }, 502)
 	}
 
 	if (!tokenResponse) {
+		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.json({ error: 'No token response' }, 502)
 	}
 
@@ -148,10 +153,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const email = claims.preferred_username ?? claims.email
 
 	if (!oid || !email) {
+		logLoginAttempt({ email: email ?? 'unknown', action: 'login.failure' })
 		return c.json({ error: 'Missing required claims in id_token' }, 502)
 	}
 
 	const user = upsertMicrosoftUser({ providerId: oid, email })
+	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
 
 	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, getSessionCookieOpts())
@@ -167,23 +174,29 @@ authApp.post('/login', rate_limit(), async (c) => {
 	}
 	const body = await c.req.json().catch(() => null)
 	if (!body?.email || !body.password) {
+		const email = body?.email ?? 'unknown'
+		logLoginAttempt({ email, action: 'login.failure' })
 		return c.json({ error: 'Email and password are required' }, 400)
 	}
 
 	const user = getUserByEmail(body.email)
 	if (!user) {
+		logLoginAttempt({ email: body.email, action: 'login.failure' })
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
 	if (!user.password_hash) {
+		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
 	const isMatch = await Bun.password.verify(body.password, user.password_hash)
 	if (!isMatch) {
+		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
 		return c.json({ error: 'Invalid email or password' }, 401)
 	}
 
+	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
 	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 

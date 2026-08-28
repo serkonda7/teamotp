@@ -5,15 +5,15 @@ import * as v from 'valibot'
 /**
  * Schema definition of config file structure and fields.
  */
-export const configSchema = v.object({
-	auth: v.object({
+export const configSchema = v.strictObject({
+	auth: v.strictObject({
 		// Renamed from `jwtSecret`: this key now backs JWT signing AND (Phase 7)
 		// secret encryption, via separate HKDF-derived subkeys (see `keys.ts`).
 		appKey: v.optional(v.pipe(v.string(), v.minLength(32))),
 		jwtSecret: v.optional(v.string()), // Deprecated alias for `appKey`, removal planned for 0.4.0
 		jwtKeyVersion: v.optional(v.number(), 1),
 		loginRateLimit: v.optional(
-			v.object({
+			v.strictObject({
 				maxAttempts: v.optional(v.number(), 10),
 				windowSeconds: v.optional(v.number(), 300),
 			}),
@@ -22,7 +22,7 @@ export const configSchema = v.object({
 		secureCookies: v.optional(v.boolean(), true), // Only disable for plain-HTTP local development
 		disableLocalLogin: v.optional(v.boolean(), false),
 		microsoft: v.optional(
-			v.object({
+			v.strictObject({
 				clientId: v.string(),
 				clientSecret: v.string(),
 				tenantId: v.string(),
@@ -31,13 +31,19 @@ export const configSchema = v.object({
 		),
 	}),
 	server: v.optional(
-		v.object({
+		v.strictObject({
 			host: v.optional(v.string(), '0.0.0.0'),
 			port: v.optional(v.number(), 3000),
 		}),
 		{},
 	),
 	frontendUrl: v.optional(v.string()),
+	audit: v.optional(
+		v.strictObject({
+			retentionDays: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 90),
+		}),
+		{ retentionDays: 90 },
+	),
 })
 
 type RawConfig = v.InferOutput<typeof configSchema>

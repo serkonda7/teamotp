@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
+import { AUDIT_SWEEP_INTERVAL_MS, pruneExpiredAuditLogs } from './audit'
 import { type AppConfig, initConfig, load_config_file, resolve_listen_port } from './config'
 import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
@@ -58,6 +59,10 @@ if (import.meta.main) {
 	// Scheduled here and not at module scope, so it never keeps a test process alive.
 	sweepExpired()
 	setInterval(sweepExpired, SESSION_SWEEP_INTERVAL_MS).unref()
+
+	// Prune audit log rows older than the configured retention (default 90 days).
+	pruneExpiredAuditLogs()
+	setInterval(pruneExpiredAuditLogs, AUDIT_SWEEP_INTERVAL_MS).unref()
 
 	const server = Bun.serve({
 		hostname: config.server.host,

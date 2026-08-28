@@ -35,6 +35,10 @@ clientId     = "<client ID>"
 tenantId     = "<tenant ID>"
 clientSecret = "<client secret value>"
 redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
+
+# Optional: audit log retention (default 90 days)
+[audit]
+retentionDays = 90 # Days to keep audit log entries, must be >= 1
 ```
 
 #### API port in Docker deployments

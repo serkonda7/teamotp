@@ -62,3 +62,16 @@ export const auth_states = sqliteTable(
 	},
 	(table) => [index('auth_states_expires_at_idx').on(table.expires_at)],
 )
+
+export const access_log = sqliteTable(
+	'access_log',
+	{
+		id: text('id').primaryKey(),
+		user_id: text('user_id').notNull(),
+		user_email: text('user_email').notNull(),
+		action: text('action').notNull(),
+		entry_id: text('entry_id'),
+		created_at: integer('created_at').notNull(),
+	},
+	(table) => [index('access_log_created_at_idx').on(table.created_at)],
+)
