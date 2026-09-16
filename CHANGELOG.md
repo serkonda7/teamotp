@@ -1,4 +1,16 @@
 # Changelog
+## 0.5.0
+_2026-09-16_
+
+### Breaking Changes
+- Move ports into docker-compose.override.yml
+
+### Other Changes
+- Technical:
+  - Update runtime to Bun 1.4.2
+  - Other dependency updates
+
+
 ## 0.4.0
 _2026-08-28_
 
