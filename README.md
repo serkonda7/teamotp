@@ -7,6 +7,9 @@ For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore
 ```sh
 bun run infra/updater.ts
 ```
+The updater requires a clean git worktree. Keep local Docker changes in
+`docker-compose.override.yml` (see below) instead of editing
+`docker-compose.yml` directly.
 
 
 ## Configuration
@@ -40,13 +43,6 @@ redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
 [audit]
 retentionDays = 90 # Days to keep audit log entries, must be >= 1
 ```
-
-#### API port in Docker deployments
-In Docker (docker-compose) the internal API port is fixed at `3000`: Caddy
-proxies to `server:3000`, and the compose file pins `TEAMOTP_PORT` so any
-`server.port` from the config file is ignored. Operators only configure the
-published host ports (`80`/`443`). The `server.port` config option and the
-`TEAMOTP_PORT` variable apply to non-Docker runs only.
 
 
 ### Other admin tasks

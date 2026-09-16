@@ -10,8 +10,6 @@ services:
       TEAMOTP_PORT: "3000"
     volumes:
       - ./server/data:/app/data
-    # No published port: Caddy reaches the API over the compose network.
-    # Publishing 3000 would expose the API over plain HTTP and bypass TLS.
     restart: unless-stopped
 
   client:
@@ -20,7 +18,4 @@ services:
       dockerfile: infra/client.Dockerfile
     depends_on:
       - server
-    ports:
-      - "80:80"
-      - "443:443"
     restart: unless-stopped
