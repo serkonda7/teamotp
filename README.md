@@ -7,9 +7,6 @@ For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore
 ```sh
 bun run infra/updater.ts
 ```
-The updater requires a clean git worktree. Keep local Docker changes in
-`docker-compose.override.yml` (see below) instead of editing
-`docker-compose.yml` directly.
 
 
 ## Configuration
@@ -61,6 +58,9 @@ bun server-cli/src/cli.ts normalize-emails
 ```sh
 # Clone main branch
 git clone https://github.com/serkonda7/teamotp
+
+# Copy and edit docker settings
+cp docker-compose.override.yml.example docker-compose.override.yml
 
 # Run updater to get latest stable version
 bun run infra/updater.ts
