@@ -18,3 +18,4 @@ test-results/
 data/
 config.toml
 backups/
+docker-compose.override.yml

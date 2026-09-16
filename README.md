@@ -41,13 +41,6 @@ redirectUri  = "https://your-domain.de/api/auth/callback/microsoft"
 retentionDays = 90 # Days to keep audit log entries, must be >= 1
 ```
 
-#### API port in Docker deployments
-In Docker (docker-compose) the internal API port is fixed at `3000`: Caddy
-proxies to `server:3000`, and the compose file pins `TEAMOTP_PORT` so any
-`server.port` from the config file is ignored. Operators only configure the
-published host ports (`80`/`443`). The `server.port` config option and the
-`TEAMOTP_PORT` variable apply to non-Docker runs only.
-
 
 ### Other admin tasks
 ```sh
@@ -65,6 +58,9 @@ bun server-cli/src/cli.ts normalize-emails
 ```sh
 # Clone main branch
 git clone https://github.com/serkonda7/teamotp
+
+# Copy and edit docker settings
+cp docker-compose.override.yml.example docker-compose.override.yml
 
 # Run updater to get latest stable version
 bun run infra/updater.ts
