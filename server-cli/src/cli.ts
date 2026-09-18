@@ -1,6 +1,6 @@
 import { Result } from 'better-result'
 import { eq } from 'drizzle-orm'
-import { getDb, getSqliteHandle, initDb } from 'server/src/db'
+import { getDb, initDb } from 'server/src/db'
 import { users } from 'server/src/schema'
 import { normalize_email } from 'server/src/util/email'
 import { prompt_line } from 'shared/src/prompt'
@@ -112,14 +112,14 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 			return Result.ok(undefined)
 		}
 
-		const tx = getSqliteHandle().transaction(() => {
+		// Single transaction API on the drizzle handle: the update queries run
+		// through `tx` on the same connection, so a crash rolls everything back.
+		getDb().transaction((tx) => {
 			for (const user of toUpdate) {
 				const normalized = normalize_email(user.email)
-				getDb().update(users).set({ email: normalized }).where(eq(users.id, user.id)).run()
+				tx.update(users).set({ email: normalized }).where(eq(users.id, user.id)).run()
 			}
 		})
-
-		tx()
 
 		console.log(`Normalized ${toUpdate.length} email(s).`)
 		return Result.ok(undefined)

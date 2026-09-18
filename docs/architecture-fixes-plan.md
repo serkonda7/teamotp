@@ -1,63 +1,8 @@
 # Architecture Fixes — Implementation Plan
 | # | Phase | Fixes | Effort | Breaking |
 | - | ----- | ----- | ------ | -------- |
-| 8 | Remove module-load side effects | untestable imports, import-order coupling | L | no |
-| 9 | Break up `db.ts` god-module | mixed concerns, missing transactions, TOCTOU races | M | no |
 | 10 | Session/auth correctness | email-`sub`, triple-query touch, rate-limit reset bug, stale MSAL singleton | S | JWT `sub` change |
 | 11 | API and package boundaries | client→server source import, write-only audit, unordered lists, no health probe | M | RPC type import path |
-
----
-
-## Phase 9 — Break up `db.ts` god-module
-
-**Problem.** `server/src/db.ts` (~315 lines) mixes three aggregates in one
-module with a shared global handle: OTP entries, tags + memberships, and
-users — while `routes/auth.ts:77-79,121-126` reaches past it to touch
-`sessions`/`auth_states` tables directly. Every route imports from the same
-file, so any change to user queries recompiles entry call sites and every test
-imports the whole vault. Two correctness gaps ride along:
-
-- `deleteTag` (`db.ts:232-239`) deletes `entry_tags` rows then the `tags` row
-  in two statements with no transaction — a crash between them orphans the tag.
-  `normalizeEmails` in `server-cli` uses `sqliteHandle.transaction()` while the
-  queries run through drizzle, mixing two transaction APIs on one connection.
-- Tag creation is check-then-insert across a layer boundary: `tag_routes.ts:20`
-  calls `getTagByName`, then `createTag` inserts. Two concurrent `POST /tags`
-  with the same name both pass the check; the loser hits the
-  `normalized_name UNIQUE` constraint and falls through `index.ts:33-40`
-  `onError` as a 500 instead of the documented 409. Same shape for
-  `PUT /otp/:id/tags/:tagId` (`otp_routes.ts:100-111`): existence checks in the
-  route, insert in `db.ts:251-253`, FK violation on race → 500.
-
-### 9.1 Steps
-
-1. Split by aggregate, keeping function names stable so routes barely move:
-   `db/entries.ts`, `db/tags.ts`, `db/users.ts`. Keep `db.ts` as a thin
-   re-export during the move, then delete it. Depends on Phase 8: the split
-   files take the `initDb`-provided handle instead of importing a global.
-2. Wrap multi-statement writes in `db.transaction()`, not
-   `sqliteHandle.transaction()`: `deleteTag`, `normalize-emails`, and the
-   Phase 7 `encrypt-secrets` migration. One transaction API, one connection.
-3. Push uniqueness to the DB and map it at the boundary: catch the SQLite
-   `UNIQUE constraint failed: tags.normalized_name` error in `createTag` (or
-   in the route) and return the existing 409 `{ error: 'A tag with this name
-   already exists' }`. Keep the pre-check for the fast path — it gives the
-   exact message — but the constraint is the source of truth under
-   concurrency. Same for `assignTag`: catch FK violations and return 404.
-4. Move the `auth_states` insert/select/delete in `routes/auth.ts` behind
-   `db/users.ts`-style helpers (`createAuthState`, `consumeAuthState`) so
-   routes never touch tables directly. `consumeAuthState` does select +
-   delete atomically (delete-where-state-and-not-expired + `returning`), which
-   also closes the double-redeem window on the Microsoft callback.
-
-### 9.2 Tests
-
-- Concurrent `createTag` with the same name → exactly one row, loser gets 409
-  (assert via direct `createTag` calls racing, plus the 409 body through the route).
-- `deleteTag` with an injected mid-transaction failure → tag and assignments
-  both still present (no half-delete).
-- `consumeAuthState` twice with the same state → first wins, second reports
-  expired/missing; no `auth_states` row left behind.
 
 ---
 
