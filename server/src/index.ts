@@ -7,6 +7,7 @@ import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
 import { getTrimmedEnv, resolveInDataDir } from './util/server_root'
+import { start_sweep } from './util/periodic'
 import { jsonError } from './util/http'
 
 // Precedence for the config path:
@@ -53,11 +54,11 @@ if (import.meta.main) {
 	// Drop timed out sessions even while nobody tries to use them.
 	// Scheduled here and not at module scope, so it never keeps a test process alive.
 	sweepExpired()
-	setInterval(sweepExpired, SESSION_SWEEP_INTERVAL_MS).unref()
+	start_sweep(sweepExpired, SESSION_SWEEP_INTERVAL_MS)
 
 	// Prune audit log rows older than the configured retention (default 90 days).
 	pruneExpiredAuditLogs()
-	setInterval(pruneExpiredAuditLogs, AUDIT_SWEEP_INTERVAL_MS).unref()
+	start_sweep(pruneExpiredAuditLogs, AUDIT_SWEEP_INTERVAL_MS)
 
 	const server = Bun.serve({
 		hostname: config.server.host,
