@@ -18,46 +18,96 @@ import { generateTotpCode } from './otp'
 import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { normalize_email } from './util/email'
-import { getTrimmedEnv, resolveInDataDir, SERVER_ROOT } from './util/server_root'
+import { get_server_root, getTrimmedEnv, resolveInDataDir } from './util/server_root'
 
-const data_dir = path.join(SERVER_ROOT, 'data')
-// TODO enrypt entire DB
+export type DbHandle = ReturnType<typeof drizzle>
 
-// Create or open the database file and run migrations
-const migrations_folder = path.join(SERVER_ROOT, 'drizzle')
-if (!fs.existsSync(path.join(migrations_folder, 'meta/_journal.json'))) {
-	throw new Error(`Drizzle migrations not found at ${migrations_folder}.`)
+let dbInstance: DbHandle | null = null
+let sqliteInstance: Database | null = null
+
+/**
+ * Returns the initialized drizzle handle. Throws a clear error when `initDb`
+ * was not called — the same shape as `getConfig`, so a missing startup step
+ * is obvious instead of a `Cannot read properties of null`.
+ */
+export function getDb(): DbHandle {
+	if (!dbInstance) {
+		throw new Error('Database has not been initialized. Call initDb() during startup.')
+	}
+	return dbInstance
 }
-const db_path = resolve_db_path()
-console.log(`Using DB: ${db_path}`)
-if (db_path !== ':memory:') {
-	fs.mkdirSync(path.dirname(db_path), { recursive: true })
-}
-const sqlite = new Database(db_path, { create: true, strict: true })
-sqlite.exec('PRAGMA foreign_keys = ON')
 
-export const db = drizzle(sqlite)
-export const sqliteHandle: Database = sqlite // Expose underlying Bun SQLite for server-cli
-migrate(db, { migrationsFolder: migrations_folder })
+/** Returns the underlying Bun SQLite handle (used for transactions on one connection). */
+export function getSqliteHandle(): Database {
+	if (!sqliteInstance) {
+		throw new Error('Database has not been initialized. Call initDb() during startup.')
+	}
+	return sqliteInstance
+}
+
+export interface InitDbOptions {
+	dbPath?: string
+	migrationsFolder?: string
+	serverRoot?: string
+}
+
+/**
+ * Opens the database file and runs migrations. Must be called once during
+ * startup (or test setup) — importing this module alone opens nothing.
+ * Idempotent: repeated calls return the existing handle.
+ */
+export function initDb(options: InitDbOptions = {}): DbHandle {
+	if (dbInstance && sqliteInstance) {
+		return dbInstance
+	}
+
+	let serverRoot = options.serverRoot
+	if (!serverRoot) {
+		const rootRes = get_server_root()
+		if (Result.isError(rootRes)) {
+			throw new Error(`Failed to initialize database: ${rootRes.error.message}`)
+		}
+		serverRoot = Result.unwrap(rootRes)
+	}
+
+	const migrationsFolder = options.migrationsFolder ?? path.join(serverRoot, 'drizzle')
+	if (!fs.existsSync(path.join(migrationsFolder, 'meta/_journal.json'))) {
+		throw new Error(`Drizzle migrations not found at ${migrationsFolder}.`)
+	}
+
+	const dbPath = options.dbPath ?? resolve_db_path(serverRoot)
+	if (dbPath !== ':memory:') {
+		fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+	}
+	const sqlite = new Database(dbPath, { create: true, strict: true })
+	sqlite.exec('PRAGMA foreign_keys = ON')
+
+	const db = drizzle(sqlite)
+	migrate(db, { migrationsFolder })
+
+	dbInstance = db
+	sqliteInstance = sqlite
+	return db
+}
 
 // Precedence for DB path:
 // 1. TEAMOTP_DB_PATH env var (`:memory:` for an in-memory DB)
 // 2. teamotp.db
-function resolve_db_path(): string {
+function resolve_db_path(serverRoot: string): string {
 	const configured_path = getTrimmedEnv('TEAMOTP_DB_PATH')
 	if (!configured_path) {
-		return path.join(data_dir, 'teamotp.db')
+		return path.join(serverRoot, 'data', 'teamotp.db')
 	}
 
 	if (configured_path === ':memory:') {
 		return configured_path
 	}
 
-	return resolveInDataDir(configured_path)
+	return resolveInDataDir(serverRoot, configured_path)
 }
 
 export function listEntries(includeArchived = false): OtpDisplayInfo[] {
-	const baseQuery = db
+	const baseQuery = getDb()
 		.select({
 			id: entries.id,
 			label: entries.label,
@@ -76,7 +126,7 @@ export function listEntries(includeArchived = false): OtpDisplayInfo[] {
 }
 
 function listAllEntryTagsGrouped(): Map<string, TagInfo[]> {
-	const tagRows = db
+	const tagRows = getDb()
 		.select({
 			entry_id: entry_tags.entry_id,
 			id: tags.id,
@@ -128,13 +178,13 @@ export function createEntry(obj: NewOtpEntry): Result<OtpEntry, Error> {
 		return code_res
 	}
 
-	db.insert(entries).values(entry).run()
+	getDb().insert(entries).values(entry).run()
 
 	return Result.ok(entry)
 }
 
 export function getEntryById(id: string): OtpEntry | null {
-	const row = db.select().from(entries).where(eq(entries.id, id)).get()
+	const row = getDb().select().from(entries).where(eq(entries.id, id)).get()
 	return (row as OtpEntry | null) ?? null
 }
 
@@ -161,7 +211,7 @@ export function updateEntry(id: string, updated: UpdateOtpEntry): void {
 	if (Object.keys(fields).length === 0) {
 		return
 	}
-	db.update(entries).set(fields).where(eq(entries.id, id)).run()
+	getDb().update(entries).set(fields).where(eq(entries.id, id)).run()
 }
 
 export function archiveEntry(id: string): string | null {
@@ -177,12 +227,12 @@ export function archiveEntry(id: string): string | null {
 	// ISO string by design: archived_at is a TEXT column (human-readable in the
 	// DB), unlike the integer-seconds clock domains that use nowSeconds().
 	const archivedAt = new Date().toISOString()
-	db.update(entries).set({ archived_at: archivedAt }).where(eq(entries.id, id)).run()
+	getDb().update(entries).set({ archived_at: archivedAt }).where(eq(entries.id, id)).run()
 	return archivedAt
 }
 
 export function listTags(): TagWithMemberCount[] {
-	return db
+	return getDb()
 		.select({
 			id: tags.id,
 			name: tags.name,
@@ -205,7 +255,8 @@ export function createTag(obj: NewTag): TagInfo {
 		name: displayName,
 		color: obj.color,
 	}
-	db.insert(tags)
+	getDb()
+		.insert(tags)
 		.values({
 			id: tag.id,
 			name: displayName,
@@ -217,7 +268,7 @@ export function createTag(obj: NewTag): TagInfo {
 }
 
 export function getTagById(id: string): TagInfo | null {
-	const row = db
+	const row = getDb()
 		.select({ id: tags.id, name: tags.name, color: tags.color })
 		.from(tags)
 		.where(eq(tags.id, id))
@@ -226,7 +277,7 @@ export function getTagById(id: string): TagInfo | null {
 }
 
 export function getTagByName(name: string): TagInfo | null {
-	const row = db
+	const row = getDb()
 		.select({ id: tags.id, name: tags.name, color: tags.color })
 		.from(tags)
 		.where(eq(tags.normalized_name, normalize_key(name)))
@@ -239,13 +290,13 @@ export function deleteTag(id: string): boolean {
 		return false
 	}
 
-	db.delete(entry_tags).where(eq(entry_tags.tag_id, id)).run()
-	db.delete(tags).where(eq(tags.id, id)).run()
+	getDb().delete(entry_tags).where(eq(entry_tags.tag_id, id)).run()
+	getDb().delete(tags).where(eq(tags.id, id)).run()
 	return true
 }
 
 export function listEntryTags(entryId: string): TagInfo[] {
-	return db
+	return getDb()
 		.select({ id: tags.id, name: tags.name, color: tags.color })
 		.from(entry_tags)
 		.innerJoin(tags, eq(entry_tags.tag_id, tags.id))
@@ -254,23 +305,28 @@ export function listEntryTags(entryId: string): TagInfo[] {
 }
 
 export function assignTag(entryId: string, tagId: string): void {
-	db.insert(entry_tags).values({ entry_id: entryId, tag_id: tagId }).onConflictDoNothing().run()
+	getDb()
+		.insert(entry_tags)
+		.values({ entry_id: entryId, tag_id: tagId })
+		.onConflictDoNothing()
+		.run()
 }
 
 export function unassignTag(entryId: string, tagId: string): void {
-	db.delete(entry_tags)
+	getDb()
+		.delete(entry_tags)
 		.where(and(eq(entry_tags.entry_id, entryId), eq(entry_tags.tag_id, tagId)))
 		.run()
 }
 
 export function getUserByEmail(email: string): User | null {
 	const normalized = normalize_email(email)
-	const row = db.select().from(users).where(eq(users.email, normalized)).get()
+	const row = getDb().select().from(users).where(eq(users.email, normalized)).get()
 	return (row as User | null) ?? null
 }
 
 export function getUserByProviderId(providerId: string): User | null {
-	const row = db.select().from(users).where(eq(users.provider_id, providerId)).get()
+	const row = getDb().select().from(users).where(eq(users.provider_id, providerId)).get()
 	return (row as User | null) ?? null
 }
 
@@ -289,7 +345,8 @@ export function upsertMicrosoftUser(params: { providerId: string; email: string 
 	// Local user with mail exists. Link Microsoft provider to existing user
 	const existingByEmail = getUserByEmail(normalizedEmail)
 	if (existingByEmail) {
-		db.update(users)
+		getDb()
+			.update(users)
 			.set({ provider: 'microsoft', provider_id: params.providerId })
 			.where(eq(users.id, existingByEmail.id))
 			.run()
@@ -315,6 +372,6 @@ export function upsertMicrosoftUser(params: { providerId: string; email: string 
 		provider: 'microsoft',
 		provider_id: params.providerId,
 	}
-	db.insert(users).values(user).run()
+	getDb().insert(users).values(user).run()
 	return user
 }

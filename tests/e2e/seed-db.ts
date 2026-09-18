@@ -1,6 +1,9 @@
-import { db } from '../../server/src/db'
+import { getDb, initDb } from '../../server/src/db'
 import { entries, entry_tags, tags, users } from '../../server/src/schema'
 import type { User } from '../../server/src/types'
+
+initDb()
+const db = getDb()
 
 const e2e_user_1: User = {
 	id: 'e2e-user-test-1',

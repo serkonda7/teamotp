@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { Result } from 'better-result'
 import type { UpdateOtpEntry } from 'shared/src/schemas'
-import { createEntry, db, getEntryById, updateEntry } from './db'
+import { createEntry, getDb, getEntryById, updateEntry } from './db'
 import { entries } from './schema'
 
 beforeEach(() => {
-	db.delete(entries).run()
+	getDb().delete(entries).run()
 })
 
 describe('createEntry', () => {
@@ -14,7 +14,7 @@ describe('createEntry', () => {
 		const result = createEntry({ label: 'Undecodable', secret: 'JBSWY3DPEHPK3PXPJ' })
 
 		expect(Result.isError(result)).toBe(true)
-		expect(db.select().from(entries).all()).toEqual([])
+		expect(getDb().select().from(entries).all()).toEqual([])
 	})
 })
 

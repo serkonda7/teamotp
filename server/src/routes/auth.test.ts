@@ -2,15 +2,18 @@ import { afterEach, beforeEach, describe, expect, setSystemTime, test } from 'bu
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
 import * as v from 'valibot'
 import { type AppConfig, configSchema, getConfig, initConfig } from '../config'
-import { db } from '../db'
-import { app } from '../index'
+import { getDb } from '../db'
+import { type AppType, createApp } from '../index'
 import { reset_rate_limits } from '../middleware/rate_limit'
 import { users } from '../schema'
 import { createAuthCookie } from '../tests/helpers'
 import { nowSeconds } from '../util/time'
 
+let app: AppType
+
 beforeEach(async () => {
-	db.delete(users).run()
+	app = createApp()
+	getDb().delete(users).run()
 	reset_rate_limits()
 })
 
@@ -33,7 +36,7 @@ function loginRequest(): Promise<Response> {
 
 async function insertLoginUser(): Promise<void> {
 	const hash = await Bun.password.hash('correct_password')
-	db.insert(users).values({ id: 'u1', email: 'test@example.com', password_hash: hash }).run()
+	getDb().insert(users).values({ id: 'u1', email: 'test@example.com', password_hash: hash }).run()
 }
 
 describe('Auth routes', () => {
@@ -57,7 +60,10 @@ describe('Auth routes', () => {
 
 	test('rejects login for wrong password', async () => {
 		const hash = await Bun.password.hash('correct_password')
-		db.insert(users).values({ id: 'u1', email: 'test@example.com', password_hash: hash }).run()
+		getDb()
+			.insert(users)
+			.values({ id: 'u1', email: 'test@example.com', password_hash: hash })
+			.run()
 
 		const response = await app.request('/auth/login', {
 			method: 'POST',

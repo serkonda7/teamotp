@@ -10,7 +10,7 @@
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { type AppConfig, getConfig, initConfig } from '../config'
-import { app } from '../index'
+import { type AppType, createApp } from '../index'
 import { reset_rate_limits } from '../middleware/rate_limit'
 import { createAuthCookie } from '../tests/helpers'
 
@@ -82,7 +82,7 @@ function isHttpMethod(method: string): method is HttpMethod {
 	return (HTTP_METHODS as readonly string[]).includes(method)
 }
 
-function getAppEndpoints(): Endpoint[] {
+function getAppEndpoints(app: AppType): Endpoint[] {
 	const ignoredRoutes = new Set<string>(['ALL /*'])
 	const unique = new Map<string, Endpoint>()
 
@@ -104,7 +104,7 @@ function getAppEndpoints(): Endpoint[] {
 
 test('Matrix covers all registered endpoints', () => {
 	const matrixKeys = new Set(endpoints.map(endpointKey))
-	const appEndpointKeys = new Set(getAppEndpoints().map(endpointKey))
+	const appEndpointKeys = new Set(getAppEndpoints(createApp()).map(endpointKey))
 
 	const missingInMatrix = [...appEndpointKeys].filter((key) => !matrixKeys.has(key)).sort()
 	const missingInApp = [...matrixKeys].filter((key) => !appEndpointKeys.has(key)).sort()
@@ -129,6 +129,7 @@ function testEndpointAccess(endpoint: Endpoint, role: Role): void {
 	const isAccepted = endpoint.acceptedRoles.includes(role)
 
 	test(`${endpoint.method} ${endpoint.path} -> ${isAccepted ? 'ok' : '401'}`, async () => {
+		const app = createApp()
 		const cookie = await getAuthCookie(role)
 		const headers: Record<string, string> = {}
 		if (cookie) {

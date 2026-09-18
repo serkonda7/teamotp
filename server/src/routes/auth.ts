@@ -6,7 +6,7 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { LoginSchema } from 'shared/src/schemas'
 import { logLoginAttempt } from '../audit'
 import { getConfig } from '../config'
-import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
+import { getDb, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
 import { onValidationError } from '../middleware/validation'
@@ -83,7 +83,8 @@ authApp.get('/login/microsoft', async (c) => {
 	const { verifier, challenge } = await crypto.generatePkceCodes()
 	const state = crypto.createNewGuid()
 
-	db.insert(auth_states)
+	getDb()
+		.insert(auth_states)
 		.values({ state, verifier, expires_at: nowSeconds() + AUTH_STATE_TTL_S })
 		.run()
 
@@ -121,12 +122,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'invalid_state'))
 	}
 
-	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
+	const pending = getDb().select().from(auth_states).where(eq(auth_states.state, state)).get()
 	if (!pending || pending.expires_at <= nowSeconds()) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'expired_state'))
 	}
-	db.delete(auth_states).where(eq(auth_states.state, state)).run()
+	getDb().delete(auth_states).where(eq(auth_states.state, state)).run()
 
 	let tokenResponse: Awaited<ReturnType<ConfidentialClientApplication['acquireTokenByCode']>>
 	try {

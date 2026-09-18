@@ -1,7 +1,7 @@
 import { eq, lt } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { getConfig } from './config'
-import { db } from './db'
+import { getDb } from './db'
 import type { JwtPayload } from './middleware/auth'
 import { access_log, sessions, users } from './schema'
 import { nowSeconds } from './util/time'
@@ -26,7 +26,8 @@ export function createAuditLog(params: {
 	createdAt?: number
 }): void {
 	try {
-		db.insert(access_log)
+		getDb()
+			.insert(access_log)
 			.values({
 				id: Bun.randomUUIDv7(),
 				user_id: params.userId,
@@ -59,7 +60,7 @@ export function logAccess(c: Context, action: AuditAction | string, entryId?: st
 
 		// Primary: session -> user_id (survives email changes)
 		try {
-			const sess = db.select().from(sessions).where(eq(sessions.id, payload.jti)).get()
+			const sess = getDb().select().from(sessions).where(eq(sessions.id, payload.jti)).get()
 			if (sess) {
 				userId = sess.user_id
 			}
@@ -69,7 +70,7 @@ export function logAccess(c: Context, action: AuditAction | string, entryId?: st
 
 		if (!userId) {
 			try {
-				const user = db.select().from(users).where(eq(users.email, email)).get()
+				const user = getDb().select().from(users).where(eq(users.email, email)).get()
 				if (user) {
 					userId = user.id
 				}
@@ -128,7 +129,7 @@ function getRetentionCutoffSeconds(now: number): number {
 export function pruneExpiredAuditLogs(now = nowSeconds()): number {
 	try {
 		const cutoff = getRetentionCutoffSeconds(now)
-		const deleted = db
+		const deleted = getDb()
 			.delete(access_log)
 			.where(lt(access_log.created_at, cutoff))
 			.returning({ id: access_log.id })

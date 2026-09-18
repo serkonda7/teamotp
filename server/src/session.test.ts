@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, setSystemTime, test } from 'bun:test'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
-import { db } from './db'
+import { getDb } from './db'
 import { users } from './schema'
 import {
 	createSession,
@@ -13,7 +13,8 @@ import {
 const TEST_USER_ID = '00000000-0000-7000-8000-000000000002'
 
 beforeEach(() => {
-	db.insert(users)
+	getDb()
+		.insert(users)
 		.values({ id: TEST_USER_ID, email: 'session-test@example.com', password_hash: null })
 		.onConflictDoNothing()
 		.run()
