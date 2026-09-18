@@ -1,10 +1,10 @@
 import { sign } from 'hono/jwt'
-import { nowSeconds } from '../util/time'
 import { db } from '../db'
 import { getSigningKey } from '../keys'
 import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
 import { createSession } from '../sessions'
+import { nowSeconds } from '../util/time'
 
 // Opaque fixture id: never compared against generated ids, so its
 // UUID version is irrelevant.

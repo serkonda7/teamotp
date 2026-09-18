@@ -5,9 +5,9 @@ import { type AppConfig, configSchema, getConfig, initConfig } from '../config'
 import { db } from '../db'
 import { app } from '../index'
 import { reset_rate_limits } from '../middleware/rate_limit'
-import { nowSeconds } from '../util/time'
 import { users } from '../schema'
 import { createAuthCookie } from '../tests/helpers'
+import { nowSeconds } from '../util/time'
 
 beforeEach(async () => {
 	db.delete(users).run()

@@ -6,9 +6,9 @@ import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
-import { getTrimmedEnv, resolveInDataDir } from './util/server_root'
-import { start_sweep } from './util/periodic'
 import { jsonError } from './util/http'
+import { start_sweep } from './util/periodic'
+import { getTrimmedEnv, resolveInDataDir } from './util/server_root'
 
 // Precedence for the config path:
 // 1. TEAMOTP_CONFIG_PATH env var (absolute, or relative to the data dir)

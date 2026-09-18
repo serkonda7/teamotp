@@ -69,7 +69,9 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
 	const config_res = v.safeParse(configSchema, parsed)
 	if (!config_res.success) {
 		return Result.err(
-			new Error(`Invalid configuration at ${path}: ${formatValibotIssues(config_res.issues)}`),
+			new Error(
+				`Invalid configuration at ${path}: ${formatValibotIssues(config_res.issues)}`,
+			),
 		)
 	}
 

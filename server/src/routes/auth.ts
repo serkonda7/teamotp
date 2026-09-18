@@ -9,11 +9,16 @@ import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
-import { auth_states } from '../schema'
 import { onValidationError } from '../middleware/validation'
-import { get_signed_jwt, getSessionCookieOpts, getStateCookieOpts, invalidateSession } from '../sessions'
-import { nowSeconds } from '../util/time'
+import { auth_states } from '../schema'
+import {
+	get_signed_jwt,
+	getSessionCookieOpts,
+	getStateCookieOpts,
+	invalidateSession,
+} from '../sessions'
 import { jsonError } from '../util/http'
+import { nowSeconds } from '../util/time'
 
 export const authApp = new Hono()
 
@@ -185,28 +190,28 @@ authApp.post(
 	async (c) => {
 		const body = c.req.valid('json')
 
-	const user = getUserByEmail(body.email)
-	if (!user) {
-		logLoginAttempt({ email: body.email, action: 'login.failure' })
-		return jsonError(c, 'Invalid email or password', 401)
-	}
+		const user = getUserByEmail(body.email)
+		if (!user) {
+			logLoginAttempt({ email: body.email, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	if (!user.password_hash) {
-		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return jsonError(c, 'Invalid email or password', 401)
-	}
+		if (!user.password_hash) {
+			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	const isMatch = await Bun.password.verify(body.password, user.password_hash)
-	if (!isMatch) {
-		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return jsonError(c, 'Invalid email or password', 401)
-	}
+		const isMatch = await Bun.password.verify(body.password, user.password_hash)
+		if (!isMatch) {
+			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
-	const token = await get_signed_jwt(user)
-	setCookie(c, 'auth_token', token, getSessionCookieOpts())
+		logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
+		const token = await get_signed_jwt(user)
+		setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
-	return c.json({ success: true })
+		return c.json({ success: true })
 	},
 )
 

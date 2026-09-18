@@ -1,8 +1,8 @@
 /** Shared plumbing for the valibot request validators used by the routes. */
 import type { Context } from 'hono'
-import * as v from 'valibot'
-import { formatValibotIssues } from '../util/valibot'
+import type * as v from 'valibot'
 import { jsonError } from '../util/http'
+import { formatValibotIssues } from '../util/valibot'
 
 /**
  * Error hook for `vValidator`. Replaces valibot's default issue array with the

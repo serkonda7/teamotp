@@ -1,8 +1,8 @@
-import type { InputEventAndTarget } from 'shared/src/types'
 import { Result } from 'better-result'
+import type { InputEventAndTarget } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
-import { fetchProviders, login, type AuthProviders } from '../../api_auth'
+import { type AuthProviders, fetchProviders, login } from '../../api_auth'
 import TeamOtpLogo from '../TeamOtpLogo'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
 
@@ -11,7 +11,6 @@ type Props = {
 	/** Set when the previous session timed out, to explain why the login page is shown again. */
 	sessionExpired: boolean
 }
-
 
 const LoginPage = (props: Props): JSX.Element => {
 	const [email, setEmail] = createSignal('')
