@@ -4,7 +4,8 @@
     "composite": true,
     "noEmit": false,
     "emitDeclarationOnly": true,
-    "declarationDir": "dist/types"
+    "declarationDir": "dist/types",
+    "types": ["bun", "node"]
   },
   "include": ["src"]
 }

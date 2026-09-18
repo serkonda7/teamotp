@@ -20,6 +20,22 @@ export function getSessionCookieOpts(): CookieOptions {
 	}
 }
 
+/**
+ * Cookie options for the short-lived OAuth state cookie. Shares the secure
+ * flag with the session cookie; SameSite=Lax (not Strict) so the browser
+ * sends it back on the top-level redirect from the identity provider.
+ * Deletions must mirror these flags or the cookie survives logout.
+ */
+export function getStateCookieOpts(maxAgeSeconds: number): CookieOptions {
+	return {
+		httpOnly: true,
+		secure: getConfig().auth.secureCookies,
+		sameSite: 'Lax',
+		path: '/',
+		maxAge: maxAgeSeconds,
+	}
+}
+
 export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000
 
 export function createSession(userId: string): string {

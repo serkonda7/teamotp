@@ -11,7 +11,7 @@ import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
 import { auth_states } from '../schema'
 import { onValidationError } from '../middleware/validation'
-import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
+import { get_signed_jwt, getSessionCookieOpts, getStateCookieOpts, invalidateSession } from '../sessions'
 import { nowSeconds } from '../util/time'
 import { jsonError } from '../util/http'
 
@@ -90,13 +90,7 @@ authApp.get('/login/microsoft', async (c) => {
 		state,
 	})
 
-	setCookie(c, 'ms_auth_state', state, {
-		httpOnly: true,
-		secure: config.auth.secureCookies,
-		sameSite: 'Lax',
-		path: '/',
-		maxAge: AUTH_STATE_TTL_S,
-	})
+	setCookie(c, 'ms_auth_state', state, getStateCookieOpts(AUTH_STATE_TTL_S))
 
 	return c.redirect(authCodeUrl)
 })
@@ -167,7 +161,11 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
-	deleteCookie(c, 'ms_auth_state', { path: '/' })
+	deleteCookie(c, 'ms_auth_state', {
+		path: '/',
+		secure: config.auth.secureCookies,
+		sameSite: 'Lax',
+	})
 
 	return c.redirect(config.frontendUrl ?? '/')
 })
@@ -218,6 +216,8 @@ authApp.post('/logout', authMiddleware, async (c) => {
 
 	deleteCookie(c, 'auth_token', {
 		path: '/',
+		secure: getConfig().auth.secureCookies,
+		sameSite: 'Strict',
 	})
 	return c.json({ success: true })
 })

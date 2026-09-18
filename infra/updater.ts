@@ -12,9 +12,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { stdin, stdout } from 'node:process'
-import { createInterface } from 'node:readline/promises'
 import { parseArgs } from 'node:util'
 import { $ } from 'bun'
+import { prompt_line } from '../shared/src/prompt'
 
 // --------
 // Constants
@@ -109,19 +109,14 @@ async function ask_confirm(current_ref: string, target_ref: string): Promise<voi
 		fatal('Cannot prompt for confirmation in a non-interactive terminal.')
 	}
 
-	const rl = createInterface({ input: stdin, output: stdout })
-	try {
-		const answer = (
-			await rl.question(`Proceed with update from ${current_ref} to ${target_ref}? [y/N] `)
-		)
-			.trim()
-			.toLowerCase()
+	const answer = (
+		await prompt_line(`Proceed with update from ${current_ref} to ${target_ref}? [y/N] `)
+	)
+		.trim()
+		.toLowerCase()
 
-		if (answer !== 'y' && answer !== 'yes') {
-			fatal('Aborted by user.')
-		}
-	} finally {
-		rl.close()
+	if (answer !== 'y' && answer !== 'yes') {
+		fatal('Aborted by user.')
 	}
 }
 
