@@ -1,13 +1,16 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
+import { vValidator } from '@hono/valibot-validator'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import { LoginSchema } from 'shared/src/schemas'
 import { logLoginAttempt } from '../audit'
 import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
 import { auth_states } from '../schema'
+import { onValidationError } from '../middleware/validation'
 import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
 import { nowSeconds } from '../util/time'
 
@@ -168,16 +171,20 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	return c.redirect(config.frontendUrl ?? '/')
 })
 
-authApp.post('/login', rate_limit(), async (c) => {
-	if (getConfig().auth.disableLocalLogin) {
-		return c.json({ error: 'Local login is disabled' }, 404)
-	}
-	const body = await c.req.json().catch(() => null)
-	if (!body?.email || !body.password) {
-		const email = body?.email ?? 'unknown'
-		logLoginAttempt({ email, action: 'login.failure' })
-		return c.json({ error: 'Email and password are required' }, 400)
-	}
+authApp.post(
+	'/login',
+	rate_limit(),
+	// Disabled-provider check stays ahead of body validation so a disabled
+	// route answers 404 regardless of payload shape.
+	async (c, next) => {
+		if (getConfig().auth.disableLocalLogin) {
+			return c.json({ error: 'Local login is disabled' }, 404)
+		}
+		await next()
+	},
+	vValidator('json', LoginSchema, onValidationError),
+	async (c) => {
+		const body = c.req.valid('json')
 
 	const user = getUserByEmail(body.email)
 	if (!user) {
@@ -201,7 +208,8 @@ authApp.post('/login', rate_limit(), async (c) => {
 	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
 	return c.json({ success: true })
-})
+	},
+)
 
 authApp.post('/logout', authMiddleware, async (c) => {
 	const payload = c.get('jwtPayload')
