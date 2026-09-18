@@ -51,11 +51,18 @@ export function isValidSession(sid: string): boolean {
 	return true
 }
 
-export function touchSession(sid: string): void {
+/**
+ * Validates the session and refreshes its idle window in a single query round
+ * trip. Returns false when the session is missing or expired (expired rows are
+ * removed as a side effect). Callers must not check `isValidSession()` first —
+ * that would query the same row twice per request.
+ */
+export function touchSession(sid: string): boolean {
 	if (!isValidSession(sid)) {
-		return
+		return false
 	}
 	db.update(sessions).set({ last_seen_at: nowSeconds() }).where(eq(sessions.id, sid)).run()
+	return true
 }
 
 export function invalidateSession(sid: string): void {
