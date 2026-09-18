@@ -6,6 +6,8 @@ import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
 import { createSession } from '../sessions'
 
+// Opaque fixture id: never compared against generated ids, so its
+// UUID version is irrelevant.
 const TEST_USER_ID = '00000000-0000-7000-8000-000000000001'
 
 function ensureTestUser(): void {

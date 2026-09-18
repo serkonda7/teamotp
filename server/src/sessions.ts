@@ -23,7 +23,9 @@ export function getSessionCookieOpts(): CookieOptions {
 export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000
 
 export function createSession(userId: string): string {
-	const id = crypto.randomUUID()
+	// v7 like every other id in the system (entries, tags, users, audit rows):
+	// time-ordered, so recent sessions sort without a secondary index.
+	const id = Bun.randomUUIDv7()
 	const now = nowSeconds()
 	db.insert(sessions)
 		.values({
