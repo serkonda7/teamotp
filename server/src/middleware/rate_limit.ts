@@ -39,6 +39,9 @@ export function rate_limit(): MiddlewareHandler {
 	return async (c: Context, next: Next): Promise<Response | undefined> => {
 		const { maxAttempts, windowSeconds } = getConfig().auth.loginRateLimit
 
+		// Millisecond clock by design: the fixed window needs sub-second
+		// precision for Retry-After; nowSeconds() (integer seconds) is the
+		// canonical clock everywhere else server-side.
 		const now = Date.now()
 		const ip = client_ip(c)
 

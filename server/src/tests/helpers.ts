@@ -1,4 +1,5 @@
 import { sign } from 'hono/jwt'
+import { nowSeconds } from '../util/time'
 import { db } from '../db'
 import { getSigningKey } from '../keys'
 import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
@@ -18,7 +19,7 @@ function ensureTestUser(): void {
 export async function createAuthCookie(
 	payloadOverrides: Partial<JwtPayload> = {},
 ): Promise<string> {
-	const now = Math.floor(Date.now() / 1000)
+	const now = nowSeconds()
 	ensureTestUser()
 	const payload: JwtPayload = {
 		sub: 'test@example.com',

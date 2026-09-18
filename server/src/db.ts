@@ -178,6 +178,8 @@ export function archiveEntry(id: string): string | null {
 		return existing.archived_at
 	}
 
+	// ISO string by design: archived_at is a TEXT column (human-readable in the
+	// DB), unlike the integer-seconds clock domains that use nowSeconds().
 	const archivedAt = new Date().toISOString()
 	db.update(entries).set({ archived_at: archivedAt }).where(eq(entries.id, id)).run()
 	return archivedAt
