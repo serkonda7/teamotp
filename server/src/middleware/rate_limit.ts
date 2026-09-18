@@ -1,5 +1,6 @@
 import type { Context, MiddlewareHandler, Next } from 'hono'
 import { getConfig } from '../config'
+import { jsonError } from '../util/http'
 
 /**
  * Fixed-window login rate limiter keyed by client IP.
@@ -60,7 +61,7 @@ export function rate_limit(): MiddlewareHandler {
 		bucket.count++
 
 		if (bucket.count > maxAttempts) {
-			return c.json({ error: 'Too many requests' }, 429, {
+			return jsonError(c, 'Too many requests', 429, {
 				'Retry-After': String(Math.ceil((bucket.resetAt - now) / 1000)),
 			})
 		}

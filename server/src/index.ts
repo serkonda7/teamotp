@@ -8,6 +8,7 @@ import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
 import { SERVER_ROOT } from './util/server_root'
+import { jsonError } from './util/http'
 
 // Precedence for the config path:
 // 1. TEAMOTP_CONFIG_PATH env var (absolute, or relative to the data dir)
@@ -32,11 +33,11 @@ export const app = new Hono()
 	// only field the client reads.
 	.onError((err, c) => {
 		if (err instanceof HTTPException) {
-			return c.json({ error: err.message }, err.status)
+			return jsonError(c, err.message, err.status)
 		}
 
 		console.error(err)
-		return c.json({ error: 'Internal server error' }, 500)
+		return jsonError(c, 'Internal server error', 500)
 	})
 	.route('/auth', authApp)
 	.route('/otp', otpApp)

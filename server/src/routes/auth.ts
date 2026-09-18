@@ -13,6 +13,7 @@ import { auth_states } from '../schema'
 import { onValidationError } from '../middleware/validation'
 import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
 import { nowSeconds } from '../util/time'
+import { jsonError } from '../util/http'
 
 export const authApp = new Hono()
 
@@ -71,7 +72,7 @@ authApp.get('/login/microsoft', async (c) => {
 	const msAuth = config.auth.microsoft
 
 	if (!msAuth) {
-		return c.json({ error: 'Microsoft auth not configured' }, 404)
+		return jsonError(c, 'Microsoft auth not configured', 404)
 	}
 	const crypto = new CryptoProvider()
 	const { verifier, challenge } = await crypto.generatePkceCodes()
@@ -109,7 +110,7 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const msAuth = config.auth.microsoft
 
 	if (!msAuth) {
-		return c.json({ error: 'Microsoft auth not configured' }, 404)
+		return jsonError(c, 'Microsoft auth not configured', 404)
 	}
 
 	const code = c.req.query('code')
@@ -139,12 +140,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	} catch (err) {
 		console.error('MSAL token exchange failed:', err)
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.json({ error: 'Token exchange failed' }, 502)
+		return jsonError(c, 'Token exchange failed', 502)
 	}
 
 	if (!tokenResponse) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.json({ error: 'No token response' }, 502)
+		return jsonError(c, 'No token response', 502)
 	}
 
 	const claims = tokenResponse.idTokenClaims as {
@@ -157,7 +158,7 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 
 	if (!oid || !email) {
 		logLoginAttempt({ email: email ?? 'unknown', action: 'login.failure' })
-		return c.json({ error: 'Missing required claims in id_token' }, 502)
+		return jsonError(c, 'Missing required claims in id_token', 502)
 	}
 
 	const user = upsertMicrosoftUser({ providerId: oid, email })
@@ -178,7 +179,7 @@ authApp.post(
 	// route answers 404 regardless of payload shape.
 	async (c, next) => {
 		if (getConfig().auth.disableLocalLogin) {
-			return c.json({ error: 'Local login is disabled' }, 404)
+			return jsonError(c, 'Local login is disabled', 404)
 		}
 		await next()
 	},
@@ -189,18 +190,18 @@ authApp.post(
 	const user = getUserByEmail(body.email)
 	if (!user) {
 		logLoginAttempt({ email: body.email, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
+		return jsonError(c, 'Invalid email or password', 401)
 	}
 
 	if (!user.password_hash) {
 		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
+		return jsonError(c, 'Invalid email or password', 401)
 	}
 
 	const isMatch = await Bun.password.verify(body.password, user.password_hash)
 	if (!isMatch) {
 		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
+		return jsonError(c, 'Invalid email or password', 401)
 	}
 
 	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })

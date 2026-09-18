@@ -2,6 +2,7 @@
 import type { Context } from 'hono'
 import * as v from 'valibot'
 import { formatValibotIssues } from '../util/valibot'
+import { jsonError } from '../util/http'
 
 /**
  * Error hook for `vValidator`. Replaces valibot's default issue array with the
@@ -16,5 +17,5 @@ export function onValidationError<T extends v.GenericSchema>(
 		return undefined
 	}
 
-	return c.json({ error: formatValibotIssues(result.issues) }, 400)
+	return jsonError(c, formatValibotIssues(result.issues), 400)
 }
