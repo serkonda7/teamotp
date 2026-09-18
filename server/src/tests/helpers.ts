@@ -4,7 +4,10 @@ import { getSigningKey } from '../keys'
 import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
 import { createSession } from '../sessions'
+import { nowSeconds } from '../util/time'
 
+// Opaque fixture id: never compared against generated ids, so its
+// UUID version is irrelevant.
 const TEST_USER_ID = '00000000-0000-7000-8000-000000000001'
 
 function ensureTestUser(): void {
@@ -18,7 +21,7 @@ function ensureTestUser(): void {
 export async function createAuthCookie(
 	payloadOverrides: Partial<JwtPayload> = {},
 ): Promise<string> {
-	const now = Math.floor(Date.now() / 1000)
+	const now = nowSeconds()
 	ensureTestUser()
 	const payload: JwtPayload = {
 		sub: 'test@example.com',

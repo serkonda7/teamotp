@@ -74,7 +74,7 @@ describe('Session timeout', () => {
 	test('touching an expired session does not revive it', () => {
 		const sid = createSession(TEST_USER_ID)
 		advance(SESSION_IDLE_TIMEOUT_S)
-		touchSession(sid)
+		expect(touchSession(sid)).toBe(false)
 		expect(isValidSession(sid)).toBe(false)
 	})
 })

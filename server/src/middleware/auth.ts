@@ -2,7 +2,8 @@ import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { verify } from 'hono/jwt'
 import { getSigningKey } from '../keys'
-import { isValidSession, touchSession } from '../sessions'
+import { touchSession } from '../sessions'
+import { jsonError } from '../util/http'
 
 export type JwtPayload = {
 	sub: string // Subject (user email)
@@ -18,7 +19,7 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 	async (c, next) => {
 		const token = getCookie(c, 'auth_token')
 		if (!token) {
-			return c.json({ error: 'Unauthorized' }, 401)
+			return jsonError(c, 'Unauthorized', 401)
 		}
 
 		const secret = getSigningKey()
@@ -26,15 +27,14 @@ export const authMiddleware = createMiddleware<{ Variables: { jwtPayload: JwtPay
 		try {
 			const payload = (await verify(token, secret, JWT_ALGO)) as JwtPayload
 
-			if (!isValidSession(payload.jti)) {
-				return c.json({ error: 'Unauthorized: Session invalidated' }, 401)
+			if (!touchSession(payload.jti)) {
+				return jsonError(c, 'Unauthorized: Session invalidated', 401)
 			}
-			touchSession(payload.jti)
 
 			c.set('jwtPayload', payload)
 			await next()
 		} catch (_e) {
-			return c.json({ error: 'Unauthorized' }, 401)
+			return jsonError(c, 'Unauthorized', 401)
 		}
 	},
 )

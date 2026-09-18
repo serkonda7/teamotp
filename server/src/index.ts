@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { AUDIT_SWEEP_INTERVAL_MS, pruneExpiredAuditLogs } from './audit'
@@ -7,23 +6,20 @@ import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
-import { SERVER_ROOT } from './util/server_root'
+import { jsonError } from './util/http'
+import { start_sweep } from './util/periodic'
+import { getTrimmedEnv, resolveInDataDir } from './util/server_root'
 
 // Precedence for the config path:
 // 1. TEAMOTP_CONFIG_PATH env var (absolute, or relative to the data dir)
 // 2. config.toml
 function resolve_config_path(): string {
-	const data_dir = path.join(SERVER_ROOT, 'data')
-	const configured_path = Bun.env.TEAMOTP_CONFIG_PATH?.trim()
+	const configured_path = getTrimmedEnv('TEAMOTP_CONFIG_PATH')
 	if (!configured_path) {
-		return path.join(data_dir, 'config.toml')
+		return resolveInDataDir('config.toml')
 	}
 
-	if (path.isAbsolute(configured_path)) {
-		return configured_path
-	}
-
-	return path.join(data_dir, configured_path)
+	return resolveInDataDir(configured_path)
 }
 
 export const app = new Hono()
@@ -32,11 +28,11 @@ export const app = new Hono()
 	// only field the client reads.
 	.onError((err, c) => {
 		if (err instanceof HTTPException) {
-			return c.json({ error: err.message }, err.status)
+			return jsonError(c, err.message, err.status)
 		}
 
 		console.error(err)
-		return c.json({ error: 'Internal server error' }, 500)
+		return jsonError(c, 'Internal server error', 500)
 	})
 	.route('/auth', authApp)
 	.route('/otp', otpApp)
@@ -58,11 +54,11 @@ if (import.meta.main) {
 	// Drop timed out sessions even while nobody tries to use them.
 	// Scheduled here and not at module scope, so it never keeps a test process alive.
 	sweepExpired()
-	setInterval(sweepExpired, SESSION_SWEEP_INTERVAL_MS).unref()
+	start_sweep(sweepExpired, SESSION_SWEEP_INTERVAL_MS)
 
 	// Prune audit log rows older than the configured retention (default 90 days).
 	pruneExpiredAuditLogs()
-	setInterval(pruneExpiredAuditLogs, AUDIT_SWEEP_INTERVAL_MS).unref()
+	start_sweep(pruneExpiredAuditLogs, AUDIT_SWEEP_INTERVAL_MS)
 
 	const server = Bun.serve({
 		hostname: config.server.host,

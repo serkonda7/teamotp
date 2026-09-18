@@ -17,6 +17,7 @@ import {
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'
+import { jsonError } from '../util/http'
 
 export const otpApp = new Hono()
 	.use(authMiddleware)
@@ -31,7 +32,7 @@ export const otpApp = new Hono()
 	.post('/', vValidator('json', NewOtpEntrySchema, onValidationError), (c) => {
 		const entry_res = createEntry(c.req.valid('json'))
 		if (Result.isError(entry_res)) {
-			return c.json({ error: entry_res.error.message }, 400)
+			return jsonError(c, entry_res.error.message, 400)
 		}
 
 		const entry = Result.unwrap(entry_res)
@@ -45,15 +46,15 @@ export const otpApp = new Hono()
 
 		const entry = getEntryById(id)
 		if (!entry) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 		if (entry.archived_at) {
-			return c.json({ error: 'OTP entry is archived' }, 410)
+			return jsonError(c, 'OTP entry is archived', 410)
 		}
 
 		const code_res = generateTotpCode(entry)
 		if (Result.isError(code_res)) {
-			return c.json({ error: code_res.error.message }, 500)
+			return jsonError(c, code_res.error.message, 500)
 		}
 		const code = Result.unwrap(code_res)
 		logAccess(c, 'code.reveal', id)
@@ -66,7 +67,7 @@ export const otpApp = new Hono()
 
 		const entry = getEntryById(id)
 		if (!entry) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 
 		updateEntry(id, c.req.valid('json'))
@@ -79,7 +80,7 @@ export const otpApp = new Hono()
 		const id = c.req.param('id')
 		const archivedAt = archiveEntry(id)
 		if (!archivedAt) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 
 		logAccess(c, 'entry.archive', id)
@@ -90,7 +91,7 @@ export const otpApp = new Hono()
 	.get('/:id/tags', (c) => {
 		const id = c.req.param('id')
 		if (!getEntryById(id)) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 
 		return c.json(listEntryTags(id))
@@ -102,10 +103,10 @@ export const otpApp = new Hono()
 		const tagId = c.req.param('tagId')
 
 		if (!getEntryById(id)) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 		if (!getTagById(tagId)) {
-			return c.json({ error: 'Tag not found' }, 404)
+			return jsonError(c, 'Tag not found', 404)
 		}
 
 		assignTag(id, tagId)
@@ -118,10 +119,10 @@ export const otpApp = new Hono()
 		const tagId = c.req.param('tagId')
 
 		if (!getEntryById(id)) {
-			return c.json({ error: 'OTP entry not found' }, 404)
+			return jsonError(c, 'OTP entry not found', 404)
 		}
 		if (!getTagById(tagId)) {
-			return c.json({ error: 'Tag not found' }, 404)
+			return jsonError(c, 'Tag not found', 404)
 		}
 
 		unassignTag(id, tagId)

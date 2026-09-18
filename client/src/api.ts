@@ -33,8 +33,11 @@ export function set_unauthorized_handler(handler: () => void): void {
  * Wraps a fetch response in a Result: reads a typed API error on failure,
  * otherwise returns the parsed JSON body typed as `T`. Chain `.map()` on the
  * result to project a single field.
+ *
+ * Exported so non-RPC call sites (raw fetches) read errors through the same
+ * path: uniform `{ error }` parsing plus 401 handling and idle-timer sync.
  */
-async function to_result<T>(res: ApiResponse, fallback: string): Promise<Result<T, Error>> {
+export async function to_result<T>(res: ApiResponse, fallback: string): Promise<Result<T, Error>> {
 	if (res.status === 401) {
 		unauthorized_handler?.()
 		return Result.err(new UnauthorizedError())

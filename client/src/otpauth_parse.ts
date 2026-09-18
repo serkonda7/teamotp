@@ -37,7 +37,7 @@ export function parse_otpauth_url(raw: string): Result<NewOtpEntry, Error> {
 
 	const algorithm = url.searchParams.get('algorithm')
 	if (algorithm) {
-		entry.algorithm = algorithm.toUpperCase()
+		entry.algorithm = algorithm.toLowerCase()
 	}
 
 	const digits = url.searchParams.get('digits')

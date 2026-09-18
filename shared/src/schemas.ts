@@ -24,7 +24,7 @@ const Base32Secret = v.pipe(
 // Required and optional fields per OATH Key Uri format.
 // - Link: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
 // - Note: issuer_second is not part of the standard but included for better UX
-export const NewOtpEntrySchema = v.object({
+export const NewOtpEntrySchema = v.strictObject({
 	label: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(200)),
 	secret: Base32Secret,
 	issuer: v.optional(v.pipe(v.string(), v.maxLength(200))),
@@ -50,7 +50,7 @@ export const UpdateOtpEntrySchema = v.pipe(
 	v.check((obj) => Object.keys(obj).length > 0, 'No fields to update'),
 )
 
-export const NewTagSchema = v.object({
+export const NewTagSchema = v.strictObject({
 	name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(50)),
 	color: v.pipe(
 		v.string(),
@@ -62,3 +62,13 @@ export const NewTagSchema = v.object({
 export type NewOtpEntry = v.InferInput<typeof NewOtpEntrySchema>
 export type UpdateOtpEntry = v.InferInput<typeof UpdateOtpEntrySchema>
 export type NewTag = v.InferInput<typeof NewTagSchema>
+
+// Local-login credentials. strictObject like the other API inputs, so unknown
+// keys fail loudly instead of being stripped; the route validator reports them
+// through the shared onValidationError hook.
+export const LoginSchema = v.strictObject({
+	email: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(320)),
+	password: v.pipe(v.string(), v.minLength(1), v.maxLength(1024)),
+})
+
+export type Login = v.InferInput<typeof LoginSchema>

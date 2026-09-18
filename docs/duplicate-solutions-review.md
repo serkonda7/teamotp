@@ -2,7 +2,26 @@
 
 Date: 2026-09-16
 Scope: `server/src`, `server-cli`, `client/src`, `shared/`, `infra/`
-Status: verified by file read
+Status: resolved on branch `fix/duplicate-solutions` (2026-09-18) — see table below
+
+## Resolution
+
+All findings fixed, one commit each, on `fix/duplicate-solutions`:
+
+| # | Finding | Commit | Resolution |
+|---|---|---|---|
+| 1 | Session validity queried 2x | `baece88` | `touchSession()` returns `boolean`; middleware calls it once |
+| 2 | Normalization triple-layered | `36262d8` | DB trusts schema output; otpauth parser emits lowercase algorithm |
+| 3 | Email normalize forked | `b39902c` + merge below | Single `normalize_key()` in `shared/src/normalize.ts`; `toLowerCase` everywhere |
+| 4 | 3 clock domains | `1d49986` | Tests use `nowSeconds()`; ISO/ms exceptions documented |
+| 5 | Valibot formatter duplicated | `dc23630` | Shared `formatValibotIssues()` |
+| 6 | Validation strictness | `b988251` | `strictObject` for all API inputs; `LoginSchema` on `/login` |
+| 7 | `{ error }` contract | `9c9e706` | Server `jsonError()`; client reads via exported `to_result()` |
+| 8 | Client auth bypasses RPC | `efa5447` | `api_auth.ts` wrapper; single `loadCode()` in `OtpListItem` |
+| 9 | Path/env resolution x3 | `ba06d0c` | `getTrimmedEnv()` + `resolveInDataDir()` |
+| 10 | UUID v4 vs v7 | `84f903a` | Sessions use `Bun.randomUUIDv7()` |
+| 11 | Cookie + prompt forks | `726adbb` | `getStateCookieOpts()`; mirrored delete flags; shared `prompt_line()` |
+| 12 | Audit sweep scheduling | `2014e6b` | Shared `start_sweep()` (`logLoginAttempt`/`logAccess` already thin wrappers) |
 
 ## 1. Session validity queried 2x per request (high)
 

@@ -1,6 +1,5 @@
-import { stdin as input, stdout as output } from 'node:process'
-import { createInterface } from 'node:readline/promises'
 import { Result } from 'better-result'
+import { prompt_line } from 'shared/src/prompt'
 
 async function createUserDb(email: string, password: string): Promise<Result<void, Error>> {
 	// Import db and users schema only when actually creating user
@@ -126,19 +125,8 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 }
 
 async function askPassword(): Promise<string> {
-	// Create readline interface
-	const rl = createInterface({
-		input,
-		output,
-		terminal: true,
-	})
-
-	try {
-		const password = await rl.question('Password: ')
-		return password
-	} finally {
-		rl.close()
-	}
+	// Interactive collection avoids shell history leaks; mechanics in shared.
+	return prompt_line('Password: ')
 }
 
 function printUsage(): void {

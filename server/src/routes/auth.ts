@@ -1,14 +1,23 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
+import { vValidator } from '@hono/valibot-validator'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import { LoginSchema } from 'shared/src/schemas'
 import { logLoginAttempt } from '../audit'
 import { getConfig } from '../config'
 import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
+import { onValidationError } from '../middleware/validation'
 import { auth_states } from '../schema'
-import { get_signed_jwt, getSessionCookieOpts, invalidateSession } from '../sessions'
+import {
+	get_signed_jwt,
+	getSessionCookieOpts,
+	getStateCookieOpts,
+	invalidateSession,
+} from '../sessions'
+import { jsonError } from '../util/http'
 import { nowSeconds } from '../util/time'
 
 export const authApp = new Hono()
@@ -68,7 +77,7 @@ authApp.get('/login/microsoft', async (c) => {
 	const msAuth = config.auth.microsoft
 
 	if (!msAuth) {
-		return c.json({ error: 'Microsoft auth not configured' }, 404)
+		return jsonError(c, 'Microsoft auth not configured', 404)
 	}
 	const crypto = new CryptoProvider()
 	const { verifier, challenge } = await crypto.generatePkceCodes()
@@ -86,13 +95,7 @@ authApp.get('/login/microsoft', async (c) => {
 		state,
 	})
 
-	setCookie(c, 'ms_auth_state', state, {
-		httpOnly: true,
-		secure: config.auth.secureCookies,
-		sameSite: 'Lax',
-		path: '/',
-		maxAge: AUTH_STATE_TTL_S,
-	})
+	setCookie(c, 'ms_auth_state', state, getStateCookieOpts(AUTH_STATE_TTL_S))
 
 	return c.redirect(authCodeUrl)
 })
@@ -106,7 +109,7 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const msAuth = config.auth.microsoft
 
 	if (!msAuth) {
-		return c.json({ error: 'Microsoft auth not configured' }, 404)
+		return jsonError(c, 'Microsoft auth not configured', 404)
 	}
 
 	const code = c.req.query('code')
@@ -136,12 +139,12 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	} catch (err) {
 		console.error('MSAL token exchange failed:', err)
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.json({ error: 'Token exchange failed' }, 502)
+		return jsonError(c, 'Token exchange failed', 502)
 	}
 
 	if (!tokenResponse) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.json({ error: 'No token response' }, 502)
+		return jsonError(c, 'No token response', 502)
 	}
 
 	const claims = tokenResponse.idTokenClaims as {
@@ -154,7 +157,7 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 
 	if (!oid || !email) {
 		logLoginAttempt({ email: email ?? 'unknown', action: 'login.failure' })
-		return c.json({ error: 'Missing required claims in id_token' }, 502)
+		return jsonError(c, 'Missing required claims in id_token', 502)
 	}
 
 	const user = upsertMicrosoftUser({ providerId: oid, email })
@@ -163,45 +166,54 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const token = await get_signed_jwt(user)
 	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
-	deleteCookie(c, 'ms_auth_state', { path: '/' })
+	deleteCookie(c, 'ms_auth_state', {
+		path: '/',
+		secure: config.auth.secureCookies,
+		sameSite: 'Lax',
+	})
 
 	return c.redirect(config.frontendUrl ?? '/')
 })
 
-authApp.post('/login', rate_limit(), async (c) => {
-	if (getConfig().auth.disableLocalLogin) {
-		return c.json({ error: 'Local login is disabled' }, 404)
-	}
-	const body = await c.req.json().catch(() => null)
-	if (!body?.email || !body.password) {
-		const email = body?.email ?? 'unknown'
-		logLoginAttempt({ email, action: 'login.failure' })
-		return c.json({ error: 'Email and password are required' }, 400)
-	}
+authApp.post(
+	'/login',
+	rate_limit(),
+	// Disabled-provider check stays ahead of body validation so a disabled
+	// route answers 404 regardless of payload shape.
+	async (c, next) => {
+		if (getConfig().auth.disableLocalLogin) {
+			return jsonError(c, 'Local login is disabled', 404)
+		}
+		await next()
+	},
+	vValidator('json', LoginSchema, onValidationError),
+	async (c) => {
+		const body = c.req.valid('json')
 
-	const user = getUserByEmail(body.email)
-	if (!user) {
-		logLoginAttempt({ email: body.email, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
-	}
+		const user = getUserByEmail(body.email)
+		if (!user) {
+			logLoginAttempt({ email: body.email, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	if (!user.password_hash) {
-		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
-	}
+		if (!user.password_hash) {
+			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	const isMatch = await Bun.password.verify(body.password, user.password_hash)
-	if (!isMatch) {
-		logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-		return c.json({ error: 'Invalid email or password' }, 401)
-	}
+		const isMatch = await Bun.password.verify(body.password, user.password_hash)
+		if (!isMatch) {
+			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
+			return jsonError(c, 'Invalid email or password', 401)
+		}
 
-	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
-	const token = await get_signed_jwt(user)
-	setCookie(c, 'auth_token', token, getSessionCookieOpts())
+		logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
+		const token = await get_signed_jwt(user)
+		setCookie(c, 'auth_token', token, getSessionCookieOpts())
 
-	return c.json({ success: true })
-})
+		return c.json({ success: true })
+	},
+)
 
 authApp.post('/logout', authMiddleware, async (c) => {
 	const payload = c.get('jwtPayload')
@@ -209,6 +221,8 @@ authApp.post('/logout', authMiddleware, async (c) => {
 
 	deleteCookie(c, 'auth_token', {
 		path: '/',
+		secure: getConfig().auth.secureCookies,
+		sameSite: 'Strict',
 	})
 	return c.json({ success: true })
 })

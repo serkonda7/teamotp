@@ -5,6 +5,7 @@ import { logAccess } from '../audit'
 import { createTag, deleteTag, getTagByName, listTags } from '../db'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
+import { jsonError } from '../util/http'
 
 export const tagApp = new Hono()
 	.use(authMiddleware)
@@ -18,7 +19,7 @@ export const tagApp = new Hono()
 	.post('/', vValidator('json', NewTagSchema, onValidationError), (c) => {
 		const body = c.req.valid('json')
 		if (getTagByName(body.name)) {
-			return c.json({ error: 'A tag with this name already exists' }, 409)
+			return jsonError(c, 'A tag with this name already exists', 409)
 		}
 
 		const tag = createTag(body)
@@ -30,7 +31,7 @@ export const tagApp = new Hono()
 	.delete('/:id', (c) => {
 		const id = c.req.param('id')
 		if (!deleteTag(id)) {
-			return c.json({ error: 'Tag not found' }, 404)
+			return jsonError(c, 'Tag not found', 404)
 		}
 
 		logAccess(c, 'tag.delete', id)

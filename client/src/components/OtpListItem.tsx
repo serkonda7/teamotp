@@ -68,6 +68,20 @@ const OtpListItem = (props: Props): JSX.Element => {
 	const issuerText =
 		issuerSecond.length > 0 ? `${props.otp.issuer} (${issuerSecond})` : props.otp.issuer
 
+	/**
+	 * Single fetch-and-report block for the three code loads below (toggle,
+	 * auto-refresh, copy). Returns the code, or null after reporting the error.
+	 */
+	async function loadCode(): Promise<string | null> {
+		props.setError(null)
+		const code_res = await fetch_otp_code(props.otp.id)
+		if (Result.isError(code_res)) {
+			props.setError(code_res.error.message)
+			return null
+		}
+		return code_res.value
+	}
+
 	async function toggleCodeVisibility(): Promise<void> {
 		if (isCodeVisible()) {
 			setCode(null)
@@ -76,18 +90,15 @@ const OtpListItem = (props: Props): JSX.Element => {
 			return
 		}
 
-		props.setError(null)
-
 		setIsLoadingCode(true)
-		const code_res = await fetch_otp_code(props.otp.id)
+		const value = await loadCode()
 		setIsLoadingCode(false)
 
-		if (Result.isError(code_res)) {
-			props.setError(code_res.error.message)
+		if (value === null) {
 			return
 		}
 
-		setCode(code_res.value)
+		setCode(value)
 		setTimerAlignmentMs(Date.now() % periodMs)
 		setIsCodeVisible(true)
 	}
@@ -98,19 +109,14 @@ const OtpListItem = (props: Props): JSX.Element => {
 		}
 
 		isAutoRefreshingCode = true
-		const code_res = await fetch_otp_code(props.otp.id)
+		const value = await loadCode()
 		isAutoRefreshingCode = false
 
-		if (!isCodeVisible()) {
+		if (!isCodeVisible() || value === null) {
 			return
 		}
 
-		if (Result.isError(code_res)) {
-			props.setError(code_res.error.message)
-			return
-		}
-
-		setCode(code_res.value)
+		setCode(value)
 	}
 
 	createEffect(() => {
@@ -164,14 +170,11 @@ const OtpListItem = (props: Props): JSX.Element => {
 			return
 		}
 
-		props.setError(null)
-		const fetchedCodeResult = await fetch_otp_code(props.otp.id)
-		if (Result.isError(fetchedCodeResult)) {
-			props.setError(fetchedCodeResult.error.message)
+		const value = await loadCode()
+		if (value === null) {
 			return
 		}
 
-		const value = Result.unwrap(fetchedCodeResult)
 		if (isCodeVisible()) {
 			setCode(value)
 		}

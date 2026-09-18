@@ -1,6 +1,8 @@
 import fs from 'node:fs'
 import { Result } from 'better-result'
 import * as v from 'valibot'
+import { getTrimmedEnv } from './util/server_root'
+import { formatValibotIssues } from './util/valibot'
 
 /**
  * Schema definition of config file structure and fields.
@@ -48,16 +50,6 @@ type RawConfig = v.InferOutput<typeof configSchema>
 
 export type AppConfig = RawConfig
 
-/** Formats valibot issues into `field.path: message` pairs, so a misconfigured deployment tells the operator what to fix. */
-function format_issues(issues: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]]): string {
-	return issues
-		.map((issue) => {
-			const field = issue.path?.map((item) => String(item.key)).join('.') ?? '(root)'
-			return `${field}: ${issue.message}`
-		})
-		.join('; ')
-}
-
 /** Loads and validates the configuration file from given path. */
 export function load_config_file(path: string): Result<AppConfig, Error> {
 	if (!fs.existsSync(path)) {
@@ -77,7 +69,9 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
 	const config_res = v.safeParse(configSchema, parsed)
 	if (!config_res.success) {
 		return Result.err(
-			new Error(`Invalid configuration at ${path}: ${format_issues(config_res.issues)}`),
+			new Error(
+				`Invalid configuration at ${path}: ${formatValibotIssues(config_res.issues)}`,
+			),
 		)
 	}
 
@@ -102,7 +96,7 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
  * one config file, each on its own port.
  */
 export function resolve_listen_port(app_config: AppConfig): number {
-	const raw = Bun.env.TEAMOTP_PORT?.trim()
+	const raw = getTrimmedEnv('TEAMOTP_PORT')
 	if (raw) {
 		const port = Number(raw)
 		if (Number.isInteger(port) && port > 0 && port < 65536) {

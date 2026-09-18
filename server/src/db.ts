@@ -6,6 +6,7 @@ import { and, count, eq, isNull } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
+import { normalize_key } from 'shared/src/normalize'
 import type {
 	NewOtpEntry,
 	NewTag,
@@ -17,7 +18,7 @@ import { generateTotpCode } from './otp'
 import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { normalize_email } from './util/email'
-import { SERVER_ROOT } from './util/server_root'
+import { getTrimmedEnv, resolveInDataDir, SERVER_ROOT } from './util/server_root'
 
 const data_dir = path.join(SERVER_ROOT, 'data')
 // TODO enrypt entire DB
@@ -43,7 +44,7 @@ migrate(db, { migrationsFolder: migrations_folder })
 // 1. TEAMOTP_DB_PATH env var (`:memory:` for an in-memory DB)
 // 2. teamotp.db
 function resolve_db_path(): string {
-	const configured_path = Bun.env.TEAMOTP_DB_PATH?.trim()
+	const configured_path = getTrimmedEnv('TEAMOTP_DB_PATH')
 	if (!configured_path) {
 		return path.join(data_dir, 'teamotp.db')
 	}
@@ -52,11 +53,7 @@ function resolve_db_path(): string {
 		return configured_path
 	}
 
-	if (path.isAbsolute(configured_path)) {
-		return configured_path
-	}
-
-	return path.join(data_dir, configured_path)
+	return resolveInDataDir(configured_path)
 }
 
 export function listEntries(includeArchived = false): OtpDisplayInfo[] {
@@ -109,14 +106,17 @@ function listAllEntryTagsGrouped(): Map<string, TagInfo[]> {
  */
 export function createEntry(obj: NewOtpEntry): Result<OtpEntry, Error> {
 	const id = Bun.randomUUIDv7()
-	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
+	// Case is normalized once at the schema boundary (shared/src/schemas.ts):
+	// secret arrives upper-cased, algorithm lower-cased. No re-normalization
+	// here so the layers cannot drift apart.
+	const algo = obj.algorithm ?? 'sha1'
 
 	const entry: OtpEntry = {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
 		issuer_second: obj.issuer_second ?? '',
-		secret: obj.secret.toUpperCase(),
+		secret: obj.secret,
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
@@ -174,6 +174,8 @@ export function archiveEntry(id: string): string | null {
 		return existing.archived_at
 	}
 
+	// ISO string by design: archived_at is a TEXT column (human-readable in the
+	// DB), unlike the integer-seconds clock domains that use nowSeconds().
 	const archivedAt = new Date().toISOString()
 	db.update(entries).set({ archived_at: archivedAt }).where(eq(entries.id, id)).run()
 	return archivedAt
@@ -194,17 +196,20 @@ export function listTags(): TagWithMemberCount[] {
 }
 
 export function createTag(obj: NewTag): TagInfo {
+	// Name case is preserved for display; color already arrives lower-cased
+	// from the schema. Only normalized_name lower-cases here, as the safety
+	// net behind the unique index (plus the SQL backfill in 0008).
 	const displayName = obj.name.trim()
 	const tag: TagInfo = {
 		id: Bun.randomUUIDv7(),
 		name: displayName,
-		color: obj.color.toLowerCase(),
+		color: obj.color,
 	}
 	db.insert(tags)
 		.values({
 			id: tag.id,
 			name: displayName,
-			normalized_name: displayName.toLowerCase(),
+			normalized_name: normalize_key(displayName),
 			color: tag.color,
 		})
 		.run()
@@ -224,7 +229,7 @@ export function getTagByName(name: string): TagInfo | null {
 	const row = db
 		.select({ id: tags.id, name: tags.name, color: tags.color })
 		.from(tags)
-		.where(eq(tags.normalized_name, name.trim().toLowerCase()))
+		.where(eq(tags.normalized_name, normalize_key(name)))
 		.get()
 	return row ?? null
 }

@@ -20,10 +20,28 @@ export function getSessionCookieOpts(): CookieOptions {
 	}
 }
 
+/**
+ * Cookie options for the short-lived OAuth state cookie. Shares the secure
+ * flag with the session cookie; SameSite=Lax (not Strict) so the browser
+ * sends it back on the top-level redirect from the identity provider.
+ * Deletions must mirror these flags or the cookie survives logout.
+ */
+export function getStateCookieOpts(maxAgeSeconds: number): CookieOptions {
+	return {
+		httpOnly: true,
+		secure: getConfig().auth.secureCookies,
+		sameSite: 'Lax',
+		path: '/',
+		maxAge: maxAgeSeconds,
+	}
+}
+
 export const SESSION_SWEEP_INTERVAL_MS = 60 * 60 * 1000
 
 export function createSession(userId: string): string {
-	const id = crypto.randomUUID()
+	// v7 like every other id in the system (entries, tags, users, audit rows):
+	// time-ordered, so recent sessions sort without a secondary index.
+	const id = Bun.randomUUIDv7()
 	const now = nowSeconds()
 	db.insert(sessions)
 		.values({
@@ -51,11 +69,18 @@ export function isValidSession(sid: string): boolean {
 	return true
 }
 
-export function touchSession(sid: string): void {
+/**
+ * Validates the session and refreshes its idle window in a single query round
+ * trip. Returns false when the session is missing or expired (expired rows are
+ * removed as a side effect). Callers must not check `isValidSession()` first —
+ * that would query the same row twice per request.
+ */
+export function touchSession(sid: string): boolean {
 	if (!isValidSession(sid)) {
-		return
+		return false
 	}
 	db.update(sessions).set({ last_seen_at: nowSeconds() }).where(eq(sessions.id, sid)).run()
+	return true
 }
 
 export function invalidateSession(sid: string): void {
