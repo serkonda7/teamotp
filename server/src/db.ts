@@ -18,7 +18,7 @@ import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { normalize_email } from './util/email'
 import { normalize_tag_name } from './util/normalize'
-import { SERVER_ROOT } from './util/server_root'
+import { getTrimmedEnv, resolveInDataDir, SERVER_ROOT } from './util/server_root'
 
 const data_dir = path.join(SERVER_ROOT, 'data')
 // TODO enrypt entire DB
@@ -44,7 +44,7 @@ migrate(db, { migrationsFolder: migrations_folder })
 // 1. TEAMOTP_DB_PATH env var (`:memory:` for an in-memory DB)
 // 2. teamotp.db
 function resolve_db_path(): string {
-	const configured_path = Bun.env.TEAMOTP_DB_PATH?.trim()
+	const configured_path = getTrimmedEnv('TEAMOTP_DB_PATH')
 	if (!configured_path) {
 		return path.join(data_dir, 'teamotp.db')
 	}
@@ -53,11 +53,7 @@ function resolve_db_path(): string {
 		return configured_path
 	}
 
-	if (path.isAbsolute(configured_path)) {
-		return configured_path
-	}
-
-	return path.join(data_dir, configured_path)
+	return resolveInDataDir(configured_path)
 }
 
 export function listEntries(includeArchived = false): OtpDisplayInfo[] {

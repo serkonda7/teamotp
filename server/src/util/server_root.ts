@@ -36,3 +36,24 @@ function find_server_root(): Result<string, Error> {
 }
 
 export const SERVER_ROOT: string = find_server_root().unwrap()
+
+/**
+ * Reads an env var trimmed, treating missing/blank as unset. The three path
+ * and port resolutions (`db.ts`, `index.ts`, `config.ts`) all trimmed inline
+ * before; they share this now so blank-vs-unset cannot diverge.
+ */
+export function getTrimmedEnv(name: string): string | undefined {
+	const raw = Bun.env[name]?.trim()
+	return raw ? raw : undefined
+}
+
+/**
+ * Resolves a data-dir-relative file env value: absolute paths pass through,
+ * anything else is anchored at `<SERVER_ROOT>/data`.
+ */
+export function resolveInDataDir(configured_path: string): string {
+	if (path.isAbsolute(configured_path)) {
+		return configured_path
+	}
+	return path.join(SERVER_ROOT, 'data', configured_path)
+}

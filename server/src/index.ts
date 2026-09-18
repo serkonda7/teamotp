@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { AUDIT_SWEEP_INTERVAL_MS, pruneExpiredAuditLogs } from './audit'
@@ -7,24 +6,19 @@ import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
-import { SERVER_ROOT } from './util/server_root'
+import { getTrimmedEnv, resolveInDataDir } from './util/server_root'
 import { jsonError } from './util/http'
 
 // Precedence for the config path:
 // 1. TEAMOTP_CONFIG_PATH env var (absolute, or relative to the data dir)
 // 2. config.toml
 function resolve_config_path(): string {
-	const data_dir = path.join(SERVER_ROOT, 'data')
-	const configured_path = Bun.env.TEAMOTP_CONFIG_PATH?.trim()
+	const configured_path = getTrimmedEnv('TEAMOTP_CONFIG_PATH')
 	if (!configured_path) {
-		return path.join(data_dir, 'config.toml')
+		return resolveInDataDir('config.toml')
 	}
 
-	if (path.isAbsolute(configured_path)) {
-		return configured_path
-	}
-
-	return path.join(data_dir, configured_path)
+	return resolveInDataDir(configured_path)
 }
 
 export const app = new Hono()

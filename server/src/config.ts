@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import { Result } from 'better-result'
 import * as v from 'valibot'
+import { getTrimmedEnv } from './util/server_root'
 import { formatValibotIssues } from './util/valibot'
 
 /**
@@ -93,7 +94,7 @@ export function load_config_file(path: string): Result<AppConfig, Error> {
  * one config file, each on its own port.
  */
 export function resolve_listen_port(app_config: AppConfig): number {
-	const raw = Bun.env.TEAMOTP_PORT?.trim()
+	const raw = getTrimmedEnv('TEAMOTP_PORT')
 	if (raw) {
 		const port = Number(raw)
 		if (Number.isInteger(port) && port > 0 && port < 65536) {
