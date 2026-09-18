@@ -3,7 +3,7 @@ import { sign } from 'hono/jwt'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { SESSION_ABSOLUTE_TIMEOUT_S, SESSION_IDLE_TIMEOUT_S } from 'shared/src/session'
 import { getConfig } from './config'
-import { db } from './db'
+import { getDb } from './db'
 import { getSigningKey } from './keys'
 import { JWT_ALGO, type JwtPayload } from './middleware/auth'
 import { auth_states, sessions } from './schema'
@@ -43,7 +43,8 @@ export function createSession(userId: string): string {
 	// time-ordered, so recent sessions sort without a secondary index.
 	const id = Bun.randomUUIDv7()
 	const now = nowSeconds()
-	db.insert(sessions)
+	getDb()
+		.insert(sessions)
 		.values({
 			id,
 			user_id: userId,
@@ -56,14 +57,14 @@ export function createSession(userId: string): string {
 }
 
 export function isValidSession(sid: string): boolean {
-	const session = db.select().from(sessions).where(eq(sessions.id, sid)).get()
+	const session = getDb().select().from(sessions).where(eq(sessions.id, sid)).get()
 	if (!session) {
 		return false
 	}
 
 	const now = nowSeconds()
 	if (session.expires_at <= now || session.last_seen_at + SESSION_IDLE_TIMEOUT_S <= now) {
-		db.delete(sessions).where(eq(sessions.id, sid)).run()
+		getDb().delete(sessions).where(eq(sessions.id, sid)).run()
 		return false
 	}
 	return true
@@ -79,12 +80,12 @@ export function touchSession(sid: string): boolean {
 	if (!isValidSession(sid)) {
 		return false
 	}
-	db.update(sessions).set({ last_seen_at: nowSeconds() }).where(eq(sessions.id, sid)).run()
+	getDb().update(sessions).set({ last_seen_at: nowSeconds() }).where(eq(sessions.id, sid)).run()
 	return true
 }
 
 export function invalidateSession(sid: string): void {
-	db.delete(sessions).where(eq(sessions.id, sid)).run()
+	getDb().delete(sessions).where(eq(sessions.id, sid)).run()
 }
 
 /** Removes expired sessions and PKCE states in one scheduled sweep. */
@@ -94,12 +95,12 @@ export function sweepExpired(): number {
 		lte(sessions.expires_at, now),
 		lte(sessions.last_seen_at, now - SESSION_IDLE_TIMEOUT_S),
 	)
-	const sessionsRemoved = db
+	const sessionsRemoved = getDb()
 		.delete(sessions)
 		.where(expiredSessions)
 		.returning({ id: sessions.id })
 		.all().length
-	const statesRemoved = db
+	const statesRemoved = getDb()
 		.delete(auth_states)
 		.where(lte(auth_states.expires_at, now))
 		.returning({ state: auth_states.state })

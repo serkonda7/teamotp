@@ -1,12 +1,21 @@
 import { Result } from 'better-result'
+import { eq } from 'drizzle-orm'
+import { getDb, initDb } from 'server/src/db'
+import { users } from 'server/src/schema'
+import { normalize_email } from 'server/src/util/email'
 import { prompt_line } from 'shared/src/prompt'
 
-async function createUserDb(email: string, password: string): Promise<Result<void, Error>> {
-	// Import db and users schema only when actually creating user
-	const { db } = await import('server/src/db')
-	const { users } = await import('server/src/schema')
-	const { normalize_email } = await import('server/src/util/email')
+// Explicit startup instead of lazy imports: db.ts no longer opens the
+// database on import, so initialize once up front.
+try {
+	initDb()
+} catch (err) {
+	const msg = err instanceof Error ? err.message : String(err)
+	console.error(`Error: ${msg}`)
+	process.exit(1)
+}
 
+async function createUserDb(email: string, password: string): Promise<Result<void, Error>> {
 	const normalizedEmail = normalize_email(email)
 	if (!normalizedEmail || !password) {
 		return Result.err(new Error('Email and password are required.'))
@@ -17,7 +26,8 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 		const password_hash = await Bun.password.hash(password)
 		const id = Bun.randomUUIDv7()
 
-		db.insert(users)
+		getDb()
+			.insert(users)
 			.values({
 				id,
 				email: normalizedEmail,
@@ -34,13 +44,8 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 }
 
 async function normalizeEmails(): Promise<Result<void, Error>> {
-	const { db, sqliteHandle } = await import('server/src/db')
-	const { users } = await import('server/src/schema')
-	const { normalize_email } = await import('server/src/util/email')
-	const { eq } = await import('drizzle-orm')
-
 	try {
-		const allUsers = db.select().from(users).all()
+		const allUsers = getDb().select().from(users).all()
 
 		// Abort if any email normalizes to empty (whitespace-only) — report affected row IDs
 		const emptyEmailUsers = allUsers.filter((u) => normalize_email(u.email) === '')
@@ -107,14 +112,14 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 			return Result.ok(undefined)
 		}
 
-		const tx = sqliteHandle.transaction(() => {
+		// Single transaction API on the drizzle handle: the update queries run
+		// through `tx` on the same connection, so a crash rolls everything back.
+		getDb().transaction((tx) => {
 			for (const user of toUpdate) {
 				const normalized = normalize_email(user.email)
-				db.update(users).set({ email: normalized }).where(eq(users.id, user.id)).run()
+				tx.update(users).set({ email: normalized }).where(eq(users.id, user.id)).run()
 			}
 		})
-
-		tx()
 
 		console.log(`Normalized ${toUpdate.length} email(s).`)
 		return Result.ok(undefined)

@@ -1,6 +1,9 @@
 /**
  * Logic for finding the server root directory to locate data and migration files.
  * This is required as working directory might differ across local development, docker and server-cli.
+ *
+ * Importing this module has no side effects: use `get_server_root()` during
+ * startup and pass the resolved root explicitly.
  */
 
 import fs from 'node:fs'
@@ -18,8 +21,11 @@ function contains_markers(dir: string): boolean {
 
 /**
  * Find server root directory by looking for marker files.
+ *
+ * Pure lookup — no module-load side effects. Call during startup and handle
+ * the Err with a readable message instead of throwing at import time.
  */
-function find_server_root(): Result<string, Error> {
+export function get_server_root(): Result<string, Error> {
 	// Check working directory
 	const cwd = process.cwd()
 	if (contains_markers(cwd)) {
@@ -32,10 +38,12 @@ function find_server_root(): Result<string, Error> {
 		return Result.ok(serverPath)
 	}
 
-	return Result.err(new Error('Server root not found'))
+	return Result.err(
+		new Error(
+			`Server root not found (looked for ${MARKERS.join('/')} markers in ${cwd} and ${serverPath}). Run from the repo root or server/ so data and drizzle/ resolve.`,
+		),
+	)
 }
-
-export const SERVER_ROOT: string = find_server_root().unwrap()
 
 /**
  * Reads an env var trimmed, treating missing/blank as unset. The three path
@@ -48,12 +56,15 @@ export function getTrimmedEnv(name: string): string | undefined {
 }
 
 /**
- * Resolves a data-dir-relative file env value: absolute paths pass through,
- * anything else is anchored at `<SERVER_ROOT>/data`.
+ * Resolves a data-dir-relative file env value against an explicit server root:
+ * absolute paths pass through, anything else is anchored at `<root>/data`.
+ *
+ * Takes the root as a parameter so importing this module never touches the
+ * filesystem — callers resolve `get_server_root()` once during startup.
  */
-export function resolveInDataDir(configured_path: string): string {
+export function resolveInDataDir(serverRoot: string, configured_path: string): string {
 	if (path.isAbsolute(configured_path)) {
 		return configured_path
 	}
-	return path.join(SERVER_ROOT, 'data', configured_path)
+	return path.join(serverRoot, 'data', configured_path)
 }

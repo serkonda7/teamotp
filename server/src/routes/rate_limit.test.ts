@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { type AppConfig, getConfig, initConfig } from '../config'
-import { db } from '../db'
-import { app } from '../index'
+import { getDb } from '../db'
+import { type AppType, createApp } from '../index'
 import { reset_rate_limits } from '../middleware/rate_limit'
 import { users } from '../schema'
 
 const originalConfig: AppConfig = JSON.parse(JSON.stringify(getConfig()))
+
+let app: AppType
 
 function loginRequest(ip: string, password = 'wrong_password'): Promise<Response> {
 	return Promise.resolve(
@@ -19,14 +21,16 @@ function loginRequest(ip: string, password = 'wrong_password'): Promise<Response
 
 async function insertLoginUser(): Promise<void> {
 	const hash = await Bun.password.hash('correct_password')
-	db.insert(users)
+	getDb()
+		.insert(users)
 		.values({ id: 'rl1', email: 'ratelimit@example.com', password_hash: hash })
 		.run()
 }
 
 beforeEach(async () => {
+	app = createApp()
 	reset_rate_limits()
-	db.delete(users).run()
+	getDb().delete(users).run()
 	initConfig({
 		...originalConfig,
 		auth: {

@@ -3,17 +3,8 @@ import { Result } from 'better-result'
 import { Hono } from 'hono'
 import { NewOtpEntrySchema, UpdateOtpEntrySchema } from 'shared/src/schemas'
 import { logAccess } from '../audit'
-import {
-	archiveEntry,
-	assignTag,
-	createEntry,
-	getEntryById,
-	getTagById,
-	listEntries,
-	listEntryTags,
-	unassignTag,
-	updateEntry,
-} from '../db'
+import { archiveEntry, createEntry, getEntryById, listEntries, updateEntry } from '../db/entries'
+import { assignTag, getTagById, listEntryTags, unassignTag } from '../db/tags'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'
@@ -109,7 +100,18 @@ export const otpApp = new Hono()
 			return jsonError(c, 'Tag not found', 404)
 		}
 
-		assignTag(id, tagId)
+		const assignRes = assignTag(id, tagId)
+		if (Result.isError(assignRes)) {
+			// FK violation: entry or tag vanished between the checks above
+			// and the insert (concurrent delete). Re-check to report which.
+			if (!getEntryById(id)) {
+				return jsonError(c, 'OTP entry not found', 404)
+			}
+			if (!getTagById(tagId)) {
+				return jsonError(c, 'Tag not found', 404)
+			}
+			return jsonError(c, 'Internal server error', 500)
+		}
 		return c.json({ success: true })
 	})
 

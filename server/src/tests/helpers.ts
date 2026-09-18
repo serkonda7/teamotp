@@ -1,5 +1,5 @@
 import { sign } from 'hono/jwt'
-import { db } from '../db'
+import { getDb } from '../db'
 import { getSigningKey } from '../keys'
 import { JWT_ALGO, type JwtPayload } from '../middleware/auth'
 import { users } from '../schema'
@@ -11,7 +11,8 @@ import { nowSeconds } from '../util/time'
 const TEST_USER_ID = '00000000-0000-7000-8000-000000000001'
 
 function ensureTestUser(): void {
-	db.insert(users)
+	getDb()
+		.insert(users)
 		.values({ id: TEST_USER_ID, email: 'test@example.com', password_hash: null })
 		.onConflictDoNothing()
 		.run()

@@ -1,16 +1,14 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
 import { vValidator } from '@hono/valibot-validator'
-import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { LoginSchema } from 'shared/src/schemas'
 import { logLoginAttempt } from '../audit'
 import { getConfig } from '../config'
-import { db, getUserByEmail, upsertMicrosoftUser } from '../db'
+import { consumeAuthState, createAuthState, getUserByEmail, upsertMicrosoftUser } from '../db/users'
 import { authMiddleware } from '../middleware/auth'
 import { rate_limit } from '../middleware/rate_limit'
 import { onValidationError } from '../middleware/validation'
-import { auth_states } from '../schema'
 import {
 	get_signed_jwt,
 	getSessionCookieOpts,
@@ -83,9 +81,7 @@ authApp.get('/login/microsoft', async (c) => {
 	const { verifier, challenge } = await crypto.generatePkceCodes()
 	const state = crypto.createNewGuid()
 
-	db.insert(auth_states)
-		.values({ state, verifier, expires_at: nowSeconds() + AUTH_STATE_TTL_S })
-		.run()
+	createAuthState(state, verifier, nowSeconds() + AUTH_STATE_TTL_S)
 
 	const authCodeUrl = await getMsalClient().getAuthCodeUrl({
 		scopes: ['openid', 'profile', 'email'],
@@ -121,12 +117,11 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'invalid_state'))
 	}
 
-	const pending = db.select().from(auth_states).where(eq(auth_states.state, state)).get()
-	if (!pending || pending.expires_at <= nowSeconds()) {
+	const pending = consumeAuthState(state, nowSeconds())
+	if (!pending) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
 		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'expired_state'))
 	}
-	db.delete(auth_states).where(eq(auth_states.state, state)).run()
 
 	let tokenResponse: Awaited<ReturnType<ConfidentialClientApplication['acquireTokenByCode']>>
 	try {

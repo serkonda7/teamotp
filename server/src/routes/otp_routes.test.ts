@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { db, getEntryById } from '../db'
-import { app } from '../index'
+import { getDb, getEntryById } from '../db'
+import { type AppType, createApp } from '../index'
 import { entries } from '../schema'
 import { getAuthHeaders } from '../tests/helpers'
 
+let app: AppType
+
 beforeEach(() => {
-	db.delete(entries).run()
+	app = createApp()
+	getDb().delete(entries).run()
 })
 
 describe('OTP routes', () => {
@@ -310,7 +313,7 @@ describe('OTP routes', () => {
 
 		expect(response.status).toBe(400)
 		expect(await response.json()).toEqual({ error: 'secret: Secret must be Base32' })
-		expect(db.select().from(entries).all()).toEqual([])
+		expect(getDb().select().from(entries).all()).toEqual([])
 	})
 
 	// The schema regex accepts this, but otplib cannot decode it. Without the
@@ -324,7 +327,7 @@ describe('OTP routes', () => {
 		})
 
 		expect(response.status).toBe(400)
-		expect(db.select().from(entries).all()).toEqual([])
+		expect(getDb().select().from(entries).all()).toEqual([])
 	})
 
 	test('normalizes a lowercase secret on create', async () => {

@@ -1,14 +1,17 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { eq } from 'drizzle-orm'
-import { db } from '../db'
-import { app } from '../index'
+import { getDb } from '../db'
+import { type AppType, createApp } from '../index'
 import { entries, entry_tags, tags } from '../schema'
 import { getAuthHeaders } from '../tests/helpers'
 
+let app: AppType
+
 beforeEach(() => {
-	db.delete(entry_tags).run()
-	db.delete(tags).run()
-	db.delete(entries).run()
+	app = createApp()
+	getDb().delete(entry_tags).run()
+	getDb().delete(tags).run()
+	getDb().delete(entries).run()
 })
 
 async function createEntryViaApi(headers: { cookie: string }): Promise<string> {
@@ -124,7 +127,7 @@ describe('Tag routes', () => {
 
 		// internal normalized_name is lowercased
 		const { id } = (await createResponse.json()) as { id: string }
-		const row = db.select().from(tags).where(eq(tags.id, id)).get() as unknown as {
+		const row = getDb().select().from(tags).where(eq(tags.id, id)).get() as unknown as {
 			normalized_name: string
 		}
 		expect(row.normalized_name).toBe('mixed')
