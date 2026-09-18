@@ -11,6 +11,7 @@ import {
 	Show,
 } from 'solid-js'
 import { fetch_otps, fetch_tags, set_unauthorized_handler, UnauthorizedError } from './api'
+import { fetchMe, logout } from './api_auth'
 import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
@@ -122,12 +123,7 @@ function App(): JSX.Element {
 	})
 
 	onMount(async () => {
-		try {
-			const res = await fetch('/api/auth/me')
-			setIsLoggedIn(res.ok)
-		} catch {
-			setIsLoggedIn(false)
-		}
+		setIsLoggedIn(await fetchMe())
 	})
 
 	async function fetchOtps(): Promise<OtpDisplayInfo[]> {
@@ -144,14 +140,9 @@ function App(): JSX.Element {
 	}
 
 	async function handleLogout(): Promise<void> {
-		try {
-			await fetch('/api/auth/logout', { method: 'POST' })
-		} catch (err) {
-			console.error('Logout failed', err)
-		} finally {
-			clearSession()
-			navigate('/')
-		}
+		await logout()
+		clearSession()
+		navigate('/')
 	}
 
 	/** Drops everything the logged in view holds, so nothing survives into the next session. */
@@ -257,7 +248,7 @@ function App(): JSX.Element {
 
 		const stop = start_idle_timer(() => {
 			// Release the server session right away instead of leaving it to expire
-			void fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+			void logout()
 			handleSessionEnd()
 		})
 		onCleanup(stop)

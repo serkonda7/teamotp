@@ -1,7 +1,8 @@
 import type { InputEventAndTarget } from 'shared/src/types'
+import { Result } from 'better-result'
 import type { JSX } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
-import { read_api_error } from '../../util/api_error'
+import { fetchProviders, login, type AuthProviders } from '../../api_auth'
 import TeamOtpLogo from '../TeamOtpLogo'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
 
@@ -11,19 +12,6 @@ type Props = {
 	sessionExpired: boolean
 }
 
-type Providers = { local: boolean; microsoft: boolean }
-
-async function fetchProviders(): Promise<Providers | undefined> {
-	try {
-		const res = await fetch('/api/auth/providers')
-		if (!res.ok) {
-			return undefined
-		}
-		return (await res.json()) as Providers
-	} catch {
-		return undefined
-	}
-}
 
 const LoginPage = (props: Props): JSX.Element => {
 	const [email, setEmail] = createSignal('')
@@ -51,7 +39,7 @@ const LoginPage = (props: Props): JSX.Element => {
 		})(),
 	)
 
-	const [providers] = createResource(fetchProviders)
+	const [providers] = createResource<AuthProviders | undefined>(fetchProviders)
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -65,22 +53,14 @@ const LoginPage = (props: Props): JSX.Element => {
 		setIsSubmitting(true)
 
 		try {
-			// standard fetch since returning a cookie, not using the hono RPC client for this
-			const res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email(), password: password() }),
-			})
-
-			if (!res.ok) {
-				setError(await read_api_error(res, 'Anmeldung fehlgeschlagen.'))
+			const login_res = await login(email(), password())
+			if (Result.isError(login_res)) {
+				setError(login_res.error.message)
 				return
 			}
 
 			// Call success callback to update App state
 			props.onLoginSuccess()
-		} catch (_err) {
-			setError('Ein Netzwerkfehler ist aufgetreten. Bitte erneut versuchen.')
 		} finally {
 			setIsSubmitting(false)
 		}
