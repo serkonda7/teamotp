@@ -12,7 +12,7 @@ All findings fixed, one commit each, on `fix/duplicate-solutions`:
 |---|---|---|---|
 | 1 | Session validity queried 2x | `baece88` | `touchSession()` returns `boolean`; middleware calls it once |
 | 2 | Normalization triple-layered | `36262d8` | DB trusts schema output; otpauth parser emits lowercase algorithm |
-| 3 | Email normalize forked | `b39902c` | `normalize_search()` in `shared/`; `normalize_tag_name()` server-side; `toLowerCase` everywhere |
+| 3 | Email normalize forked | `b39902c` + merge below | Single `normalize_key()` in `shared/src/normalize.ts`; `toLowerCase` everywhere |
 | 4 | 3 clock domains | `1d49986` | Tests use `nowSeconds()`; ISO/ms exceptions documented |
 | 5 | Valibot formatter duplicated | `dc23630` | Shared `formatValibotIssues()` |
 | 6 | Validation strictness | `b988251` | `strictObject` for all API inputs; `LoginSchema` on `/login` |

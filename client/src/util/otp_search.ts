@@ -1,14 +1,14 @@
-import { normalize_search } from 'shared/src/search'
+import { normalize_key } from 'shared/src/normalize'
 import type { OtpDisplayInfo } from 'shared/src/types'
 
 /** Matches when any of the fields contains the query (empty query matches everything). */
 export function matchesQuery(fields: string[], query: string): boolean {
-	const normalizedQuery = normalize_search(query)
+	const normalizedQuery = normalize_key(query)
 	if (normalizedQuery.length === 0) {
 		return true
 	}
 
-	return fields.some((field) => normalize_search(field).includes(normalizedQuery))
+	return fields.some((field) => normalize_key(field).includes(normalizedQuery))
 }
 
 export function otpMatchesSearch(otp: OtpDisplayInfo, query: string): boolean {

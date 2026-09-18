@@ -6,6 +6,7 @@ import { and, count, eq, isNull } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import type { HashAlgorithm } from 'otplib'
+import { normalize_key } from 'shared/src/normalize'
 import type {
 	NewOtpEntry,
 	NewTag,
@@ -17,7 +18,6 @@ import { generateTotpCode } from './otp'
 import { entries, entry_tags, tags, users } from './schema'
 import type { OtpEntry, UpdateOtpEntry, User } from './types'
 import { normalize_email } from './util/email'
-import { normalize_tag_name } from './util/normalize'
 import { getTrimmedEnv, resolveInDataDir, SERVER_ROOT } from './util/server_root'
 
 const data_dir = path.join(SERVER_ROOT, 'data')
@@ -209,7 +209,7 @@ export function createTag(obj: NewTag): TagInfo {
 		.values({
 			id: tag.id,
 			name: displayName,
-			normalized_name: normalize_tag_name(displayName),
+			normalized_name: normalize_key(displayName),
 			color: tag.color,
 		})
 		.run()
@@ -229,7 +229,7 @@ export function getTagByName(name: string): TagInfo | null {
 	const row = db
 		.select({ id: tags.id, name: tags.name, color: tags.color })
 		.from(tags)
-		.where(eq(tags.normalized_name, normalize_tag_name(name)))
+		.where(eq(tags.normalized_name, normalize_key(name)))
 		.get()
 	return row ?? null
 }
