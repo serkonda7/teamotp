@@ -109,14 +109,17 @@ function listAllEntryTagsGrouped(): Map<string, TagInfo[]> {
  */
 export function createEntry(obj: NewOtpEntry): Result<OtpEntry, Error> {
 	const id = Bun.randomUUIDv7()
-	const algo = obj.algorithm?.toLowerCase() ?? 'sha1'
+	// Case is normalized once at the schema boundary (shared/src/schemas.ts):
+	// secret arrives upper-cased, algorithm lower-cased. No re-normalization
+	// here so the layers cannot drift apart.
+	const algo = obj.algorithm ?? 'sha1'
 
 	const entry: OtpEntry = {
 		id,
 		label: obj.label,
 		issuer: obj.issuer ?? '',
 		issuer_second: obj.issuer_second ?? '',
-		secret: obj.secret.toUpperCase(),
+		secret: obj.secret,
 		algorithm: algo as HashAlgorithm,
 		digits: obj.digits ?? 6,
 		period: obj.period ?? 30,
@@ -194,11 +197,14 @@ export function listTags(): TagWithMemberCount[] {
 }
 
 export function createTag(obj: NewTag): TagInfo {
+	// Name case is preserved for display; color already arrives lower-cased
+	// from the schema. Only normalized_name lower-cases here, as the safety
+	// net behind the unique index (plus the SQL backfill in 0008).
 	const displayName = obj.name.trim()
 	const tag: TagInfo = {
 		id: Bun.randomUUIDv7(),
 		name: displayName,
-		color: obj.color.toLowerCase(),
+		color: obj.color,
 	}
 	db.insert(tags)
 		.values({
