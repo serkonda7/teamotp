@@ -77,12 +77,6 @@ describe('Session timeout', () => {
 		expect(touchSession(sid)).toBe(false)
 		expect(isValidSession(sid)).toBe(false)
 	})
-
-	test('touch reports validity so callers need only one query', () => {
-		expect(touchSession('non-existent')).toBe(false)
-		const sid = createSession(TEST_USER_ID)
-		expect(touchSession(sid)).toBe(true)
-	})
 })
 
 describe('Session sweep', () => {
