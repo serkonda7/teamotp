@@ -6,7 +6,20 @@ import type { NewOtpEntry } from 'shared/src/types'
  * See Key Uri Spec: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
  */
 export function parse_otpauth_url(raw: string): Result<NewOtpEntry, Error> {
-	const url = new URL(raw)
+	let url: URL
+	try {
+		url = new URL(raw)
+	} catch {
+		return Result.err(new Error('Please enter a valid URL'))
+	}
+
+	// Microsoft Authenticator uses phonefactor URLs for its proprietary
+	// push-based enrollment. They do not contain an exportable TOTP secret.
+	if (url.protocol === 'phonefactor:') {
+		return Result.err(
+			new Error('Microsoft Authenticator URL detected. Click on "Use different app".'),
+		)
+	}
 
 	// Fail on invalid URLs or HOTP as we only support TOTP
 	if (url.protocol !== 'otpauth:' || url.hostname.toLowerCase() !== 'totp') {

@@ -16,3 +16,21 @@ test('keep different issuers from label and parameter', () => {
 		issuer_second: 'Test Und+Firma',
 	})
 })
+
+test('explains that Microsoft Authenticator phonefactor URLs cannot be imported', () => {
+	const result = parse_otpauth_url(
+		'phonefactor://activate_account?code=123456789&url=https%3A%2F%2Fexample.phonefactor.net%2Fpad%2F123',
+	)
+
+	expect(Result.isError(result)).toBe(true)
+	if (Result.isError(result)) {
+		expect(result.error.message).toContain('phonefactor://')
+		expect(result.error.message).toContain('otpauth://totp/')
+	}
+})
+
+test('returns an error for malformed URLs instead of throwing', () => {
+	const result = parse_otpauth_url('not a URL')
+
+	expect(Result.isError(result)).toBe(true)
+})
