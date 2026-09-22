@@ -15,17 +15,12 @@
    `sub` and `audit.ts:70-79` needs its session→`user_id` fallback lookup on
    every request to stay correct. `auth.ts:216-218` (`GET /auth/me`) echoes the
    stale address.
-2. **Every authenticated request does 2 selects + 1 write.**
-   `middleware/auth.ts:29-32` calls `isValidSession` (select), then
-   `touchSession`, which calls `isValidSession` again (second select) before
-   the `UPDATE`. `touchSession` also rewrites `last_seen_at` on *every*
-   request, turning reads (`GET /otp`, code polling) into SQLite writes.
-3. **Rate-limit reset bug** (`middleware/rate_limit.ts:69`): the counter resets
+2. **Rate-limit reset bug** (`middleware/rate_limit.ts:69`): the counter resets
    when `c.res.status < 400`. The Microsoft callback (`routes/auth.ts:104`)
    returns 302 redirects for `invalid_state`/`expired_state` failures
    (`auth.ts:118,124`), so failed callbacks *clear* the attacker's budget
    instead of consuming it.
-4. **Stale MSAL singleton** (`routes/auth.ts:22-39`): `_msalClient` caches the
+3. **Stale MSAL singleton** (`routes/auth.ts:22-39`): `_msalClient` caches the
    first `clientId`/`clientSecret`/`tenantId` forever. A config reload (or a
    test swapping `initConfig`) silently keeps talking to the old tenant.
    Login body parsing (`auth.ts:175-180`) is also hand-rolled `req.json()`
