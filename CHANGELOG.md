@@ -1,5 +1,5 @@
 # Changelog
-## 0.5.1
+## 0.5.2
 _2026-09-22_
 
 - Better error message if you try to add from MS Authenticator URLs

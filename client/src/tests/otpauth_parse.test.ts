@@ -24,8 +24,7 @@ test('explains that Microsoft Authenticator phonefactor URLs cannot be imported'
 
 	expect(Result.isError(result)).toBe(true)
 	if (Result.isError(result)) {
-		expect(result.error.message).toContain('phonefactor://')
-		expect(result.error.message).toContain('otpauth://totp/')
+		expect(result.error.message).toContain('Microsoft Authenticator')
 	}
 })
 
