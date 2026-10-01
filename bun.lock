@@ -17,7 +17,7 @@
       "name": "client",
       "version": "0.0.0-dev",
       "dependencies": {
-        "@tabler/icons-solidjs": "~3.47.0",
+        "@tabler/icons-solidjs": "~3.48.0",
         "better-result": "catalog:",
         "hono": "catalog:",
         "server": "workspace:*",
@@ -300,9 +300,9 @@
 
     "@solid-primitives/utils": ["@solid-primitives/utils@6.4.1", "", { "peerDependencies": { "solid-js": "^1.6.12" } }, "sha512-ISSB5QX1qP2ynrheIpYwc4oKR5Ny4siNuUyf1qZniy+Il+p/PtDB0QK1Dnle8noiHpwRD3gpPdubOC3qI/Zamg=="],
 
-    "@tabler/icons": ["@tabler/icons@3.47.0", "", {}, "sha512-aCbSemVrGvSA3w0sJi8mka6QrnQCN8wCD1jKNXXIR/h6Q4ffov/yFPyzjTULDM8ETtK4DABUZhWdYlygqy3npA=="],
+    "@tabler/icons": ["@tabler/icons@3.48.0", "", {}, "sha512-lQk06gVHNVBnJp0UOgtth54mcZBJM7rdYKsAxKOProj1bbSAx+/xiuOWfHlyvgdL3M+Y+I0HINrjHa3ygp8eXQ=="],
 
-    "@tabler/icons-solidjs": ["@tabler/icons-solidjs@3.47.0", "", { "dependencies": { "@tabler/icons": "3.47.0" }, "peerDependencies": { "solid-js": "^1.4.7" } }, "sha512-/jQvdQuZRpkz5fYcyYIxi1qPpTxNsemv0O+DVI+wxLKmKF0wDiWzl1xdgXZ3JsYRng44sEjIAU4XjFPKwt4SqA=="],
+    "@tabler/icons-solidjs": ["@tabler/icons-solidjs@3.48.0", "", { "dependencies": { "@tabler/icons": "3.48.0" }, "peerDependencies": { "solid-js": "^1.4.7" } }, "sha512-D989B/DXL6KlqO3dH19xe1TFWUx0BF6xcm0lAlhBD0LVHt756sMYnGxsLxJuTcXf2gJzgDxM6O3SbK9SssckpA=="],
 
     "@turbo/darwin-64": ["@turbo/darwin-64@2.11.2", "", { "os": "darwin", "cpu": "x64" }, "sha512-0pGfE4Lpxrbd+6gUD9z025Tn4z9uMaSNZ3VX0H/hkUPZkjY5xrCa1NfTqocs09NM5NiYE3wEVcoYBadrhayRCA=="],
 
