@@ -12,31 +12,32 @@ type Props = {
 	sessionExpired: boolean
 }
 
+/** Reads and clears the `?error=` param set by the OAuth callback redirect. */
+function readOauthError(): string | null {
+	if (typeof window === 'undefined') {
+		return null
+	}
+	const params = new URLSearchParams(window.location.search)
+	const code = params.get('error')
+	if (code !== 'invalid_state' && code !== 'expired_state') {
+		return null
+	}
+	params.delete('error')
+	history.replaceState(
+		null,
+		'',
+		`${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`,
+	)
+	return 'Anmeldung abgelaufen.' // Show simple generic error to avoid info overload
+}
+
 const LoginPage = (props: Props): JSX.Element => {
 	const [email, setEmail] = createSignal('')
 	const [password, setPassword] = createSignal('')
 	const [error, setError] = createSignal<string | null>(null)
 	const [isSubmitting, setIsSubmitting] = createSignal(false)
 
-	const [oauthError] = createSignal<string | null>(
-		(() => {
-			if (typeof window === 'undefined') {
-				return null
-			}
-			const params = new URLSearchParams(window.location.search)
-			const code = params.get('error')
-			if (code !== 'invalid_state' && code !== 'expired_state') {
-				return null
-			}
-			params.delete('error')
-			history.replaceState(
-				null,
-				'',
-				`${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`,
-			)
-			return 'Anmeldung abgelaufen.' // Show simple generic error to avoid info overload
-		})(),
-	)
+	const oauthError = readOauthError()
 
 	const [providers] = createResource<AuthProviders | undefined>(fetchProviders)
 
@@ -114,8 +115,8 @@ const LoginPage = (props: Props): JSX.Element => {
 						Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.
 					</div>
 				</Show>
-				<Show when={oauthError()}>
-					<div class="login-error">{oauthError()}</div>
+				<Show when={oauthError}>
+					<div class="login-error">{oauthError}</div>
 				</Show>
 				<Show when={isProvidersKnown() && hasMicrosoftProvider()}>
 					<MicrosoftSignInSection
