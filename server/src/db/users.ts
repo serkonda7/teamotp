@@ -10,7 +10,7 @@ export function getUserByEmail(email: string): User | null {
 	return (row as User | null) ?? null
 }
 
-export function getUserByProviderId(providerId: string): User | null {
+function getUserByProviderId(providerId: string): User | null {
 	const row = getDb().select().from(users).where(eq(users.provider_id, providerId)).get()
 	return (row as User | null) ?? null
 }
@@ -69,7 +69,7 @@ export function createAuthState(state: string, verifier: string, expiresAt: numb
 	getDb().insert(auth_states).values({ state, verifier, expires_at: expiresAt }).run()
 }
 
-export interface ConsumedAuthState {
+interface ConsumedAuthState {
 	verifier: string
 }
 

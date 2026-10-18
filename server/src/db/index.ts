@@ -1,8 +1,7 @@
 /**
- * Backwards-compatible entry point for `import ... from '../db'`.
- * New code should import from the aggregate module directly
- * (`../db/entries`, `../db/tags`, `../db/users`, `../db/connection`)
- * so changes to one aggregate do not recompile every route.
+ * Barrel re-exporting every db module. Handy for `getDb`/`initDb`; routes that
+ * only need one aggregate import it directly (`../db/entries`, `../db/tags`,
+ * `../db/users`) so changes to another aggregate do not recompile them.
  */
 export * from './connection'
 export * from './entries'

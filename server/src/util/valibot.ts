@@ -13,7 +13,7 @@ import * as v from 'valibot'
  * ("Invalid key: Expected never but received ..."), so those two get a
  * dedicated wording.
  */
-export function formatValibotIssue(issue: v.BaseIssue<unknown>): string {
+function formatValibotIssue(issue: v.BaseIssue<unknown>): string {
 	const path = v.getDotPath(issue)
 	if (!path) {
 		return issue.message
