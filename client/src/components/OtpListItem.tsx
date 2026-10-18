@@ -14,6 +14,13 @@ type Props = {
 	onFocused?: () => void
 }
 
+/**
+ * Revealed codes hide again after this long without interaction, so a code left
+ * on screen stops refreshing and no longer keeps the session alive past the
+ * idle timeout.
+ */
+const AUTO_HIDE_MS = 5 * 60 * 1000
+
 const OtpListItem = (props: Props): JSX.Element => {
 	const [isEditing, setIsEditing] = createSignal(false)
 	const [code, setCode] = createSignal<string | null>(null)
@@ -24,6 +31,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 	let copyToastTimer: ReturnType<typeof setTimeout> | undefined
 	let refreshBoundaryTimer: ReturnType<typeof setTimeout> | undefined
 	let refreshIntervalTimer: ReturnType<typeof setInterval> | undefined
+	let autoHideTimer: ReturnType<typeof setTimeout> | undefined
 	let isAutoRefreshingCode = false
 
 	let copyRef: HTMLButtonElement | undefined
@@ -82,11 +90,28 @@ const OtpListItem = (props: Props): JSX.Element => {
 		return code_res.value
 	}
 
+	function hideCode(): void {
+		setCode(null)
+		setIsCodeVisible(false)
+		setTimerAlignmentMs(0)
+	}
+
+	function clearAutoHideTimer(): void {
+		if (autoHideTimer !== undefined) {
+			clearTimeout(autoHideTimer)
+			autoHideTimer = undefined
+		}
+	}
+
+	/** (Re)starts the countdown after which the visible code is hidden again. */
+	function restartAutoHideTimer(): void {
+		clearAutoHideTimer()
+		autoHideTimer = setTimeout(hideCode, AUTO_HIDE_MS)
+	}
+
 	async function toggleCodeVisibility(): Promise<void> {
 		if (isCodeVisible()) {
-			setCode(null)
-			setIsCodeVisible(false)
-			setTimerAlignmentMs(0)
+			hideCode()
 			return
 		}
 
@@ -131,8 +156,11 @@ const OtpListItem = (props: Props): JSX.Element => {
 		}
 
 		if (!isCodeVisible()) {
+			clearAutoHideTimer()
 			return
 		}
+
+		restartAutoHideTimer()
 
 		const msToNextPeriod = periodMs - (Date.now() % periodMs)
 		refreshBoundaryTimer = setTimeout(() => {
@@ -153,6 +181,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 		if (refreshIntervalTimer !== undefined) {
 			clearInterval(refreshIntervalTimer)
 		}
+		clearAutoHideTimer()
 	})
 
 	function triggerCopyToast(): void {
@@ -177,6 +206,8 @@ const OtpListItem = (props: Props): JSX.Element => {
 
 		if (isCodeVisible()) {
 			setCode(value)
+			// Copying shows the user is still there, so keep the code visible
+			restartAutoHideTimer()
 		}
 
 		try {

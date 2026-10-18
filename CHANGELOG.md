@@ -9,6 +9,7 @@
     - Add selection marks in the popover and edit dialog
   - Replace the about dialog with a footer showing the version number
   - Remove light theme
+  - Revealed OTP codes hide automatically after 5 minutes
 
 
 ## 0.5.2
