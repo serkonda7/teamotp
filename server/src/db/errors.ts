@@ -1,25 +1,19 @@
 /** Shared SQLite error predicates. Drizzle rethrows the raw Bun SQLiteError. */
 
-export function isUniqueViolation(err: unknown): boolean {
+/** Matches a SQLite error by its error code or, failing that, a message fragment. */
+function hasSqliteError(err: unknown, code: string, message: string): boolean {
 	if (!(err instanceof Error)) {
 		return false
 	}
-	const code = (err as Error & { code?: unknown }).code
-	if (code === 'SQLITE_CONSTRAINT_UNIQUE') {
-		return true
-	}
-	return err.message.includes('UNIQUE constraint failed')
+	return (err as Error & { code?: unknown }).code === code || err.message.includes(message)
+}
+
+export function isUniqueViolation(err: unknown): boolean {
+	return hasSqliteError(err, 'SQLITE_CONSTRAINT_UNIQUE', 'UNIQUE constraint failed')
 }
 
 export function isForeignKeyViolation(err: unknown): boolean {
-	if (!(err instanceof Error)) {
-		return false
-	}
-	const code = (err as Error & { code?: unknown }).code
-	if (code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
-		return true
-	}
-	return err.message.includes('FOREIGN KEY constraint failed')
+	return hasSqliteError(err, 'SQLITE_CONSTRAINT_FOREIGNKEY', 'FOREIGN KEY constraint failed')
 }
 
 /** Thrown (wrapped in a `Result.err`) when a tag name collides under concurrency. */
