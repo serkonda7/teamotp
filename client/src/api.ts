@@ -3,7 +3,7 @@ import { Result } from 'better-result'
 import { hc } from 'hono/client'
 import type { AppType } from 'server/src/index'
 import type { UpdateOtpEntry } from 'server/src/types'
-import type { OtpDisplayInfo, TagInfo, TagWithMemberCount } from 'shared/src/types'
+import type { NewOtpEntry, OtpDisplayInfo, TagInfo, TagWithMemberCount } from 'shared/src/types'
 import { type ApiResponse, read_api_error } from './util/api_error'
 import { note_server_activity } from './util/idle_timeout'
 
@@ -66,6 +66,14 @@ export async function fetch_otp_code(id: string): Promise<Result<string, Error>>
 	const res = await client.otp[':id'].$get({ param: { id } })
 	return (await to_result<{ code: string }>(res, 'Fehler beim Laden des OTP-Codes')).map(
 		(d) => d.code,
+	)
+}
+
+/** Creates a new entry and returns its ID. */
+export async function create_entry(entry: NewOtpEntry): Promise<Result<string, Error>> {
+	const res = await client.otp.$post({ json: entry })
+	return (await to_result<{ id: string }>(res, 'Fehler beim Hinzufügen des Eintrags')).map(
+		(d) => d.id,
 	)
 }
 
