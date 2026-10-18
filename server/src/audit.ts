@@ -104,22 +104,9 @@ export function logLoginAttempt(params: {
 	createAuditLog({ userId, userEmail: email, action: params.action })
 }
 
-/** Returns the configured retention in seconds (default 90 days). */
+/** Returns the cutoff timestamp; the config schema guarantees an integer retention >= 1. */
 function getRetentionCutoffSeconds(now: number): number {
-	let retentionDays = 90
-	try {
-		const cfg = getConfig()
-		if (
-			cfg.audit?.retentionDays &&
-			Number.isInteger(cfg.audit.retentionDays) &&
-			cfg.audit.retentionDays >= 1
-		) {
-			retentionDays = cfg.audit.retentionDays
-		}
-	} catch {
-		retentionDays = 90
-	}
-	return now - retentionDays * 86400
+	return now - getConfig().audit.retentionDays * 86400
 }
 
 /**
