@@ -56,36 +56,20 @@ export function logAccess(c: Context, action: AuditAction | string, entryId?: st
 			return
 		}
 		const email = payload.sub ?? 'unknown'
-		let userId: string | undefined
 
-		// Primary: session -> user_id (survives email changes)
-		try {
-			const sess = getDb().select().from(sessions).where(eq(sessions.id, payload.jti)).get()
-			if (sess) {
-				userId = sess.user_id
-			}
-		} catch {
-			// ignore
-		}
+		// Session first (survives email changes), then the email lookup
+		const row = getDb()
+			.select({ id: users.id })
+			.from(sessions)
+			.innerJoin(users, eq(sessions.user_id, users.id))
+			.where(eq(sessions.id, payload.jti))
+			.get()
+		const userId =
+			row?.id ?? getDb().select().from(users).where(eq(users.email, email)).get()?.id
 
-		if (!userId) {
-			try {
-				const user = getDb().select().from(users).where(eq(users.email, email)).get()
-				if (user) {
-					userId = user.id
-				}
-			} catch {
-				// ignore
-			}
-		}
-
-		if (!userId) {
-			userId = email || 'unknown'
-		}
-
-		createAuditLog({ userId, userEmail: email, action, entryId })
+		createAuditLog({ userId: userId ?? email, userEmail: email, action, entryId })
 	} catch {
-		// swallow
+		// Audit must never break the main request
 	}
 }
 
