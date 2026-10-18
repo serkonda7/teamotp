@@ -1,5 +1,6 @@
 # Changelog
-## Unreleased
+## 1.0.0
+_2026-10-18_
 
 - UI and UX
   - Search bar: migrate to shared `SearchBar` component
