@@ -1,0 +1,24 @@
+/* Theme for the SearchBar from @serkonda7/solid-components in the header */
+.search-bar {
+	--search-bar-border: var(--color-border);
+	--search-bar-bg: var(--color-bg);
+	--search-bar-muted: var(--color-text-muted);
+	--search-bar-hover-bg: var(--color-bg-hover);
+}
+
+.search-bar .search-bar-input {
+	padding-block: 0.45rem;
+	border-width: 2px;
+	border-radius: var(--corner-radius);
+	font-size: 0.85rem;
+	color: var(--color-text);
+}
+
+.search-bar .search-bar-input:hover {
+	border-color: var(--color-primary-hover);
+}
+
+.search-bar .search-bar-input:focus-visible {
+	outline: none;
+	border-color: var(--color-primary);
+}

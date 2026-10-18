@@ -1,6 +1,7 @@
+@import "@serkonda7/solid-components/styles.css";
 @import "./_base_theme.css";
 @import "./header.css";
-@import "./search-input.css";
+@import "./search-bar.css";
 @import "./otp-list.css";
 @import "./add-entry.css";
 @import "./forms.css";
@@ -33,12 +34,6 @@ form {
 input[type="text"] {
 	width: min(100%, 38rem);
 	padding: 0.45rem 0.6rem;
-}
-
-input[type="search"] {
-	width: 100%;
-	padding: 0.45rem 0.6rem;
-	justify-self: center;
 }
 
 a[target="_blank"]::after {

@@ -1,7 +1,7 @@
+import { SearchBar } from '@serkonda7/solid-components'
 import { IconHome, IconInfoCircle, IconLogout, IconTag } from '@tabler/icons-solidjs'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import { navigate, path } from '../router'
-import SearchInput from './SearchInput'
 import TeamOtpLogo from './TeamOtpLogo'
 import ThemeToggle from './ThemeToggle'
 
@@ -13,6 +13,46 @@ type AppHeaderProps = {
 	tagSearchQuery: string
 	onTagSearchInput: (query: string) => void
 	children?: JSX.Element
+}
+
+type HeaderSearchProps = {
+	value: string
+	onInput: (value: string) => void
+	label: string
+}
+
+// SearchBar has no tabindex or select-on-focus option, so both are added here:
+// the input stays first in the explicit tab order and selects its text on focus.
+const HeaderSearch = (props: HeaderSearchProps): JSX.Element => {
+	let wrapper: HTMLDivElement | undefined
+
+	onMount(() => {
+		const input = wrapper?.querySelector('input')
+		if (input) {
+			input.tabIndex = 1
+		}
+	})
+
+	return (
+		<div
+			ref={wrapper}
+			class="header-search-bar"
+			onFocusIn={(event: FocusEvent): void => {
+				if (event.target instanceof HTMLInputElement) {
+					event.target.select()
+				}
+			}}
+		>
+			<SearchBar
+				value={props.value}
+				onInput={props.onInput}
+				placeholder={props.label}
+				ariaLabel={props.label}
+				shortcutLabel="Strg K"
+				clearLabel="Suche leeren"
+			/>
+		</div>
+	)
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
@@ -40,19 +80,17 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<Show
 					when={path() === '/tags'}
 					fallback={
-						<SearchInput
+						<HeaderSearch
 							value={props.searchQuery}
 							onInput={props.onSearchInput}
-							placeholder="Einträge suchen"
-							ariaLabel="Einträge suchen"
+							label="Einträge suchen"
 						/>
 					}
 				>
-					<SearchInput
+					<HeaderSearch
 						value={props.tagSearchQuery}
 						onInput={props.onTagSearchInput}
-						placeholder="Tags suchen"
-						ariaLabel="Tags suchen"
+						label="Tags suchen"
 					/>
 				</Show>
 				{props.children}

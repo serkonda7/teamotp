@@ -31,8 +31,9 @@
 	gap: var(--gap-small);
 }
 
-.header-search .search-input {
+.header-search .header-search-bar {
 	flex: 1;
+	min-width: 0;
 }
 
 .header-actions {
