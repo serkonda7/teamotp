@@ -1,6 +1,6 @@
 import { vValidator } from '@hono/valibot-validator'
 import { Result } from 'better-result'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { NewOtpEntrySchema, UpdateOtpEntrySchema } from 'shared/src/schemas'
 import { logAccess } from '../audit'
 import { archiveEntry, createEntry, getEntryById, listEntries, updateEntry } from '../db/entries'
@@ -9,6 +9,17 @@ import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { generateTotpCode } from '../otp'
 import { jsonError } from '../util/http'
+
+/** A 404 response naming the missing entry or tag, or null when both exist. */
+function notFoundResponse(c: Context, entryId: string, tagId: string): Response | null {
+	if (!getEntryById(entryId)) {
+		return jsonError(c, 'OTP entry not found', 404)
+	}
+	if (!getTagById(tagId)) {
+		return jsonError(c, 'Tag not found', 404)
+	}
+	return null
+}
 
 export const otpApp = new Hono()
 	.use(authMiddleware)
@@ -93,24 +104,16 @@ export const otpApp = new Hono()
 		const id = c.req.param('id')
 		const tagId = c.req.param('tagId')
 
-		if (!getEntryById(id)) {
-			return jsonError(c, 'OTP entry not found', 404)
-		}
-		if (!getTagById(tagId)) {
-			return jsonError(c, 'Tag not found', 404)
+		const missing = notFoundResponse(c, id, tagId)
+		if (missing) {
+			return missing
 		}
 
 		const assignRes = assignTag(id, tagId)
 		if (Result.isError(assignRes)) {
 			// FK violation: entry or tag vanished between the checks above
 			// and the insert (concurrent delete). Re-check to report which.
-			if (!getEntryById(id)) {
-				return jsonError(c, 'OTP entry not found', 404)
-			}
-			if (!getTagById(tagId)) {
-				return jsonError(c, 'Tag not found', 404)
-			}
-			return jsonError(c, 'Internal server error', 500)
+			return notFoundResponse(c, id, tagId) ?? jsonError(c, 'Internal server error', 500)
 		}
 		return c.json({ success: true })
 	})
@@ -120,11 +123,9 @@ export const otpApp = new Hono()
 		const id = c.req.param('id')
 		const tagId = c.req.param('tagId')
 
-		if (!getEntryById(id)) {
-			return jsonError(c, 'OTP entry not found', 404)
-		}
-		if (!getTagById(tagId)) {
-			return jsonError(c, 'Tag not found', 404)
+		const missing = notFoundResponse(c, id, tagId)
+		if (missing) {
+			return missing
 		}
 
 		unassignTag(id, tagId)
