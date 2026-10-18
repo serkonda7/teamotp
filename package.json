@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "biome check --write",
     "lint:ci": "biome ci",
-    "check": "turbo run check",
+    "typecheck": "turbo run typecheck",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "db:generate": "bun run --cwd server db:generate",
@@ -45,7 +45,6 @@
     "@biomejs/biome": "2.5.15",
     "@types/bun": "1.4.3",
     "@types/node": "~26.6.5",
-    "typescript": "~7.0.2",
     "turbo": "~2.11.9"
   }
 }

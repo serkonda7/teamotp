@@ -2,6 +2,6 @@
   "name": "infra",
   "version": "0.0.0-dev",
   "scripts": {
-    "check": "tsc --project tsconfig.json"
+    "typecheck": "bun check"
   }
 }

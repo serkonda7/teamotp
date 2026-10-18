@@ -11,9 +11,7 @@
     "build": {
       "outputs": ["dist/**"]
     },
-    "check": {
-      "dependsOn": ["^build"]
-    },
+    "typecheck": {},
     "test": {}
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.0.0-dev",
   "scripts": {
     "compile": "bun build ./src/cli.ts --compile --outfile ./dist/cli.bin",
-    "check": "tsc"
+    "typecheck": "bun check"
   },
   "dependencies": {
     "better-result": "catalog:",

@@ -10,6 +10,8 @@
   - Replace the about dialog with a footer showing the version number
   - Remove light theme
   - Revealed OTP codes hide automatically after 5 minutes
+- Technical:
+  - Update runtime to Bun 1.4.3
 
 
 ## 0.5.2
