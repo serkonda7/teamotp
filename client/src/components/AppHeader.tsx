@@ -3,7 +3,6 @@ import { IconHome, IconLogout, IconTag } from '@tabler/icons-solidjs'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import { navigate, path } from '../router'
 import TeamOtpLogo from './TeamOtpLogo'
-import ThemeToggle from './ThemeToggle'
 
 type AppHeaderProps = {
 	onLogout: () => void
@@ -125,11 +124,10 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 							<IconHome size={18} stroke="2" aria-hidden="true" />
 						</button>
 					</Show>
-					<ThemeToggle tabindex={path() === '/tags' ? 7 : 6} />
 					<button
 						type="button"
 						class="icon-button logout-button"
-						tabindex={path() === '/tags' ? 8 : 7}
+						tabindex={path() === '/tags' ? 7 : 6}
 						onClick={props.onLogout}
 						aria-label="Abmelden"
 						title="Abmelden"

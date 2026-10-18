@@ -8,6 +8,7 @@
     - Add search (> 8 tags)
     - Add selection marks in the popover and edit dialog
   - Replace the about dialog with a footer showing the version number
+  - Remove light theme
 
 
 ## 0.5.2

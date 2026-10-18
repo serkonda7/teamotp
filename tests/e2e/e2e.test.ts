@@ -72,9 +72,24 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'true')
 	await expect(page.locator('.otp-list__item')).toHaveCount(1)
 
-	// The clear button resets the filter
-	await page.getByRole('button', { name: 'Zurücksetzen' }).click()
+	// Applied filters show as removable pills; a single one has no "clear all" button
+	const activeFilters = page.getByRole('list', { name: 'Aktive Tag-Filter' })
+	await expect(activeFilters.getByRole('button', { name: 'Alle entfernen' })).toHaveCount(0)
+	await activeFilters.getByRole('button', { name: 'Filter "Arbeit" entfernen' }).click()
+	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
+	await expect(page.locator('.otp-list__item')).toHaveCount(3)
+
+	// With several filters, "Alle entfernen" resets them at once. Clicking a pill
+	// counts as an outside click and closes the popover, so reopen it.
+	await filterButton.click()
+	await arbeitChip.click()
+	await privatChip.click()
+	await expect(filterButton.locator('.tag-filter__badge')).toHaveText('2')
+	await activeFilters.getByRole('button', { name: 'Alle entfernen' }).click()
+	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
+	await filterButton.click()
 	await expect(arbeitChip).toHaveAttribute('aria-pressed', 'false')
+	await expect(privatChip).toHaveAttribute('aria-pressed', 'false')
 	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
 	await expect(page.locator('.otp-list__item')).toHaveCount(3)
 
@@ -99,26 +114,6 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	await page.getByRole('button', { name: 'Tag Privat löschen' }).click()
 	await expect(page.locator('.tag-list__item')).toHaveCount(1)
-})
-
-test('theme toggle switches the theme and persists across reloads', async ({ page }) => {
-	await login(page)
-
-	const html = page.locator('html')
-	const toggle = page.getByRole('button', { name: /Modus wechseln/ })
-
-	const initialTheme = await html.getAttribute('data-theme')
-	const toggledTheme = initialTheme === 'dark' ? 'light' : 'dark'
-
-	await toggle.click()
-	await expect(html).toHaveAttribute('data-theme', toggledTheme)
-
-	// The chosen theme persists across reloads
-	await page.reload()
-	await expect(html).toHaveAttribute('data-theme', toggledTheme)
-
-	await toggle.click()
-	await expect(html).toHaveAttribute('data-theme', initialTheme)
 })
 
 test('clicking the same entry again after 5 seconds copies a fresh code', async ({

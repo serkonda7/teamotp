@@ -7,72 +7,24 @@
 	--font-family-base: system-ui, -apple-system, "Segoe UI", sans-serif;
 
 	/* Elevation */
-	--shadow-card: 0 4px 6px rgb(0 0 0 / 10%);
-	--shadow-modal: 0 14px 34px rgb(0 0 0 / 25%);
+	--shadow-card: 0 4px 6px rgb(0 0 0 / 40%);
+	--shadow-modal: 0 14px 34px rgb(0 0 0 / 55%);
 
 	/*
 	Colors
 	*/
 
 	/* Color Palette */
-	--palette-white: hsl(0, 0%, 96%);
-	--palette-ink: #0f172a;
-	--palette-slate: #64748b;
-	--palette-green: #16a34a;
-	--palette-red: hsl(4, 76%, 50%);
-
-	/* Primary colors */
-	--color-text: var(--palette-ink);
-	--color-primary: var(--palette-green);
-	--color-bg: var(--palette-white);
-	--color-danger: var(--palette-red);
-
-	/* Semantic colors */
-	--color-bg-hover: color-mix(in srgb, #ffffff 84%, var(--palette-slate));
-	--color-border: color-mix(in srgb, #ffffff 68%, var(--palette-slate));
-	--color-border-strong: color-mix(
-		in srgb,
-		#ffffff 56%,
-		var(--palette-slate)
-	);
-	--color-text-muted: color-mix(in srgb, var(--palette-ink) 72%, #ffffff);
-	--color-primary-hover: color-mix(
-		in srgb,
-		var(--color-primary) 72%,
-		var(--palette-ink)
-	);
-	--color-primary-disabled: color-mix(
-		in srgb,
-		#ffffff 38%,
-		var(--color-primary)
-	);
-	--color-focus: var(--color-primary);
-
-	/* Highlight: warn or danger */
-	--color-danger-bg: color-mix(in srgb, #ffffff 88%, var(--color-danger));
-	--color-danger-bg-hover: color-mix(
-		in srgb,
-		#ffffff 78%,
-		var(--color-danger)
-	);
-
-	color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-	/* Elevation */
-	--shadow-card: 0 4px 6px rgb(0 0 0 / 40%);
-	--shadow-modal: 0 14px 34px rgb(0 0 0 / 55%);
-
-	/* Palette overrides: neutral grays instead of blue-tinted */
 	--palette-ink: hsl(0, 0%, 9%);
 	--palette-slate: hsl(0, 0%, 45%);
+	--palette-green: #16a34a;
+	--palette-red: hsl(4, 88%, 68%);
 
 	/* Primary colors */
 	--color-text: hsl(0, 0%, 84%);
-	--color-primary: #16a34a;
+	--color-primary: var(--palette-green);
 	--color-bg: var(--palette-ink);
-	--color-danger: hsl(4, 88%, 68%);
+	--color-danger: var(--palette-red);
 
 	/* Semantic colors */
 	--color-bg-hover: color-mix(
@@ -105,6 +57,7 @@
 		var(--color-primary) 45%,
 		var(--palette-ink)
 	);
+	--color-focus: var(--color-primary);
 
 	/* Highlight: warn or danger (dark bg for higher contrast) */
 	--color-danger-bg: color-mix(
