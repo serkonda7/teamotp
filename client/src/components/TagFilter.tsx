@@ -1,12 +1,12 @@
-import { IconFilter2, IconFilter2Cancel } from '@tabler/icons-solidjs'
+import { IconFilter2, IconX } from '@tabler/icons-solidjs'
 import type { TagInfo } from 'shared/src/types'
 import { createEffect, createMemo, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
+import TagSelectMark from './TagSelectMark'
 
 type Props = {
 	tags: TagInfo[]
 	activeTagIds: string[]
 	onToggle: (tagId: string) => void
-	onClear: () => void
 }
 
 type TagChipProps = {
@@ -22,12 +22,13 @@ const TagChip = (props: TagChipProps): JSX.Element => {
 			type="button"
 			class="tag-chip tag-filter__chip"
 			tabindex={4}
-			classList={{ 'tag-filter__chip--active': isActive() }}
+			classList={{ 'tag-chip--selected': isActive() }}
 			style={{ '--tag-color': props.tag.color }}
 			onClick={(): void => props.onToggle(props.tag.id)}
 			aria-pressed={isActive()}
 			title={`Nach Tag "${props.tag.name}" filtern`}
 		>
+			<TagSelectMark selected={isActive()} />
 			{props.tag.name}
 		</button>
 	)
@@ -64,35 +65,62 @@ type TagFilterPopoverProps = {
 	tags: TagInfo[]
 	activeTagIds: string[]
 	onToggle: (tagId: string) => void
-	onClear: () => void
 }
 
-const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => (
-	<div class="tag-filter__popover">
-		<button
-			type="button"
-			class="tag-filter__clear"
-			tabindex={4}
-			onClick={props.onClear}
-			disabled={props.activeTagIds.length === 0}
-			title="Tag-Filter zurücksetzen"
-		>
-			<IconFilter2Cancel size={16} stroke="2" aria-hidden="true" />
-			Zurücksetzen
-		</button>
-		<div class="tag-filter__chips">
-			<For each={props.tags}>
-				{(tag: TagInfo): JSX.Element => (
-					<TagChip
-						tag={tag}
-						isActive={(): boolean => props.activeTagIds.includes(tag.id)}
-						onToggle={props.onToggle}
-					/>
-				)}
-			</For>
+// Below this many tags a search field inside the popover is just noise
+const TAG_SEARCH_MIN_TAGS = 8
+
+const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => {
+	const [query, setQuery] = createSignal('')
+	const visibleTags = createMemo(() => {
+		const needle = query().trim().toLowerCase()
+		return needle === ''
+			? props.tags
+			: props.tags.filter((tag) => tag.name.toLowerCase().includes(needle))
+	})
+
+	return (
+		<div class="tag-filter__popover">
+			<div class="tag-filter__header">
+				<span class="tag-filter__title">
+					Tags
+					<Show when={props.activeTagIds.length > 0}>
+						<span class="tag-filter__count">
+							{props.activeTagIds.length} von {props.tags.length}
+						</span>
+					</Show>
+				</span>
+			</div>
+			<Show when={props.tags.length >= TAG_SEARCH_MIN_TAGS}>
+				<input
+					type="search"
+					class="tag-filter__search"
+					tabindex={4}
+					placeholder="Tags durchsuchen"
+					aria-label="Tags durchsuchen"
+					value={query()}
+					onInput={(event: InputEvent & { currentTarget: HTMLInputElement }): void => {
+						setQuery(event.currentTarget.value)
+					}}
+				/>
+			</Show>
+			<div class="tag-filter__chips">
+				<For
+					each={visibleTags()}
+					fallback={<span class="tag-filter__empty">Keine Tags gefunden</span>}
+				>
+					{(tag: TagInfo): JSX.Element => (
+						<TagChip
+							tag={tag}
+							isActive={(): boolean => props.activeTagIds.includes(tag.id)}
+							onToggle={props.onToggle}
+						/>
+					)}
+				</For>
+			</div>
 		</div>
-	</div>
-)
+	)
+}
 
 const TagFilter = (props: Props): JSX.Element => {
 	const [open, setOpen] = createSignal(false)
@@ -148,10 +176,60 @@ const TagFilter = (props: Props): JSX.Element => {
 					tags={props.tags}
 					activeTagIds={props.activeTagIds}
 					onToggle={props.onToggle}
-					onClear={props.onClear}
 				/>
 			</Show>
 		</div>
+	)
+}
+
+type TagFilterPillsProps = {
+	tags: TagInfo[]
+	activeTagIds: string[]
+	onToggle: (tagId: string) => void
+	onClear: () => void
+}
+
+/** Applied tag filters as removable pills, so they stay visible with the popover closed. */
+export const TagFilterPills = (props: TagFilterPillsProps): JSX.Element => {
+	const activeTags = createMemo(() =>
+		props.tags.filter((tag) => props.activeTagIds.includes(tag.id)),
+	)
+
+	return (
+		<Show when={activeTags().length > 0}>
+			<ul class="tag-filter-pills" aria-label="Aktive Tag-Filter">
+				<Show when={activeTags().length > 1}>
+					<li>
+						<button
+							type="button"
+							class="tag-filter-pills__clear"
+							tabindex={4}
+							onClick={props.onClear}
+						>
+							Alle entfernen
+						</button>
+					</li>
+				</Show>
+				<For each={activeTags()}>
+					{(tag: TagInfo): JSX.Element => (
+						<li>
+							<button
+								type="button"
+								class="tag-chip tag-filter-pills__pill"
+								tabindex={4}
+								style={{ '--tag-color': tag.color }}
+								onClick={(): void => props.onToggle(tag.id)}
+								aria-label={`Filter "${tag.name}" entfernen`}
+								title={`Filter "${tag.name}" entfernen`}
+							>
+								{tag.name}
+								<IconX size={12} stroke="2.5" aria-hidden="true" />
+							</button>
+						</li>
+					)}
+				</For>
+			</ul>
+		</Show>
 	)
 }
 

@@ -4,6 +4,7 @@ import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'sh
 import type { JSX } from 'solid-js'
 import { createSignal, For, onCleanup, onMount, Show } from 'solid-js'
 import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
+import TagSelectMark from './TagSelectMark'
 
 type EditDialogProps = {
 	open: boolean
@@ -304,9 +305,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 									<label
 										class="tag-chip edit-tags__option"
 										classList={{
-											'edit-tags__option--assigned': assignedTagIds().has(
-												tag.id,
-											),
+											'tag-chip--selected': assignedTagIds().has(tag.id),
 										}}
 										style={{ '--tag-color': tag.color }}
 									>
@@ -320,6 +319,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 												handleTagToggle(tag.id, e.currentTarget.checked)
 											}}
 										/>
+										<TagSelectMark selected={assignedTagIds().has(tag.id)} />
 										{tag.name}
 									</label>
 								)}

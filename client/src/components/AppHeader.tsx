@@ -12,6 +12,8 @@ type AppHeaderProps = {
 	onSearchInput: (query: string) => void
 	tagSearchQuery: string
 	onTagSearchInput: (query: string) => void
+	/** Shown beside the children, in the space left of the action buttons */
+	tagPills?: JSX.Element
 	children?: JSX.Element
 }
 
@@ -95,54 +97,57 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				</Show>
 				{props.children}
 			</div>
-			<div class="header-actions">
-				<Show
-					when={path() === '/tags'}
-					fallback={
+			<div class="header-end">
+				<div class="header-pills">{props.tagPills}</div>
+				<div class="header-actions">
+					<Show
+						when={path() === '/tags'}
+						fallback={
+							<button
+								type="button"
+								class="icon-button"
+								tabindex={5}
+								onClick={(): void => navigate('/tags')}
+								aria-label="Tags verwalten"
+								title="Tags"
+							>
+								<IconTag size={18} stroke="2" aria-hidden="true" />
+							</button>
+						}
+					>
 						<button
 							type="button"
 							class="icon-button"
-							tabindex={5}
-							onClick={(): void => navigate('/tags')}
-							aria-label="Tags verwalten"
-							title="Tags"
+							tabindex={6}
+							onClick={(): void => navigate('/')}
+							aria-label="Zurück zur Übersicht"
+							title="Übersicht"
 						>
-							<IconTag size={18} stroke="2" aria-hidden="true" />
+							<IconHome size={18} stroke="2" aria-hidden="true" />
 						</button>
-					}
-				>
+					</Show>
+					<ThemeToggle tabindex={path() === '/tags' ? 7 : 6} />
 					<button
 						type="button"
-						class="icon-button"
-						tabindex={6}
-						onClick={(): void => navigate('/')}
-						aria-label="Zurück zur Übersicht"
-						title="Übersicht"
+						class="icon-button info-button"
+						tabindex={path() === '/tags' ? 8 : 7}
+						onClick={props.onOpenAbout}
+						aria-label="Über TeamOTP"
+						title="Über"
 					>
-						<IconHome size={18} stroke="2" aria-hidden="true" />
+						<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
 					</button>
-				</Show>
-				<ThemeToggle tabindex={path() === '/tags' ? 7 : 6} />
-				<button
-					type="button"
-					class="icon-button info-button"
-					tabindex={path() === '/tags' ? 8 : 7}
-					onClick={props.onOpenAbout}
-					aria-label="Über TeamOTP"
-					title="Über"
-				>
-					<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
-				</button>
-				<button
-					type="button"
-					class="icon-button logout-button"
-					tabindex={path() === '/tags' ? 9 : 8}
-					onClick={props.onLogout}
-					aria-label="Abmelden"
-					title="Abmelden"
-				>
-					<IconLogout size={18} stroke="2" aria-hidden="true" />
-				</button>
+					<button
+						type="button"
+						class="icon-button logout-button"
+						tabindex={path() === '/tags' ? 9 : 8}
+						onClick={props.onLogout}
+						aria-label="Abmelden"
+						title="Abmelden"
+					>
+						<IconLogout size={18} stroke="2" aria-hidden="true" />
+					</button>
+				</div>
 			</div>
 		</header>
 	)

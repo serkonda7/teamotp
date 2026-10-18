@@ -130,12 +130,6 @@
 	clip-path: inset(50%);
 }
 
-.edit-tags__option--assigned {
-	background: var(--tag-color);
-	border-color: var(--tag-color);
-	color: #fff;
-}
-
 /* Tag filter popover on the entries page */
 .tag-filter {
 	position: relative;
@@ -178,42 +172,59 @@
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
 	box-shadow: var(--shadow-card);
+	width: max-content;
+	min-width: min(16rem, 85vw);
 	max-width: min(22rem, 85vw);
 	max-height: 50vh;
 	overflow-y: auto;
 }
 
-.tag-filter__clear {
+.tag-filter__header {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	gap: 0.35rem;
-	width: 100%;
+	justify-content: space-between;
+	gap: var(--gap-small);
 	margin-bottom: var(--gap-small);
-	padding: 0.3rem 0.6rem;
+}
+
+.tag-filter__title {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.4rem;
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-text-muted);
+}
+
+.tag-filter__count {
+	font-weight: 400;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.tag-filter__search {
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: var(--gap-small);
+	padding: 0.35rem 0.6rem;
 	border: 1px solid var(--color-border);
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
-	color: var(--color-text-muted);
+	color: var(--color-text);
 	font-family: inherit;
-	font-size: 0.78rem;
-	cursor: pointer;
-
-	&:disabled {
-		opacity: 0.45;
-		cursor: default;
-	}
-
-	&:not(:disabled):hover {
-		background: var(--color-bg-hover);
-		border-color: var(--color-border-strong);
-		color: var(--color-text);
-	}
+	font-size: 0.85rem;
 
 	&:focus-visible {
 		outline: 2px solid var(--color-focus);
-		outline-offset: 2px;
+		outline-offset: 1px;
 	}
+}
+
+.tag-filter__empty {
+	color: var(--color-text-muted);
+	font-size: 0.85rem;
 }
 
 .tag-filter__chips {
@@ -236,9 +247,61 @@
 	}
 }
 
-.tag-filter__chip--active,
-.tag-filter__chip--active:hover {
+/* Selected state shared by the tag filter and the edit dialog */
+.tag-chip--selected,
+.tag-chip--selected:hover {
 	background: var(--tag-color);
 	border-color: var(--tag-color);
 	color: #fff;
+}
+
+/* Applied tag filters shown as removable pills (see FilterTable in solid-components) */
+.tag-filter-pills {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tag-filter-pills__pill {
+	font-family: inherit;
+	cursor: pointer;
+
+	&:hover {
+		background: color-mix(in srgb, var(--tag-color) 28%, transparent);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+}
+
+.tag-filter-pills__clear {
+	padding: 0.1rem 0.55rem;
+	border: 1px dashed var(--color-border-strong);
+	border-radius: 999px;
+	background: none;
+	color: var(--color-text-muted);
+	font-family: inherit;
+	font-size: 0.78rem;
+	line-height: 1.5;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--color-bg-hover);
+		color: var(--color-text);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+}
+
+.tag-filter-pills > li {
+	flex-shrink: 0;
 }

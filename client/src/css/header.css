@@ -36,10 +36,29 @@
 	min-width: 0;
 }
 
+.header-end {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	min-width: 0;
+}
+
+/* Single clipped line so the pills never change the header height */
+.header-pills {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	mask-image: linear-gradient(
+		to right,
+		#000 calc(100% - 1.5rem),
+		transparent
+	);
+}
+
 .header-actions {
 	display: flex;
 	gap: var(--gap-small);
-	justify-self: end;
+	margin-left: auto;
 }
 
 .icon-button.logout-button {
@@ -66,10 +85,14 @@
 		grid-column: 1;
 	}
 
-	.header-actions {
+	.header-end {
 		order: 2;
 		grid-column: 2;
 		justify-self: end;
+	}
+
+	.header-pills {
+		display: none;
 	}
 
 	.header-search {

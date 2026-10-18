@@ -3,6 +3,10 @@
 
 - UI and UX
   - Search bar: migrate to shared `SearchBar` component
+  - Improve tag filters:
+    - Show active filters as removable pills
+    - Add search (> 8 tags)
+    - Add selection marks in the popover and edit dialog
 
 
 ## 0.5.2

@@ -17,7 +17,7 @@ import AddFromOtpauthForm from './components/AddFromOtpauthForm'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
-import TagFilter from './components/TagFilter'
+import TagFilter, { TagFilterPills } from './components/TagFilter'
 import TagsPage from './components/TagsPage'
 import { navigate, path, setTagsChanged, tagsChanged } from './router'
 import { start_idle_timer } from './util/idle_timeout'
@@ -178,6 +178,18 @@ function App(): JSX.Element {
 					tags={allTags()}
 					activeTagIds={activeTagIds()}
 					onToggle={toggleTagFilter}
+				/>
+			</Show>
+		)
+	}
+
+	function tagPillsSlot(): JSX.Element {
+		return (
+			<Show when={path() !== '/tags'}>
+				<TagFilterPills
+					tags={allTags()}
+					activeTagIds={activeTagIds()}
+					onToggle={toggleTagFilter}
 					onClear={clearTagFilter}
 				/>
 			</Show>
@@ -194,6 +206,7 @@ function App(): JSX.Element {
 					onSearchInput={setSearchQuery}
 					tagSearchQuery={tagSearchQuery()}
 					onTagSearchInput={setTagSearchQuery}
+					tagPills={tagPillsSlot()}
 				>
 					{tagFilterSlot()}
 				</AppHeader>
