@@ -2,7 +2,7 @@ import { IconArchive, IconX } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createSignal, For, onCleanup, onMount, Show } from 'solid-js'
+import { createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
 import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
 import type { InputEventAndTarget } from '../types'
 import TagSelectMark from './TagSelectMark'
@@ -24,6 +24,17 @@ type FormFieldProps = {
 	placeholder?: string
 	required?: boolean
 	onInput: (value: string) => void
+}
+
+/** Returns a copy of `set` with `id` added (`on`) or removed (`!on`). */
+function withToggled(set: ReadonlySet<string>, id: string, on: boolean): Set<string> {
+	const next = new Set(set)
+	if (on) {
+		next.add(id)
+	} else {
+		next.delete(id)
+	}
+	return next
 }
 
 // visible=false hides the asterisk but reserves its space (unlike <Show>),
@@ -88,30 +99,24 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	function handleTagToggle(tagId: string, assigned: boolean): void {
 		setError(null)
 
-		const next = new Set(assignedTagIds())
-		if (assigned) {
-			next.add(tagId)
-		} else {
-			next.delete(tagId)
-		}
-		setAssignedTagIds(next)
+		setAssignedTagIds(withToggled(assignedTagIds(), tagId, assigned))
 	}
 
 	const isIssuerChanged = (): boolean => issuer().trim() !== props.otp.issuer
 	const isIssuerSecondChanged = (): boolean => issuerSecond().trim() !== props.otp.issuer_second
 	const isLabelChanged = (): boolean => label().trim() !== props.otp.label
-	const isTagsChanged = (): boolean => {
+	// Tag IDs to assign and unassign to get from the saved state to the current one
+	const tagDiff = createMemo(() => {
 		const initial = initialTagIds()
 		const current = assignedTagIds()
-		if (initial.size !== current.size) {
-			return true
+		return {
+			added: [...current].filter((id) => !initial.has(id)),
+			removed: [...initial].filter((id) => !current.has(id)),
 		}
-		for (const id of current) {
-			if (!initial.has(id)) {
-				return true
-			}
-		}
-		return false
+	})
+	const isTagsChanged = (): boolean => {
+		const { added, removed } = tagDiff()
+		return added.length > 0 || removed.length > 0
 	}
 	const hasChanges = (): boolean =>
 		isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged() || isTagsChanged()
@@ -153,15 +158,10 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 			// Update tag assignments first: their baseline (initialTagIds) is
 			// tracked locally, so if the OTP update below fails afterwards,
 			// hasChanges() will not report already-persisted tags as unsaved.
-			const initial = initialTagIds()
-			const current = assignedTagIds()
-			const tagUpdates: { tagId: string; assigned: boolean }[] = [
-				...[...current]
-					.filter((id) => !initial.has(id))
-					.map((tagId) => ({ tagId, assigned: true })),
-				...[...initial]
-					.filter((id) => !current.has(id))
-					.map((tagId) => ({ tagId, assigned: false })),
+			const { added, removed } = tagDiff()
+			const tagUpdates = [
+				...added.map((tagId) => ({ tagId, assigned: true })),
+				...removed.map((tagId) => ({ tagId, assigned: false })),
 			]
 			for (const { tagId, assigned } of tagUpdates) {
 				const tagRes = await set_entry_tag(props.otp.id, tagId, assigned)
@@ -169,15 +169,7 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 					setError(tagRes.error.message)
 					return
 				}
-				setInitialTagIds((prev) => {
-					const next = new Set(prev)
-					if (assigned) {
-						next.add(tagId)
-					} else {
-						next.delete(tagId)
-					}
-					return next
-				})
+				setInitialTagIds((prev) => withToggled(prev, tagId, assigned))
 			}
 
 			const res = await update_entry(props.otp.id, {
