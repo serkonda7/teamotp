@@ -102,3 +102,10 @@
 		justify-self: stretch;
 	}
 }
+
+.app-footer {
+	margin-top: 2rem;
+	text-align: right;
+	font-size: 0.8rem;
+	color: var(--color-text-muted);
+}

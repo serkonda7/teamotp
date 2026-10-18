@@ -1,12 +1,11 @@
 import { SearchBar } from '@serkonda7/solid-components'
-import { IconHome, IconInfoCircle, IconLogout, IconTag } from '@tabler/icons-solidjs'
+import { IconHome, IconLogout, IconTag } from '@tabler/icons-solidjs'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import { navigate, path } from '../router'
 import TeamOtpLogo from './TeamOtpLogo'
 import ThemeToggle from './ThemeToggle'
 
 type AppHeaderProps = {
-	onOpenAbout: () => void
 	onLogout: () => void
 	searchQuery: string
 	onSearchInput: (query: string) => void
@@ -129,18 +128,8 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					<ThemeToggle tabindex={path() === '/tags' ? 7 : 6} />
 					<button
 						type="button"
-						class="icon-button info-button"
-						tabindex={path() === '/tags' ? 8 : 7}
-						onClick={props.onOpenAbout}
-						aria-label="Über TeamOTP"
-						title="Über"
-					>
-						<IconInfoCircle size={18} stroke="2" aria-hidden="true" />
-					</button>
-					<button
-						type="button"
 						class="icon-button logout-button"
-						tabindex={path() === '/tags' ? 9 : 8}
+						tabindex={path() === '/tags' ? 8 : 7}
 						onClick={props.onLogout}
 						aria-label="Abmelden"
 						title="Abmelden"

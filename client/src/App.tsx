@@ -12,8 +12,8 @@ import {
 } from 'solid-js'
 import { fetch_otps, fetch_tags, set_unauthorized_handler, UnauthorizedError } from './api'
 import { fetchMe, logout } from './api_auth'
-import AboutDialog from './components/AboutDialog'
 import AddFromOtpauthForm from './components/AddFromOtpauthForm'
+import AppFooter from './components/AppFooter'
 import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
 import OtpList from './components/OtpList'
@@ -43,7 +43,6 @@ function App(): JSX.Element {
 	const [otpauthUrl, setOtpauthUrl] = createSignal('')
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
-	const [aboutOpen, setAboutOpen] = createSignal(false)
 	const initialSearchQuery =
 		typeof window !== 'undefined'
 			? (new URLSearchParams(window.location.search).get('search') ?? '')
@@ -200,7 +199,6 @@ function App(): JSX.Element {
 		return (
 			<div>
 				<AppHeader
-					onOpenAbout={() => setAboutOpen(true)}
 					onLogout={handleLogout}
 					searchQuery={searchQuery()}
 					onSearchInput={setSearchQuery}
@@ -210,11 +208,10 @@ function App(): JSX.Element {
 				>
 					{tagFilterSlot()}
 				</AppHeader>
-				<AboutDialog open={aboutOpen()} onClose={() => setAboutOpen(false)} />
-
 				<Show when={path() === '/tags'} fallback={otpView()}>
 					<TagsPage searchQuery={tagSearchQuery()} />
 				</Show>
+				<AppFooter />
 			</div>
 		)
 	}

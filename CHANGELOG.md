@@ -7,6 +7,7 @@
     - Show active filters as removable pills
     - Add search (> 8 tags)
     - Add selection marks in the popover and edit dialog
+  - Replace the about dialog with a footer showing the version number
 
 
 ## 0.5.2
