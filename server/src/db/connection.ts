@@ -23,14 +23,6 @@ export function getDb(): DbHandle {
 	return dbInstance
 }
 
-/** Returns the underlying Bun SQLite handle (used for transactions on one connection). */
-export function getSqliteHandle(): Database {
-	if (!sqliteInstance) {
-		throw new Error('Database has not been initialized. Call initDb() during startup.')
-	}
-	return sqliteInstance
-}
-
 export interface InitDbOptions {
 	dbPath?: string
 	migrationsFolder?: string

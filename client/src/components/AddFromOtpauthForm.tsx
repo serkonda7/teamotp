@@ -1,8 +1,9 @@
 import { Result } from 'better-result'
-import type { InputEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import type { OtpDisplayInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { create_entry } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
+import type { InputEventAndTarget } from '../types'
 
 type Props = {
 	otpauthUrl: () => string

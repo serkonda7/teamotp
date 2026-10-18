@@ -1,9 +1,10 @@
 import { IconArchive, IconX } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
-import type { InputEventAndTarget, OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
+import type { OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createSignal, For, onCleanup, onMount, Show } from 'solid-js'
 import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
+import type { InputEventAndTarget } from '../types'
 import TagSelectMark from './TagSelectMark'
 
 type EditDialogProps = {

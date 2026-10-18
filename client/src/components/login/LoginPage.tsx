@@ -1,8 +1,8 @@
 import { Result } from 'better-result'
-import type { InputEventAndTarget } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createResource, createSignal, Show } from 'solid-js'
 import { type AuthProviders, fetchProviders, login } from '../../api_auth'
+import type { InputEventAndTarget } from '../../types'
 import TeamOtpLogo from '../TeamOtpLogo'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
 

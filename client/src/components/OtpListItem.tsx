@@ -1,9 +1,10 @@
 import { IconEye, IconEyeOff, IconPencil } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
-import type { MouseEventAndTarget, OtpDisplayInfo, TagInfo } from 'shared/src/types'
+import type { OtpDisplayInfo, TagInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../api'
+import type { MouseEventAndTarget } from '../types'
 import EditDialog from './EditDialog'
 
 type Props = {

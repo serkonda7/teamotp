@@ -1,6 +1,7 @@
 import { IconFilter2, IconX } from '@tabler/icons-solidjs'
 import type { TagInfo } from 'shared/src/types'
 import { createEffect, createMemo, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
+import type { InputEventAndTarget } from '../types'
 import { matchesQuery } from '../util/otp_search'
 import TagSelectMark from './TagSelectMark'
 
@@ -97,7 +98,7 @@ const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => {
 					placeholder="Tags durchsuchen"
 					aria-label="Tags durchsuchen"
 					value={query()}
-					onInput={(event: InputEvent & { currentTarget: HTMLInputElement }): void => {
+					onInput={(event: InputEventAndTarget): void => {
 						setQuery(event.currentTarget.value)
 					}}
 				/>

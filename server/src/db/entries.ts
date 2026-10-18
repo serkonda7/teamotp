@@ -1,10 +1,10 @@
 import { Result } from 'better-result'
 import { eq, isNull } from 'drizzle-orm'
 import type { HashAlgorithm } from 'otplib'
-import type { NewOtpEntry, OtpDisplayInfo, TagInfo } from 'shared/src/types'
+import type { NewOtpEntry, OtpDisplayInfo, TagInfo, UpdateOtpEntry } from 'shared/src/types'
 import { generateTotpCode } from '../otp'
 import { entries, entry_tags, tags } from '../schema'
-import type { OtpEntry, UpdateOtpEntry } from '../types'
+import type { OtpEntry } from '../types'
 import { getDb } from './connection'
 
 export function listEntries(includeArchived = false): OtpDisplayInfo[] {
