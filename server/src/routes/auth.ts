@@ -1,6 +1,6 @@
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node'
 import { vValidator } from '@hono/valibot-validator'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { LoginSchema } from 'shared/src/schemas'
 import { logLoginAttempt } from '../audit'
@@ -15,6 +15,7 @@ import {
 	getStateCookieOpts,
 	invalidateSession,
 } from '../sessions'
+import type { User } from '../types'
 import { jsonError } from '../util/http'
 import { nowSeconds } from '../util/time'
 
@@ -54,6 +55,24 @@ function withErrorParam(base: string, error: string): string {
 		const sep = base.includes('?') ? '&' : '?'
 		return `${base}${sep}error=${error}`
 	}
+}
+
+/** Redirects to the frontend, optionally flagging a login problem via `?error=`. */
+function redirectToFrontend(c: Context, error?: string): Response {
+	const base = getConfig().frontendUrl ?? '/'
+	return c.redirect(error ? withErrorParam(base, error) : base)
+}
+
+/** Records a failed login attempt and answers with the generic 401. */
+function loginFailure(c: Context, email: string, userId?: string): Response {
+	logLoginAttempt({ email, userId, action: 'login.failure' })
+	return jsonError(c, 'Invalid email or password', 401)
+}
+
+/** Creates a session for the user and sets the session cookie. */
+async function startSession(c: Context, user: User): Promise<void> {
+	const token = await get_signed_jwt(user)
+	setCookie(c, 'auth_token', token, getSessionCookieOpts())
 }
 
 // ---------------------------------------------------------------------------
@@ -114,13 +133,13 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 
 	if (!code || !state || state !== stateCookie) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'invalid_state'))
+		return redirectToFrontend(c, 'invalid_state')
 	}
 
 	const pending = consumeAuthState(state, nowSeconds())
 	if (!pending) {
 		logLoginAttempt({ email: 'unknown', action: 'login.failure' })
-		return c.redirect(withErrorParam(config.frontendUrl ?? '/', 'expired_state'))
+		return redirectToFrontend(c, 'expired_state')
 	}
 
 	let tokenResponse: Awaited<ReturnType<ConfidentialClientApplication['acquireTokenByCode']>>
@@ -158,16 +177,10 @@ authApp.get('/callback/microsoft', rate_limit(), async (c) => {
 	const user = upsertMicrosoftUser({ providerId: oid, email })
 	logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
 
-	const token = await get_signed_jwt(user)
-	setCookie(c, 'auth_token', token, getSessionCookieOpts())
+	await startSession(c, user)
+	deleteCookie(c, 'ms_auth_state', getStateCookieOpts(AUTH_STATE_TTL_S))
 
-	deleteCookie(c, 'ms_auth_state', {
-		path: '/',
-		secure: config.auth.secureCookies,
-		sameSite: 'Lax',
-	})
-
-	return c.redirect(config.frontendUrl ?? '/')
+	return redirectToFrontend(c)
 })
 
 authApp.post(
@@ -186,25 +199,15 @@ authApp.post(
 		const body = c.req.valid('json')
 
 		const user = getUserByEmail(body.email)
-		if (!user) {
-			logLoginAttempt({ email: body.email, action: 'login.failure' })
-			return jsonError(c, 'Invalid email or password', 401)
-		}
-
-		if (!user.password_hash) {
-			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-			return jsonError(c, 'Invalid email or password', 401)
-		}
-
-		const isMatch = await Bun.password.verify(body.password, user.password_hash)
-		if (!isMatch) {
-			logLoginAttempt({ email: body.email, userId: user.id, action: 'login.failure' })
-			return jsonError(c, 'Invalid email or password', 401)
+		const isMatch = user?.password_hash
+			? await Bun.password.verify(body.password, user.password_hash)
+			: false
+		if (!user || !isMatch) {
+			return loginFailure(c, body.email, user?.id)
 		}
 
 		logLoginAttempt({ email: user.email, userId: user.id, action: 'login.success' })
-		const token = await get_signed_jwt(user)
-		setCookie(c, 'auth_token', token, getSessionCookieOpts())
+		await startSession(c, user)
 
 		return c.json({ success: true })
 	},
@@ -214,11 +217,7 @@ authApp.post('/logout', authMiddleware, async (c) => {
 	const payload = c.get('jwtPayload')
 	invalidateSession(payload.jti)
 
-	deleteCookie(c, 'auth_token', {
-		path: '/',
-		secure: getConfig().auth.secureCookies,
-		sameSite: 'Strict',
-	})
+	deleteCookie(c, 'auth_token', getSessionCookieOpts())
 	return c.json({ success: true })
 })
 
