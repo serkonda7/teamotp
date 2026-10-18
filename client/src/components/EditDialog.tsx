@@ -339,6 +339,14 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							<IconArchive size={18} stroke="2" aria-hidden="true" />
 						</button>
 						<button
+							type="button"
+							class="cancel-button"
+							onClick={handleClose}
+							disabled={submitting()}
+						>
+							Abbrechen
+						</button>
+						<button
 							type="submit"
 							class="login-button"
 							disabled={submitting()}
@@ -349,14 +357,6 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 							{/* Balance spacer: matches the reserved asterisk slot so the
 						label stays centered whether or not changes exist */}
 							<Asterisk visible={false} />
-						</button>
-						<button
-							type="button"
-							class="cancel-button"
-							onClick={handleClose}
-							disabled={submitting()}
-						>
-							Abbrechen
 						</button>
 					</div>
 				</form>
