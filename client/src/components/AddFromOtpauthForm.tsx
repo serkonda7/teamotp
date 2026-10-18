@@ -1,8 +1,9 @@
 import { Result } from 'better-result'
-import type { InputEventAndTarget, OtpDisplayInfo } from 'shared/src/types'
+import type { OtpDisplayInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { client, to_result } from '../api'
+import { create_entry } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
+import type { InputEventAndTarget } from '../types'
 
 type Props = {
 	otpauthUrl: () => string
@@ -33,11 +34,7 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 
 		props.setSubmitting(true)
 		try {
-			const res = await client.otp.$post({ json: Result.unwrap(payload_res) })
-			const created = await to_result<{ id: string }>(
-				res,
-				`Fehler beim Hinzufügen des Eintrags (${res.status})`,
-			)
+			const created = await create_entry(Result.unwrap(payload_res))
 			if (Result.isError(created)) {
 				props.setError(created.error.message)
 				return
@@ -45,9 +42,7 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 
 			props.setOtpauthUrl('')
 			await props.refetch()
-			if (created.value?.id) {
-				props.onCreated(created.value.id)
-			}
+			props.onCreated(created.value)
 		} finally {
 			props.setSubmitting(false)
 		}

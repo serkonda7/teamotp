@@ -1,10 +1,11 @@
 import { IconTrash } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
-import type { InputEventAndTarget, TagWithMemberCount } from 'shared/src/types'
+import type { TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createResource, createSignal, For, Show } from 'solid-js'
 import { create_tag, delete_tag, fetch_tags } from '../api'
 import { setTagsChanged } from '../router'
+import type { InputEventAndTarget } from '../types'
 import { matchesQuery } from '../util/otp_search'
 import { makeArrayRefetch } from '../util/resource_helpers'
 

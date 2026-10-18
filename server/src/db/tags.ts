@@ -3,6 +3,7 @@ import { and, count, eq } from 'drizzle-orm'
 import { normalize_key } from 'shared/src/normalize'
 import type { NewTag, TagInfo, TagWithMemberCount } from 'shared/src/types'
 import { entry_tags, tags } from '../schema'
+import { to_error } from '../util/error'
 import { getDb } from './connection'
 import { DuplicateTagError, isForeignKeyViolation, isUniqueViolation } from './errors'
 
@@ -51,7 +52,7 @@ export function createTag(obj: NewTag): Result<TagInfo, Error> {
 		if (isUniqueViolation(err)) {
 			return Result.err(new DuplicateTagError())
 		}
-		return Result.err(err instanceof Error ? err : new Error(String(err)))
+		return Result.err(to_error(err))
 	}
 }
 
@@ -115,7 +116,7 @@ export function assignTag(entryId: string, tagId: string): Result<void, Error> {
 		if (isForeignKeyViolation(err)) {
 			return Result.err(new Error('OTP entry or tag not found'))
 		}
-		return Result.err(err instanceof Error ? err : new Error(String(err)))
+		return Result.err(to_error(err))
 	}
 }
 

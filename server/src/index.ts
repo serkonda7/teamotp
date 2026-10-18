@@ -8,6 +8,7 @@ import { authApp } from './routes/auth'
 import { otpApp } from './routes/otp_routes'
 import { tagApp } from './routes/tag_routes'
 import { SESSION_SWEEP_INTERVAL_MS, sweepExpired } from './sessions'
+import { to_error } from './util/error'
 import { jsonError } from './util/http'
 import { start_sweep } from './util/periodic'
 import { get_server_root, getTrimmedEnv, resolveInDataDir } from './util/server_root'
@@ -75,8 +76,7 @@ if (import.meta.main) {
 	try {
 		initDb({ serverRoot })
 	} catch (err) {
-		const msg = err instanceof Error ? err.message : String(err)
-		console.error(`Failed to start server: ${msg}`)
+		console.error(`Failed to start server: ${to_error(err).message}`)
 		process.exit(1)
 	}
 

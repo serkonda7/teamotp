@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { getDb, initDb } from 'server/src/db'
 import { users } from 'server/src/schema'
 import { normalize_email } from 'server/src/util/email'
+import { to_error } from 'server/src/util/error'
 import { prompt_line } from 'shared/src/prompt'
 
 // Explicit startup instead of lazy imports: db.ts no longer opens the
@@ -10,8 +11,7 @@ import { prompt_line } from 'shared/src/prompt'
 try {
 	initDb()
 } catch (err) {
-	const msg = err instanceof Error ? err.message : String(err)
-	console.error(`Error: ${msg}`)
+	console.error(`Error: ${to_error(err).message}`)
 	process.exit(1)
 }
 
@@ -38,8 +38,7 @@ async function createUserDb(email: string, password: string): Promise<Result<voi
 		console.log('ok')
 		return Result.ok(undefined)
 	} catch (error: unknown) {
-		const msg = error instanceof Error ? error.message : String(error)
-		return Result.err(new Error(`Failed to create user: ${msg}`))
+		return Result.err(new Error(`Failed to create user: ${to_error(error).message}`))
 	}
 }
 
@@ -124,8 +123,7 @@ async function normalizeEmails(): Promise<Result<void, Error>> {
 		console.log(`Normalized ${toUpdate.length} email(s).`)
 		return Result.ok(undefined)
 	} catch (error: unknown) {
-		const msg = error instanceof Error ? error.message : String(error)
-		return Result.err(new Error(`Failed to normalize emails: ${msg}`))
+		return Result.err(new Error(`Failed to normalize emails: ${to_error(error).message}`))
 	}
 }
 

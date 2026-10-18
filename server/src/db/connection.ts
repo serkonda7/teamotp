@@ -6,7 +6,7 @@ import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import { get_server_root, getTrimmedEnv, resolveInDataDir } from '../util/server_root'
 
-export type DbHandle = ReturnType<typeof drizzle>
+type DbHandle = ReturnType<typeof drizzle>
 
 let dbInstance: DbHandle | null = null
 let sqliteInstance: Database | null = null
@@ -23,15 +23,7 @@ export function getDb(): DbHandle {
 	return dbInstance
 }
 
-/** Returns the underlying Bun SQLite handle (used for transactions on one connection). */
-export function getSqliteHandle(): Database {
-	if (!sqliteInstance) {
-		throw new Error('Database has not been initialized. Call initDb() during startup.')
-	}
-	return sqliteInstance
-}
-
-export interface InitDbOptions {
+interface InitDbOptions {
 	dbPath?: string
 	migrationsFolder?: string
 	serverRoot?: string

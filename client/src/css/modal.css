@@ -46,13 +46,6 @@
 	margin: 0;
 }
 
-.github-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	width: fit-content;
-}
-
 /* Unsaved Changes Indicators */
 .button-changed {
 	font-style: italic;
