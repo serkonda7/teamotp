@@ -33,7 +33,7 @@ export const configSchema = v.strictObject({
 	server: v.optional(
 		v.strictObject({
 			host: v.optional(v.string(), '0.0.0.0'),
-			port: v.optional(v.number(), 3000),
+			port: v.optional(v.number(), 3001),
 		}),
 		{},
 	),

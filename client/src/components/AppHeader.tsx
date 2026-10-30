@@ -1,10 +1,11 @@
 import { SearchBar } from '@serkonda7/solid-components'
-import { IconHome, IconLogout, IconTag } from '@tabler/icons-solidjs'
+import { IconLogout, IconTag } from '@tabler/icons-solidjs'
+import { useNavigate } from '@tanstack/solid-router'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
-import { navigate, path } from '../router'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
+	isTagsPage: boolean
 	onLogout: () => void
 	searchQuery: string
 	onSearchInput: (query: string) => void
@@ -56,9 +57,14 @@ const HeaderSearch = (props: HeaderSearchProps): JSX.Element => {
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
+	const navigate = useNavigate()
 	const [isScrolled, setIsScrolled] = createSignal(false)
+	let search: HTMLDivElement | undefined
 
 	onMount(() => {
+		// The header mounts once per session, so switching pages keeps the focus where it is
+		search?.querySelector('input')?.focus()
+
 		const updateScrolled = (): void => {
 			setIsScrolled(window.scrollY > 0)
 		}
@@ -76,9 +82,9 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="app-title">
 				<TeamOtpLogo class="app-title__logo" />
 			</div>
-			<div class="header-search">
+			<div ref={search} class="header-search">
 				<Show
-					when={path() === '/tags'}
+					when={props.isTagsPage}
 					fallback={
 						<HeaderSearch
 							value={props.searchQuery}
@@ -98,41 +104,26 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="header-end">
 				<div class="header-pills">{props.tagPills}</div>
 				<div class="header-actions">
-					<Show
-						when={path() === '/tags'}
-						fallback={
-							<button
-								type="button"
-								class="icon-button"
-								tabindex={5}
-								onClick={(): void => navigate('/tags')}
-								aria-label="Tags verwalten"
-								title="Tags"
-							>
-								<IconTag size={18} stroke="2" aria-hidden="true" />
-							</button>
-						}
-					>
+					<Show when={!props.isTagsPage}>
 						<button
 							type="button"
-							class="icon-button"
-							tabindex={6}
-							onClick={(): void => navigate('/')}
-							aria-label="Zurück zur Übersicht"
-							title="Übersicht"
+							class="icon-button header-button"
+							tabindex={5}
+							onClick={(): void => void navigate({ to: '/tags', search: true })}
+							aria-label="Tags verwalten"
 						>
-							<IconHome size={18} stroke="2" aria-hidden="true" />
+							<IconTag size={18} stroke="2" aria-hidden="true" />
+							Tags
 						</button>
 					</Show>
 					<button
 						type="button"
-						class="icon-button logout-button"
-						tabindex={path() === '/tags' ? 7 : 6}
+						class="icon-button header-button"
+						tabindex={6}
 						onClick={props.onLogout}
-						aria-label="Abmelden"
-						title="Abmelden"
 					>
 						<IconLogout size={18} stroke="2" aria-hidden="true" />
+						Abmelden
 					</button>
 				</div>
 			</div>

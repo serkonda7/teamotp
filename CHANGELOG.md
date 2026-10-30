@@ -1,4 +1,16 @@
 # Changelog
+## Unreleased
+
+- UI and UX
+  - Focus search bar after login
+  - Tags page: replace the home icon with breadcrumb navigation
+  - Edit name and color of existing tags
+  - Show text labels on the tags and logout buttons
+  - Remove danger color from the logout button
+  - Touch devices: replace the add entry form with a floating button that opens a QR scanner
+  - Dialogs: migrate to shared `Modal` component
+
+
 ## 1.0.0
 _2026-10-18_
 

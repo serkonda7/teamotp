@@ -38,6 +38,18 @@ async function createTagViaApi(
 	return body.id
 }
 
+async function updateTagViaApi(
+	headers: { cookie: string },
+	id: string,
+	tag: { name: string; color: string },
+): Promise<Response> {
+	return await app.request(`/tags/${id}`, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json', ...headers },
+		body: JSON.stringify(tag),
+	})
+}
+
 describe('Tag routes', () => {
 	test('validates required fields in create endpoint', async () => {
 		const headers = await getAuthHeaders()
@@ -141,6 +153,65 @@ describe('Tag routes', () => {
 			await app.request(`/otp/${entryId}/tags`, { headers: { ...headers } })
 		).json()) as { name: string }[]
 		expect(entryTags[0]?.name).toBe('MiXeD')
+	})
+
+	test('updates name and color, keeping assignments', async () => {
+		const headers = await getAuthHeaders()
+		const entryId = await createEntryViaApi(headers)
+		const tagId = await createTagViaApi(headers)
+		await app.request(`/otp/${entryId}/tags/${tagId}`, {
+			method: 'PUT',
+			headers: { ...headers },
+		})
+
+		const response = await updateTagViaApi(headers, tagId, { name: ' Home ', color: '#00FF00' })
+		expect(response.status).toBe(200)
+		expect(await response.json()).toEqual({ success: true })
+
+		const listResponse = await app.request('/tags', { headers: { ...headers } })
+		expect(await listResponse.json()).toEqual([
+			{ id: tagId, name: 'Home', color: '#00ff00', member_count: 1 },
+		])
+
+		const row = getDb().select().from(tags).where(eq(tags.id, tagId)).get()
+		expect(row?.normalized_name).toBe('home')
+	})
+
+	test('allows changing only the case of a tag name', async () => {
+		const headers = await getAuthHeaders()
+		const tagId = await createTagViaApi(headers, 'work')
+
+		const response = await updateTagViaApi(headers, tagId, { name: 'WORK', color: '#ff8800' })
+		expect(response.status).toBe(200)
+
+		const listResponse = await app.request('/tags', { headers: { ...headers } })
+		const tagList = (await listResponse.json()) as { name: string }[]
+		expect(tagList[0]?.name).toBe('WORK')
+	})
+
+	test('rejects renaming a tag onto another tag with 409', async () => {
+		const headers = await getAuthHeaders()
+		await createTagViaApi(headers, 'Work')
+		const tagId = await createTagViaApi(headers, 'Home')
+
+		const response = await updateTagViaApi(headers, tagId, { name: 'work', color: '#ff8800' })
+		expect(response.status).toBe(409)
+		expect(await response.json()).toEqual({ error: 'A tag with this name already exists' })
+	})
+
+	test('rejects invalid updates and returns 404 for unknown ids', async () => {
+		const headers = await getAuthHeaders()
+		const tagId = await createTagViaApi(headers)
+
+		const invalid = await updateTagViaApi(headers, tagId, { name: 'Work', color: 'red' })
+		expect(invalid.status).toBe(400)
+
+		const missing = await updateTagViaApi(headers, 'missing', {
+			name: 'Work',
+			color: '#ff8800',
+		})
+		expect(missing.status).toBe(404)
+		expect(await missing.json()).toEqual({ error: 'Tag not found' })
 	})
 
 	test('deletes a tag and returns 404 for unknown ids', async () => {

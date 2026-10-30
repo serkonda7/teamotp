@@ -1,157 +1,32 @@
-import { Result } from 'better-result'
-import type { OtpDisplayInfo, TagInfo } from 'shared/src/types'
-import {
-	createEffect,
-	createMemo,
-	createResource,
-	createSignal,
-	type JSX,
-	onCleanup,
-	onMount,
-	Show,
-} from 'solid-js'
-import { fetch_otps, fetch_tags, set_unauthorized_handler, UnauthorizedError } from './api'
+import { useNavigate } from '@tanstack/solid-router'
+import { createEffect, createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
+import { set_unauthorized_handler } from './api'
 import { fetchMe, logout } from './api_auth'
-import AddFromOtpauthForm from './components/AddFromOtpauthForm'
-import AppFooter from './components/AppFooter'
-import AppHeader from './components/AppHeader'
 import LoginPage from './components/login/LoginPage'
-import OtpList from './components/OtpList'
-import TagFilter, { TagFilterPills } from './components/TagFilter'
-import TagsPage from './components/TagsPage'
-import { navigate, path, setTagsChanged, tagsChanged } from './router'
+import MainView from './components/MainView'
+import { query_client } from './queries'
 import { start_idle_timer } from './util/idle_timeout'
-import { otpMatchesSearch, otpMatchesTags } from './util/otp_search'
-import { makeArrayRefetch } from './util/resource_helpers'
 
 function App(): JSX.Element {
+	const navigate = useNavigate()
 	const [isLoggedIn, setIsLoggedIn] = createSignal<boolean | null>(null)
 	const [sessionExpired, setSessionExpired] = createSignal(false)
-
-	const [otps, { refetch }] = createResource(
-		isLoggedIn,
-		async (loggedIn) => {
-			if (!loggedIn) {
-				return []
-			}
-			return await fetchOtps()
-		},
-		{ initialValue: [] },
-	)
-	const refetchTyped = makeArrayRefetch<OtpDisplayInfo>(refetch)
-
-	const [otpauthUrl, setOtpauthUrl] = createSignal('')
-	const [submitting, setSubmitting] = createSignal(false)
-	const [error, setError] = createSignal<string | null>(null)
-	const initialSearchQuery =
-		typeof window !== 'undefined'
-			? (new URLSearchParams(window.location.search).get('search') ?? '')
-			: ''
-	const [searchQuery, setSearchQuery] = createSignal(initialSearchQuery)
-	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
-	const [activeTagIds, setActiveTagIds] = createSignal<string[]>([])
-	const [focusedEntryId, setFocusedEntryId] = createSignal<string | null>(null)
-
-	const [allTags, { refetch: refetchTags }] = createResource(
-		isLoggedIn,
-		async (loggedIn): Promise<TagInfo[]> => {
-			if (!loggedIn) {
-				return []
-			}
-			const res = await fetch_tags()
-			if (Result.isError(res)) {
-				setError(res.error.message)
-				return []
-			}
-			setError(null)
-			return res.value.sort((a, b) => a.name.localeCompare(b.name))
-		},
-		{ initialValue: [] },
-	)
-
-	const filteredOtps = createMemo<OtpDisplayInfo[]>(() => {
-		const query = searchQuery()
-		const tagIds = activeTagIds()
-		return otps().filter((otp) => otpMatchesSearch(otp, query) && otpMatchesTags(otp, tagIds))
-	})
-
-	// Deselect tags that no longer exist (e.g. deleted on the tags page)
-	createEffect(() => {
-		const existingIds = new Set(allTags().map((tag) => tag.id))
-		const pruned = activeTagIds().filter((id) => existingIds.has(id))
-		if (pruned.length !== activeTagIds().length) {
-			setActiveTagIds(pruned)
-		}
-	})
-
-	function toggleTagFilter(tagId: string): void {
-		setActiveTagIds((prev) =>
-			prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
-		)
-	}
-
-	function clearTagFilter(): void {
-		setActiveTagIds([])
-	}
-
-	createEffect(() => {
-		if (typeof window === 'undefined') {
-			return
-		}
-
-		if (path() !== '/tags' && tagsChanged()) {
-			setTagsChanged(false)
-			void refetchTyped()
-			void refetchTags()
-		}
-
-		const url = new URL(window.location.href)
-		const query = searchQuery().trim()
-
-		if (query.length > 0) {
-			url.searchParams.set('search', query)
-		} else {
-			url.searchParams.delete('search')
-		}
-
-		const next = `${url.pathname}${url.search}${url.hash}`
-		const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
-		if (next !== current) {
-			window.history.replaceState(null, '', next)
-		}
-	})
 
 	onMount(async () => {
 		setIsLoggedIn(await fetchMe())
 	})
 
-	async function fetchOtps(): Promise<OtpDisplayInfo[]> {
-		const res = await fetch_otps()
-		if (Result.isError(res)) {
-			if (res.error instanceof UnauthorizedError) {
-				setIsLoggedIn(false)
-			} else {
-				setError(res.error.message)
-			}
-			return []
-		}
-		return res.value
-	}
-
 	async function handleLogout(): Promise<void> {
 		await logout()
 		clearSession()
-		navigate('/')
 	}
 
 	/** Drops everything the logged in view holds, so nothing survives into the next session. */
 	function clearSession(): void {
+		// Before leaving the view, because the login page starts its own query on mount
+		query_client.clear()
 		setIsLoggedIn(false)
-		setSearchQuery('')
-		setTagSearchQuery('')
-		setActiveTagIds([])
-		setFocusedEntryId(null)
-		setError(null)
+		void navigate({ to: '/', search: {} })
 	}
 
 	/** Returns to the login page with a notice, after a timeout or a logout elsewhere. */
@@ -162,89 +37,11 @@ function App(): JSX.Element {
 
 		clearSession()
 		setSessionExpired(true)
-		navigate('/')
 	}
 
 	function handleLoginSuccess(): void {
 		setSessionExpired(false)
 		setIsLoggedIn(true)
-	}
-
-	function tagFilterSlot(): JSX.Element {
-		return (
-			<Show when={path() !== '/tags' && allTags().length > 0}>
-				<TagFilter
-					tags={allTags()}
-					activeTagIds={activeTagIds()}
-					onToggle={toggleTagFilter}
-				/>
-			</Show>
-		)
-	}
-
-	function tagPillsSlot(): JSX.Element {
-		return (
-			<Show when={path() !== '/tags'}>
-				<TagFilterPills
-					tags={allTags()}
-					activeTagIds={activeTagIds()}
-					onToggle={toggleTagFilter}
-					onClear={clearTagFilter}
-				/>
-			</Show>
-		)
-	}
-
-	function mainView(): JSX.Element {
-		return (
-			<div>
-				<AppHeader
-					onLogout={handleLogout}
-					searchQuery={searchQuery()}
-					onSearchInput={setSearchQuery}
-					tagSearchQuery={tagSearchQuery()}
-					onTagSearchInput={setTagSearchQuery}
-					tagPills={tagPillsSlot()}
-				>
-					{tagFilterSlot()}
-				</AppHeader>
-				<Show when={path() === '/tags'} fallback={otpView()}>
-					<TagsPage searchQuery={tagSearchQuery()} />
-				</Show>
-				<AppFooter />
-			</div>
-		)
-	}
-
-	function otpView(): JSX.Element {
-		return (
-			<>
-				<AddFromOtpauthForm
-					otpauthUrl={otpauthUrl}
-					setOtpauthUrl={setOtpauthUrl}
-					submitting={submitting}
-					setSubmitting={setSubmitting}
-					setError={setError}
-					refetch={refetchTyped}
-					onCreated={setFocusedEntryId}
-				/>
-
-				<Show when={error()}>
-					<div class="app-inline-error">{error()}</div>
-				</Show>
-
-				<OtpList
-					otps={filteredOtps()}
-					loading={otps.loading}
-					searchQuery={searchQuery()}
-					tagFilterActive={activeTagIds().length > 0}
-					setError={setError}
-					refetch={refetchTyped}
-					focusedId={focusedEntryId}
-					onFocused={() => setFocusedEntryId(null)}
-				/>
-			</>
-		)
 	}
 
 	// A 401 can answer any request once the server session timed out
@@ -275,7 +72,7 @@ function App(): JSX.Element {
 					/>
 				}
 			>
-				{mainView()}
+				<MainView onLogout={handleLogout} />
 			</Show>
 		</Show>
 	)

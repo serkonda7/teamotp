@@ -15,13 +15,13 @@ import path from 'node:path'
 const DATA_DIR = path.resolve(process.cwd(), 'server', 'data')
 const CONFIG_DIR = path.resolve(process.cwd(), 'tests', 'e2e', 'config')
 
-export const MICROSOFT_API_PORT = 3001
-export const MICROSOFT_APP_PORT = 5372
+export const MICROSOFT_API_PORT = 3002
+export const MICROSOFT_APP_PORT = 5373
 
-export const API_URL = 'http://localhost:3000'
+export const API_URL = 'http://localhost:3001'
 export const MICROSOFT_API_URL = `http://localhost:${MICROSOFT_API_PORT}`
 
-export const APP_URL = 'http://localhost:5371'
+export const APP_URL = 'http://localhost:5372'
 export const MICROSOFT_APP_URL = `http://localhost:${MICROSOFT_APP_PORT}`
 
 export const CONFIG_PATH = path.join(CONFIG_DIR, 'without-microsoft.toml')

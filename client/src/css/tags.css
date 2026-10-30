@@ -26,6 +26,37 @@
 	margin: 0 auto;
 }
 
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	margin: 0.5rem 0 0;
+	padding: 0;
+	list-style: none;
+	color: var(--color-text-muted);
+
+	& li {
+		display: inline-flex;
+	}
+
+	& [aria-current="page"] {
+		color: var(--color-text);
+	}
+
+	& a {
+		color: inherit;
+
+		&:hover {
+			color: var(--color-text);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
+		}
+	}
+}
+
 .tags-page h2 {
 	margin: 0.5rem 0 1rem;
 }
@@ -40,14 +71,34 @@
 	flex: 1 1 12rem;
 }
 
-.tags-create-form input[type="color"] {
-	width: 3.2rem;
-	height: 2.35rem;
-	padding: 0.15rem;
-	border: 1px solid var(--color-border);
-	border-radius: var(--corner-radius);
-	background: var(--color-bg);
-	cursor: pointer;
+.tag-color-input {
+	--color-input-border: var(--color-border);
+	--color-input-bg: var(--color-bg);
+}
+
+/* Override the shared form input styles without covering the swatch. */
+.form-group .color-input-text {
+	width: 100%;
+	padding-left: 2.25rem;
+}
+
+.form-group .color-input-picker {
+	width: 1.25rem;
+	height: 1.25rem;
+	padding: 0;
+	border: 0;
+	background: none;
+}
+
+/* Label and field share one line, labels aligned in a fixed column */
+.tag-edit-dialog .form-group {
+	display: grid;
+	grid-template-columns: 5rem minmax(0, 1fr);
+	align-items: center;
+}
+
+.tag-edit-dialog .tag-color-input {
+	justify-self: start;
 }
 
 .tag-list {

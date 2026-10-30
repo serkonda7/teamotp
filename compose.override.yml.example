@@ -1,6 +1,6 @@
 # Usage:
-#   cp docker-compose.override.yml.example docker-compose.override.yml
-#   nano docker-compose.override.yml
+#   cp compose.override.yml.example compose.override.yml
+#   nano compose.override.yml
 #   docker compose config   # verify the merged result
 #   docker compose up -d --build
 #

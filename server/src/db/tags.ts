@@ -56,6 +56,32 @@ export function createTag(obj: NewTag): Result<TagInfo, Error> {
 	}
 }
 
+/**
+ * Replaces name and color of a tag. Like `createTag`, the unique constraint on
+ * `normalized_name` decides name collisions: renaming onto another tag resolves
+ * to `Result.err(DuplicateTagError)`.
+ */
+export function updateTag(id: string, obj: NewTag): Result<void, Error> {
+	const displayName = obj.name.trim()
+	try {
+		getDb()
+			.update(tags)
+			.set({
+				name: displayName,
+				normalized_name: normalize_key(displayName),
+				color: obj.color,
+			})
+			.where(eq(tags.id, id))
+			.run()
+		return Result.ok(undefined)
+	} catch (err) {
+		if (isUniqueViolation(err)) {
+			return Result.err(new DuplicateTagError())
+		}
+		return Result.err(to_error(err))
+	}
+}
+
 export function getTagById(id: string): TagInfo | null {
 	const row = getDb()
 		.select({ id: tags.id, name: tags.name, color: tags.color })

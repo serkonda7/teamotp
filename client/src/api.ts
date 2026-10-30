@@ -4,6 +4,7 @@ import { hc } from 'hono/client'
 import type { AppType } from 'server/src/index'
 import type {
 	NewOtpEntry,
+	NewTag,
 	OtpDisplayInfo,
 	TagInfo,
 	TagWithMemberCount,
@@ -107,6 +108,12 @@ export async function fetch_tags(): Promise<Result<TagWithMemberCount[], Error>>
 export async function create_tag(name: string, color: string): Promise<Result<string, Error>> {
 	const res = await client.tags.$post({ json: { name, color } })
 	return (await to_result<{ id: string }>(res, 'Fehler beim Erstellen des Tags')).map((d) => d.id)
+}
+
+/** Updates name and color of a tag. */
+export async function update_tag(id: string, fields: NewTag): Promise<Result<null, Error>> {
+	const res = await client.tags[':id'].$post({ param: { id }, json: fields })
+	return to_result<null>(res, 'Fehler beim Update des Tags')
 }
 
 /** Deletes a tag and all its assignments. */

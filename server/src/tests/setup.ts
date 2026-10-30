@@ -14,7 +14,7 @@ initConfig({
 		secureCookies: true,
 		disableLocalLogin: false,
 	},
-	server: { host: '127.0.0.1', port: 3000 },
+	server: { host: '127.0.0.1', port: 3001 },
 	audit: { retentionDays: 90 },
 })
 Bun.env.TEAMOTP_DB_PATH = ':memory:'

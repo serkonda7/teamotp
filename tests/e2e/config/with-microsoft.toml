@@ -13,4 +13,4 @@ maxAttempts = 10000
 clientId = "e2e-client-id"
 clientSecret = "e2e-client-secret"
 tenantId = "e2e-tenant-id"
-redirectUri = "http://localhost:3001/auth/callback/microsoft"
+redirectUri = "http://localhost:3002/auth/callback/microsoft"
