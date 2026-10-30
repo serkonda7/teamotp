@@ -1,8 +1,8 @@
-import { IconX } from '@tabler/icons-solidjs'
+import { Modal } from '@serkonda7/solid-components'
 import { Result } from 'better-result'
 import type { TagInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createSignal, onCleanup, onMount, Show } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 import { update_tag } from '../api'
 import { Asterisk, FormField } from './EditDialog'
 import TagColorInput from './TagColorInput'
@@ -23,27 +23,14 @@ const TagEditDialog = (props: TagEditDialogProps): JSX.Element => {
 	const isColorChanged = (): boolean => color() !== props.tag.color
 	const hasChanges = (): boolean => isNameChanged() || isColorChanged()
 
-	function handleClose(): void {
-		if (hasChanges()) {
-			if (!confirm('Ungespeicherte Änderungen wirklich verwerfen?')) {
-				return
-			}
-		}
-		props.onClose()
-	}
+	const confirmDiscard = (): boolean =>
+		!hasChanges() || confirm('Ungespeicherte Änderungen wirklich verwerfen?')
 
-	const handleKeyDown = (event: KeyboardEvent): void => {
-		if (event.key === 'Escape') {
-			handleClose()
+	function handleCancel(): void {
+		if (confirmDiscard()) {
+			props.onClose()
 		}
 	}
-
-	onMount(() => {
-		document.addEventListener('keydown', handleKeyDown)
-		onCleanup(() => {
-			document.removeEventListener('keydown', handleKeyDown)
-		})
-	})
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -73,91 +60,74 @@ const TagEditDialog = (props: TagEditDialogProps): JSX.Element => {
 	}
 
 	return (
-		<div class="modal-backdrop" role="presentation">
-			<button
-				type="button"
-				class="modal-dismiss"
-				aria-label="Dialog schließen"
-				onClick={handleClose}
-			/>
-			<div
-				class="modal-card tag-edit-dialog"
-				role="dialog"
-				aria-modal="true"
-				aria-label="Tag bearbeiten"
-			>
-				<button
-					type="button"
-					class="icon-button modal-close"
-					aria-label="Dialog schließen"
-					onClick={handleClose}
-				>
-					<IconX size={18} stroke="2" aria-hidden="true" />
-				</button>
+		<Modal
+			open
+			class="tag-edit-dialog"
+			title="Tag bearbeiten"
+			closeLabel="Dialog schließen"
+			onBeforeClose={confirmDiscard}
+			onClose={props.onClose}
+		>
+			<Show when={error()}>
+				<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
+					{error()}
+				</div>
+			</Show>
 
-				<h2 style={{ 'margin-bottom': '1rem' }}>Tag bearbeiten</h2>
-
-				<Show when={error()}>
-					<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
-						{error()}
+			<form class="login-form" onSubmit={handleSubmit}>
+				<FormField
+					id="edit-tag-name"
+					label="Name"
+					value={name()}
+					changed={isNameChanged()}
+					disabled={submitting()}
+					colClass="col-12"
+					placeholder="z. B. Arbeit"
+					required
+					onInput={setName}
+				/>
+				<div class="form-row">
+					<div class="form-group col-12">
+						<label
+							for="edit-tag-color"
+							classList={{ 'field-changed': isColorChanged() }}
+						>
+							<Show when={isColorChanged()}>
+								<Asterisk />
+							</Show>
+							Farbe
+						</label>
+						<TagColorInput
+							id="edit-tag-color"
+							value={color()}
+							onInput={setColor}
+							disabled={submitting()}
+						/>
 					</div>
-				</Show>
+				</div>
 
-				<form class="login-form" onSubmit={handleSubmit}>
-					<FormField
-						id="edit-tag-name"
-						label="Name"
-						value={name()}
-						changed={isNameChanged()}
+				<div class="form-actions">
+					<button
+						type="button"
+						class="cancel-button"
+						onClick={handleCancel}
 						disabled={submitting()}
-						colClass="col-12"
-						placeholder="z. B. Arbeit"
-						required
-						onInput={setName}
-					/>
-					<div class="form-row">
-						<div class="form-group col-12">
-							<label
-								for="edit-tag-color"
-								classList={{ 'field-changed': isColorChanged() }}
-							>
-								<Show when={isColorChanged()}>
-									<Asterisk />
-								</Show>
-								Farbe
-							</label>
-							<TagColorInput
-								id="edit-tag-color"
-								value={color()}
-								onInput={setColor}
-								disabled={submitting()}
-							/>
-						</div>
-					</div>
-
-					<div class="form-actions">
-						<button
-							type="button"
-							class="cancel-button"
-							onClick={handleClose}
-							disabled={submitting()}
-						>
-							Abbrechen
-						</button>
-						<button
-							type="submit"
-							class="login-button"
-							disabled={submitting()}
-							classList={{ 'button-changed': hasChanges() }}
-						>
-							<Asterisk visible={hasChanges()} />
-							{submitting() ? 'Speichern...' : 'Speichern'}
-							<Asterisk visible={false} />
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+					>
+						Abbrechen
+					</button>
+					<button
+						type="submit"
+						class="login-button"
+						disabled={submitting()}
+						classList={{ 'button-changed': hasChanges() }}
+					>
+						<Asterisk visible={hasChanges()} />
+						{submitting() ? 'Speichern...' : 'Speichern'}
+						<Asterisk visible={false} />
+					</button>
+				</div>
+			</form>
+		</Modal>
 	)
 }
 

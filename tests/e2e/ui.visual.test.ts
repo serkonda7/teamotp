@@ -58,7 +58,7 @@ test('tags page', async ({ page }) => {
 test('edit dialog', async ({ page }) => {
 	await login(page)
 	await page.getByRole('button', { name: 'Eintrag für test bearbeiten' }).click()
-	const dialog = page.locator('.modal-card')
+	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible()
 	await pinFonts(page)
 

@@ -1,8 +1,9 @@
-import { IconArchive, IconX } from '@tabler/icons-solidjs'
+import { Modal } from '@serkonda7/solid-components'
+import { IconArchive } from '@tabler/icons-solidjs'
 import { Result } from 'better-result'
 import type { OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
+import { createMemo, createSignal, For, onMount, Show } from 'solid-js'
 import { archive_entry, fetch_entry_tags, set_entry_tag, update_entry } from '../api'
 import { tags_query, use_query } from '../queries'
 import type { InputEventAndTarget } from '../types'
@@ -118,27 +119,14 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const hasChanges = (): boolean =>
 		isIssuerChanged() || isIssuerSecondChanged() || isLabelChanged() || isTagsChanged()
 
-	function handleClose(): void {
-		if (hasChanges()) {
-			if (!confirm('Ungespeicherte Änderungen wirklich verwerfen?')) {
-				return
-			}
-		}
-		props.onClose()
-	}
+	const confirmDiscard = (): boolean =>
+		!hasChanges() || confirm('Ungespeicherte Änderungen wirklich verwerfen?')
 
-	const handleKeyDown = (event: KeyboardEvent): void => {
-		if (event.key === 'Escape') {
-			handleClose()
+	function handleCancel(): void {
+		if (confirmDiscard()) {
+			props.onClose()
 		}
 	}
-
-	onMount(() => {
-		document.addEventListener('keydown', handleKeyDown)
-		onCleanup(() => {
-			document.removeEventListener('keydown', handleKeyDown)
-		})
-	})
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -216,142 +204,125 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	}
 
 	return (
-		<div class="modal-backdrop" role="presentation">
-			<button
-				type="button"
-				class="modal-dismiss"
-				aria-label="Dialog schließen"
-				onClick={handleClose}
-			/>
-			<div
-				class="modal-card modal-card--wide"
-				role="dialog"
-				aria-modal="true"
-				aria-label="OTP-Eintrag bearbeiten"
-			>
-				<button
-					type="button"
-					class="icon-button modal-close"
-					aria-label="Dialog schließen"
-					onClick={handleClose}
-				>
-					<IconX size={18} stroke="2" aria-hidden="true" />
-				</button>
+		<Modal
+			open
+			class="modal--wide"
+			title="Eintrag bearbeiten"
+			closeLabel="Dialog schließen"
+			onBeforeClose={confirmDiscard}
+			onClose={props.onClose}
+		>
+			<Show when={shownError()}>
+				<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
+					{shownError()}
+				</div>
+			</Show>
 
-				<h2 style={{ 'margin-bottom': '1rem' }}>Eintrag bearbeiten</h2>
+			<form class="login-form" onSubmit={handleSubmit}>
+				<FormField
+					id="edit-issuer"
+					label="Anbieter"
+					value={issuer()}
+					changed={isIssuerChanged()}
+					disabled={submitting()}
+					colClass="col-6"
+					placeholder="z. B. Microsoft"
+					onInput={setIssuer}
+				/>
+				<FormField
+					id="edit-issuer-second"
+					label="Firma / zweiter Anbieter"
+					value={issuerSecond()}
+					changed={isIssuerSecondChanged()}
+					disabled={submitting()}
+					colClass="col-6"
+					placeholder="z. B. Musterfirma GmbH"
+					onInput={setIssuerSecond}
+				/>
+				<FormField
+					id="edit-label"
+					label="Konto"
+					value={label()}
+					changed={isLabelChanged()}
+					disabled={submitting()}
+					colClass="col-12"
+					placeholder="z. B. user@gmail.com"
+					required
+					onInput={setLabel}
+				/>
 
-				<Show when={shownError()}>
-					<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
-						{shownError()}
+				<Show when={allTags().length > 0}>
+					<div class="edit-tags">
+						<span
+							class="edit-tags__label"
+							classList={{ 'field-changed': isTagsChanged() }}
+						>
+							<Show when={isTagsChanged()}>
+								<Asterisk />
+							</Show>
+							Tags
+						</span>
+						<For each={allTags()}>
+							{(tag: TagWithMemberCount): JSX.Element => (
+								<label
+									class="tag-chip edit-tags__option"
+									classList={{
+										'tag-chip--selected': assignedTagIds().has(tag.id),
+									}}
+									style={{ '--tag-color': tag.color }}
+								>
+									<input
+										type="checkbox"
+										checked={assignedTagIds().has(tag.id)}
+										disabled={submitting()}
+										onChange={(
+											e: Event & { currentTarget: HTMLInputElement },
+										): void => {
+											handleTagToggle(tag.id, e.currentTarget.checked)
+										}}
+									/>
+									<TagSelectMark selected={assignedTagIds().has(tag.id)} />
+									{tag.name}
+								</label>
+							)}
+						</For>
 					</div>
 				</Show>
 
-				<form class="login-form" onSubmit={handleSubmit}>
-					<FormField
-						id="edit-issuer"
-						label="Anbieter"
-						value={issuer()}
-						changed={isIssuerChanged()}
+				<div class="form-actions">
+					<button
+						type="button"
+						class="archive-button"
+						onClick={(): Promise<void> => handleArchive()}
 						disabled={submitting()}
-						colClass="col-6"
-						placeholder="z. B. Microsoft"
-						onInput={setIssuer}
-					/>
-					<FormField
-						id="edit-issuer-second"
-						label="Firma / zweiter Anbieter"
-						value={issuerSecond()}
-						changed={isIssuerSecondChanged()}
+						aria-label="Archivieren"
+						title="Archivieren"
+					>
+						<IconArchive size={18} stroke="2" aria-hidden="true" />
+					</button>
+					<button
+						type="button"
+						class="cancel-button"
+						onClick={handleCancel}
 						disabled={submitting()}
-						colClass="col-6"
-						placeholder="z. B. Musterfirma GmbH"
-						onInput={setIssuerSecond}
-					/>
-					<FormField
-						id="edit-label"
-						label="Konto"
-						value={label()}
-						changed={isLabelChanged()}
+					>
+						Abbrechen
+					</button>
+					<button
+						type="submit"
+						class="login-button"
 						disabled={submitting()}
-						colClass="col-12"
-						placeholder="z. B. user@gmail.com"
-						required
-						onInput={setLabel}
-					/>
-
-					<Show when={allTags().length > 0}>
-						<div class="edit-tags">
-							<span
-								class="edit-tags__label"
-								classList={{ 'field-changed': isTagsChanged() }}
-							>
-								<Show when={isTagsChanged()}>
-									<Asterisk />
-								</Show>
-								Tags
-							</span>
-							<For each={allTags()}>
-								{(tag: TagWithMemberCount): JSX.Element => (
-									<label
-										class="tag-chip edit-tags__option"
-										classList={{
-											'tag-chip--selected': assignedTagIds().has(tag.id),
-										}}
-										style={{ '--tag-color': tag.color }}
-									>
-										<input
-											type="checkbox"
-											checked={assignedTagIds().has(tag.id)}
-											disabled={submitting()}
-											onChange={(
-												e: Event & { currentTarget: HTMLInputElement },
-											): void => {
-												handleTagToggle(tag.id, e.currentTarget.checked)
-											}}
-										/>
-										<TagSelectMark selected={assignedTagIds().has(tag.id)} />
-										{tag.name}
-									</label>
-								)}
-							</For>
-						</div>
-					</Show>
-
-					<div class="form-actions">
-						<button
-							type="button"
-							class="archive-button"
-							onClick={(): Promise<void> => handleArchive()}
-							disabled={submitting()}
-							aria-label="Archivieren"
-							title="Archivieren"
-						>
-							<IconArchive size={18} stroke="2" aria-hidden="true" />
-						</button>
-						<button
-							type="button"
-							class="cancel-button"
-							onClick={handleClose}
-							disabled={submitting()}
-						>
-							Abbrechen
-						</button>
-						<button
-							type="submit"
-							class="login-button"
-							disabled={submitting()}
-							classList={{ 'button-changed': hasChanges() }}
-						>
-							<Asterisk visible={hasChanges()} />
-							{submitting() ? 'Speichern...' : 'Speichern'}
-							{/* Balance spacer: matches the reserved asterisk slot so the
-						label stays centered whether or not changes exist */}
-							<Asterisk visible={false} />
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+						classList={{ 'button-changed': hasChanges() }}
+					>
+						<Asterisk visible={hasChanges()} />
+						{submitting() ? 'Speichern...' : 'Speichern'}
+						{/* Balance spacer: matches the reserved asterisk slot so the
+				label stays centered whether or not changes exist */}
+						<Asterisk visible={false} />
+					</button>
+				</div>
+			</form>
+		</Modal>
 	)
 }
 

@@ -80,14 +80,14 @@
 	}
 }
 
-.modal-card .add-entry {
+.modal .add-entry {
 	margin: 0;
 	flex-direction: column;
 	align-items: stretch;
 }
 
 /* iOS zooms into focused inputs below 16px */
-.modal-card .add-entry__input {
+.modal .add-entry__input {
 	font-size: 1rem;
 }
 

@@ -1,49 +1,22 @@
-.modal-backdrop {
-	position: fixed;
-	inset: 0;
-	background: rgb(0 0 0 / 45%);
-	display: grid;
-	place-items: center;
-	padding: 1rem;
-	z-index: 10;
-}
-
-.modal-dismiss {
-	position: absolute;
-	inset: 0;
-	z-index: 0;
+/* Theme for the Modal from @serkonda7/solid-components */
+.modal {
+	--modal-width: 28rem;
+	--modal-bg: var(--color-bg);
+	--modal-muted: var(--color-text-muted);
+	--modal-hover-bg: var(--color-bg-hover);
 	border: 0;
-	padding: 0;
-	margin: 0;
-	background: transparent;
-	cursor: default;
-}
-
-.modal-card {
-	position: relative;
-	z-index: 1;
-	background: var(--color-bg);
 	border-radius: var(--corner-radius);
 	box-shadow: var(--shadow-modal);
-	padding: 1rem;
-	width: min(28rem, 100%);
+}
+
+.modal--wide {
+	--modal-width: 38rem;
+}
+
+.modal-body {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 0.7rem;
-}
-
-.modal-card--wide {
-	width: min(38rem, 100%);
-}
-
-.modal-close {
-	position: absolute;
-	top: 0.75rem;
-	right: 0.75rem;
-}
-
-.modal-card h2,
-.modal-card p {
-	margin: 0;
 }
 
 /* Unsaved Changes Indicators */
@@ -153,13 +126,20 @@
 	opacity: 0.6;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 420px) {
 	.form-actions {
-		padding-inline: 2.6rem;
+		padding-inline: 0;
+	}
+
+	/* Too narrow to keep the buttons centered next to the archive button */
+	.form-actions:has(.archive-button) {
+		padding-left: 2.6rem;
 	}
 
 	.form-actions .login-button,
 	.form-actions .cancel-button {
-		min-width: 5.5rem;
+		flex: 1 1 0;
+		min-width: 0;
+		padding-inline: var(--gap-small);
 	}
 }

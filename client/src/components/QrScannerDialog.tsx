@@ -1,4 +1,4 @@
-import { IconX } from '@tabler/icons-solidjs'
+import { Modal } from '@serkonda7/solid-components'
 import { Result } from 'better-result'
 import type { JSX } from 'solid-js'
 import { createSignal, onCleanup, onMount, Show } from 'solid-js'
@@ -64,62 +64,35 @@ const QrScannerDialog = (props: Props): JSX.Element => {
 		await scanFrame(decoder.value)
 	}
 
-	const handleKeyDown = (event: KeyboardEvent): void => {
-		if (event.key === 'Escape') {
-			props.onClose()
-		}
-	}
-
 	onMount(() => {
-		document.addEventListener('keydown', handleKeyDown)
 		void start()
 		onCleanup(() => {
 			closed = true
 			clearTimeout(timer)
 			stopCamera()
-			document.removeEventListener('keydown', handleKeyDown)
 		})
 	})
 
 	return (
-		<div class="modal-backdrop" role="presentation">
-			<button
-				type="button"
-				class="modal-dismiss"
-				aria-label="Dialog schließen"
-				onClick={props.onClose}
-			/>
-			<div class="modal-card" role="dialog" aria-modal="true" aria-label="QR-Code scannen">
-				<button
-					type="button"
-					class="icon-button modal-close"
-					aria-label="Dialog schließen"
-					onClick={props.onClose}
-				>
-					<IconX size={18} stroke="2" aria-hidden="true" />
-				</button>
+		<Modal open title="QR-Code scannen" closeLabel="Dialog schließen" onClose={props.onClose}>
+			<Show when={formError() ?? scanError()}>
+				<div class="login-error">{formError() ?? scanError()}</div>
+			</Show>
 
-				<h2>QR-Code scannen</h2>
-
-				<Show when={formError() ?? scanError()}>
-					<div class="login-error">{formError() ?? scanError()}</div>
-				</Show>
-
-				{/* Without a working scanner the URL is the only way to add an entry */}
-				<Show
-					when={scanError()}
-					fallback={
-						<video ref={video} class="qr-scanner__video" autoplay muted playsinline />
-					}
-				>
-					<OtpauthUrlForm
-						pending={props.pending}
-						setError={setFormError}
-						onSubmit={props.onSubmit}
-					/>
-				</Show>
-			</div>
-		</div>
+			{/* Without a working scanner the URL is the only way to add an entry */}
+			<Show
+				when={scanError()}
+				fallback={
+					<video ref={video} class="qr-scanner__video" autoplay muted playsinline />
+				}
+			>
+				<OtpauthUrlForm
+					pending={props.pending}
+					setError={setFormError}
+					onSubmit={props.onSubmit}
+				/>
+			</Show>
+		</Modal>
 	)
 }
 

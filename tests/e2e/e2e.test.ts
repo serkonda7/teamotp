@@ -204,6 +204,32 @@ test('tags can be edited', async ({ page }) => {
 	await expect(page.locator('.tag-list__item')).toHaveCount(1)
 })
 
+test('closing the edit dialog asks before discarding changes', async ({ page }) => {
+	await login(page)
+	await page.getByRole('button', { name: 'Eintrag für test bearbeiten' }).click()
+	const dialog = page.getByRole('dialog', { name: 'Eintrag bearbeiten' })
+
+	// Without changes there is nothing to confirm
+	await page.keyboard.press('Escape')
+	await expect(dialog).toHaveCount(0)
+
+	await page.getByRole('button', { name: 'Eintrag für test bearbeiten' }).click()
+	await dialog.getByLabel('Konto').fill('changed')
+
+	page.once('dialog', (confirmDialog) => confirmDialog.dismiss())
+	await page.keyboard.press('Escape')
+	await expect(dialog).toBeVisible()
+
+	page.once('dialog', (confirmDialog) => confirmDialog.dismiss())
+	await page.mouse.click(5, 5)
+	await expect(dialog).toBeVisible()
+	await expect(dialog.getByLabel('Konto')).toHaveValue('changed')
+
+	page.once('dialog', (confirmDialog) => confirmDialog.accept())
+	await dialog.getByRole('button', { name: 'Abbrechen' }).click()
+	await expect(dialog).toHaveCount(0)
+})
+
 test('clicking the same entry again after 5 seconds copies a fresh code', async ({
 	context,
 	page,
