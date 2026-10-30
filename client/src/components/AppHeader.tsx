@@ -57,8 +57,12 @@ const HeaderSearch = (props: HeaderSearchProps): JSX.Element => {
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
 	const [isScrolled, setIsScrolled] = createSignal(false)
+	let search: HTMLDivElement | undefined
 
 	onMount(() => {
+		// The header mounts once per session, so switching pages keeps the focus where it is
+		search?.querySelector('input')?.focus()
+
 		const updateScrolled = (): void => {
 			setIsScrolled(window.scrollY > 0)
 		}
@@ -76,7 +80,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="app-title">
 				<TeamOtpLogo class="app-title__logo" />
 			</div>
-			<div class="header-search">
+			<div ref={search} class="header-search">
 				<Show
 					when={path() === '/tags'}
 					fallback={

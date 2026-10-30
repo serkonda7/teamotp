@@ -12,11 +12,11 @@ bun run infra/updater.ts
 ## Configuration
 ```toml
 # Optional: frontend base URL if app runs on different port, default: `/`
-frontendUrl = "http://localhost:5371"
+frontendUrl = "http://localhost:5372"
 
 # Optional
 host = "0.0.0.0"
-port = 3000 # Only for non-docker environments. Overridden by `TEAMOTP_PORT` env var
+port = 3001 # Only for non-docker environments. Overridden by `TEAMOTP_PORT` env var
 
 [auth]
 appKey = "your-super-secret-change-me-app-key" # Required, >= 32 characters.
@@ -60,7 +60,7 @@ bun server-cli/src/cli.ts normalize-emails
 git clone https://github.com/serkonda7/teamotp
 
 # Copy and edit docker settings
-cp docker-compose.override.yml.example docker-compose.override.yml
+cp compose.override.yml.example compose.override.yml
 
 # Run updater to get latest stable version
 bun run infra/updater.ts

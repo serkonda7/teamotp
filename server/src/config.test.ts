@@ -33,7 +33,7 @@ afterEach(() => {
 })
 
 describe('load_config_file', () => {
-	test('server.port defaults to 3000 when absent', () => {
+	test('server.port defaults to 3001 when absent', () => {
 		const path = write_config(`
 			[auth]
 			appKey = "0123456789abcdef0123456789abcdef"
@@ -41,7 +41,7 @@ describe('load_config_file', () => {
 
 		const config = expect_ok(load_config_file(path))
 
-		expect(config.server.port).toBe(3000)
+		expect(config.server.port).toBe(3001)
 	})
 
 	test('TEAMOTP_PORT overrides server.port', () => {
@@ -51,7 +51,7 @@ describe('load_config_file', () => {
 			appKey = "0123456789abcdef0123456789abcdef"
 
 			[server]
-			port = 3000
+			port = 3001
 		`)
 
 		expect(resolve_listen_port(expect_ok(load_config_file(path)))).toBe(4567)

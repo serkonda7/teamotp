@@ -7,6 +7,12 @@ test('login page loads', async ({ page }) => {
 	await expect(page.locator('.login-card')).toBeVisible()
 })
 
+test('search is focused after login', async ({ page }) => {
+	await login(page)
+
+	await expect(page.getByLabel('Einträge suchen')).toBeFocused()
+})
+
 test('tags can be created, assigned, filtered and deleted', async ({ page }) => {
 	await login(page)
 

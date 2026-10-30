@@ -7,7 +7,7 @@ import solidPlugin from 'vite-plugin-solid'
 const APP_VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 	.version as string
 
-const CLIENT_PORT = Number(process.env.TEAMOTP_CLIENT_PORT ?? 5371)
+const CLIENT_PORT = Number(process.env.TEAMOTP_CLIENT_PORT ?? 5372)
 
 export default defineConfig({
 	plugins: [tablerIcons(), devtools(), solidPlugin()],
@@ -21,7 +21,7 @@ export default defineConfig({
 		port: CLIENT_PORT,
 		proxy: {
 			'/api': {
-				target: process.env.TEAMOTP_API_URL ?? 'http://localhost:3000',
+				target: process.env.TEAMOTP_API_URL ?? 'http://localhost:3001',
 				changeOrigin: true,
 				rewrite: (path: string) => path.replace(/^\/api/, ''),
 			},
