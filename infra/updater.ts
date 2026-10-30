@@ -168,7 +168,6 @@ async function main(): Promise<void> {
 	// Get new version
 	console.log('Updating...')
 	await $`git checkout ${target_ref}`.quiet()
-	await $`bun install --frozen-lockfile`.quiet()
 
 	console.log('Building...')
 	await $`docker compose up -d --build --remove-orphans`.quiet()
