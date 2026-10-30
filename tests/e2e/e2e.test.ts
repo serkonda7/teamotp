@@ -268,7 +268,7 @@ test('a new entry appears and receives focus without a reload', async ({ page })
 	await page
 		.getByLabel('OTPAuth URL')
 		.fill('otpauth://totp/Fresh:new-entry?secret=JBSWY3DPEHPK3PXP&issuer=Fresh')
-	await page.getByRole('button', { name: 'Neuer Eintrag' }).click()
+	await page.getByRole('button', { name: 'Anlegen' }).click()
 
 	const items = page.locator('.otp-list__item')
 	await expect(items).toHaveCount(before + 1)
@@ -294,7 +294,7 @@ test.describe('touch devices', () => {
 		const before = await page.locator('.otp-list__item').count()
 
 		await expect(page.getByLabel('OTPAuth URL')).toBeHidden()
-		await expect(page.getByRole('button', { name: 'Neuer Eintrag' })).toBeHidden()
+		await expect(page.getByRole('button', { name: 'Anlegen' })).toBeHidden()
 
 		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
 
@@ -309,15 +309,42 @@ test.describe('touch devices', () => {
 		await expect(items).toHaveCount(before)
 	})
 
-	test('a browser without BarcodeDetector gets an error', async ({ page }) => {
+	test('a browser without BarcodeDetector adds entries by URL in the dialog', async ({
+		page,
+	}) => {
 		await page.addInitScript(() => {
 			Reflect.deleteProperty(globalThis, 'BarcodeDetector')
 		})
 		await login(page)
+		await expect(page.locator('.otp-list__item').first()).toBeVisible()
+		const before = await page.locator('.otp-list__item').count()
 
 		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
 		const dialog = page.getByRole('dialog', { name: 'QR-Code scannen' })
 		await expect(dialog.getByText('nicht unterstützt')).toBeVisible()
+
+		const inputBox = await dialog.getByLabel('OTPAuth URL').boundingBox()
+		const buttonBox = await dialog.getByRole('button', { name: 'Anlegen' }).boundingBox()
+		expect(buttonBox?.y).toBeGreaterThanOrEqual((inputBox?.y ?? 0) + (inputBox?.height ?? 0))
+		expect(buttonBox?.width).toBe(inputBox?.width)
+
+		// A failed attempt stays in the dialog, where the error is visible
+		await dialog.getByLabel('OTPAuth URL').fill('not-a-url')
+		await dialog.getByRole('button', { name: 'Anlegen' }).click()
+		await expect(dialog.getByText('Please enter a valid URL')).toBeVisible()
+
+		await dialog.getByLabel('OTPAuth URL').fill(SCANNED_URL)
+		await dialog.getByRole('button', { name: 'Anlegen' }).click()
+		await expect(dialog).toHaveCount(0)
+
+		const items = page.locator('.otp-list__item')
+		await expect(items).toHaveCount(before + 1)
+
+		// The visual tests assert against the seeded entries
+		page.once('dialog', (confirmDialog) => confirmDialog.accept())
+		await page.getByRole('button', { name: 'Eintrag für Scanned bearbeiten' }).click()
+		await page.getByRole('button', { name: 'Archivieren' }).click()
+		await expect(items).toHaveCount(before)
 	})
 
 	test('a denied camera permission is shown in the scanner', async ({ page }) => {
@@ -331,6 +358,7 @@ test.describe('touch devices', () => {
 		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
 		const dialog = page.getByRole('dialog', { name: 'QR-Code scannen' })
 		await expect(dialog.getByText('Kamerazugriff wurde verweigert.')).toBeVisible()
+		await expect(dialog.getByLabel('OTPAuth URL')).toBeVisible()
 
 		await dialog.getByRole('button', { name: 'Dialog schließen' }).click()
 		await expect(dialog).toHaveCount(0)

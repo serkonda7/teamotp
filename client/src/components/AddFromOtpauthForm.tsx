@@ -6,7 +6,7 @@ import { createSignal, Show } from 'solid-js'
 import { create_entry } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
 import { refresh_data } from '../queries'
-import type { InputEventAndTarget } from '../types'
+import OtpauthUrlForm from './OtpauthUrlForm'
 import QrScannerDialog from './QrScannerDialog'
 
 type Props = {
@@ -15,75 +15,55 @@ type Props = {
 }
 
 const AddFromOtpauthForm = (props: Props): JSX.Element => {
-	const [otpauthUrl, setOtpauthUrl] = createSignal('')
 	const [scanning, setScanning] = createSignal(false)
 	const createEntry = useMutation(() => ({ mutationFn: create_entry }))
 
-	async function addFromOtpauthUrl(url: string): Promise<void> {
-		props.setError(null)
-
+	async function addFromOtpauthUrl(url: string): Promise<Result<void, Error>> {
 		const raw = url.trim()
 		if (!raw) {
-			props.setError('Füge eine otpauth:// URL ein')
-			return
+			return Result.err(new Error('Füge eine otpauth:// URL ein'))
 		}
 
 		const payload_res = parse_otpauth_url(raw)
 		if (Result.isError(payload_res)) {
-			props.setError(payload_res.error.message)
-			return
+			return Result.err(payload_res.error)
 		}
 
 		const created = await createEntry.mutateAsync(Result.unwrap(payload_res))
 		if (Result.isError(created)) {
-			props.setError(created.error.message)
-			return
+			return Result.err(created.error)
 		}
 
-		setOtpauthUrl('')
 		await refresh_data()
 		props.onCreated(created.value)
+		return Result.ok(undefined)
 	}
 
-	function handleSubmit(e: SubmitEvent): void {
-		e.preventDefault()
-		void addFromOtpauthUrl(otpauthUrl())
-	}
-
-	function handleScan(raw: string): void {
+	async function handleScan(raw: string): Promise<void> {
 		setScanning(false)
-		void addFromOtpauthUrl(raw)
+
+		const res = await addFromOtpauthUrl(raw)
+		if (Result.isError(res)) {
+			props.setError(res.error.message)
+		}
+	}
+
+	async function handleDialogSubmit(url: string): Promise<Result<void, Error>> {
+		const res = await addFromOtpauthUrl(url)
+		if (Result.isOk(res)) {
+			setScanning(false)
+		}
+		return res
 	}
 
 	return (
 		<>
-			<form class="add-entry" onSubmit={handleSubmit}>
-				<input
-					id="otpauth-url"
-					class="add-entry__input"
-					type="text"
-					tabindex={3}
-					placeholder="otpauth://totp/..."
-					aria-label="OTPAuth URL"
-					value={otpauthUrl()}
-					onInput={(e: InputEventAndTarget): void => {
-						setOtpauthUrl(e.currentTarget.value)
-						props.setError(null)
-					}}
-					disabled={createEntry.isPending}
-					autocomplete="off"
-					spellcheck={false}
-				/>
-
-				<button
-					type="submit"
-					class="add-entry__submit"
-					tabindex={3}
-					disabled={createEntry.isPending}
-				>
-					{createEntry.isPending ? 'Wird erstellt...' : 'Neuer Eintrag'}
-				</button>
-			</form>
+			<OtpauthUrlForm
+				class="add-entry--page"
+				pending={createEntry.isPending}
+				setError={props.setError}
+				onSubmit={addFromOtpauthUrl}
+			/>
 
 			<button
 				type="button"
@@ -100,7 +80,12 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 			</button>
 
 			<Show when={scanning()}>
-				<QrScannerDialog onScan={handleScan} onClose={() => setScanning(false)} />
+				<QrScannerDialog
+					pending={createEntry.isPending}
+					onScan={handleScan}
+					onSubmit={handleDialogSubmit}
+					onClose={() => setScanning(false)}
+				/>
 			</Show>
 		</>
 	)

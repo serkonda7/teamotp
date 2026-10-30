@@ -3,16 +3,20 @@ import { Result } from 'better-result'
 import type { JSX } from 'solid-js'
 import { createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { create_qr_decoder, open_camera, type QrDecoder } from '../util/qr_scan'
+import OtpauthUrlForm from './OtpauthUrlForm'
 
 const SCAN_INTERVAL_MS = 200
 
 type Props = {
+	pending: boolean
 	onScan: (raw: string) => void
+	onSubmit: (url: string) => Promise<Result<void, Error>>
 	onClose: () => void
 }
 
 const QrScannerDialog = (props: Props): JSX.Element => {
-	const [error, setError] = createSignal<string | null>(null)
+	const [scanError, setScanError] = createSignal<string | null>(null)
+	const [formError, setFormError] = createSignal<string | null>(null)
 	let video!: HTMLVideoElement
 	let closed = false
 	let stream: MediaStream | undefined
@@ -39,13 +43,13 @@ const QrScannerDialog = (props: Props): JSX.Element => {
 	async function start(): Promise<void> {
 		const decoder = await create_qr_decoder()
 		if (Result.isError(decoder)) {
-			setError(decoder.error.message)
+			setScanError(decoder.error.message)
 			return
 		}
 
 		const camera = await open_camera()
 		if (Result.isError(camera)) {
-			setError(camera.error.message)
+			setScanError(camera.error.message)
 			return
 		}
 
@@ -97,12 +101,22 @@ const QrScannerDialog = (props: Props): JSX.Element => {
 
 				<h2>QR-Code scannen</h2>
 
-				<Show when={error()}>
-					<div class="login-error">{error()}</div>
+				<Show when={formError() ?? scanError()}>
+					<div class="login-error">{formError() ?? scanError()}</div>
 				</Show>
 
-				<Show when={!error()}>
-					<video ref={video} class="qr-scanner__video" autoplay muted playsinline />
+				{/* Without a working scanner the URL is the only way to add an entry */}
+				<Show
+					when={scanError()}
+					fallback={
+						<video ref={video} class="qr-scanner__video" autoplay muted playsinline />
+					}
+				>
+					<OtpauthUrlForm
+						pending={props.pending}
+						setError={setFormError}
+						onSubmit={props.onSubmit}
+					/>
 				</Show>
 			</div>
 		</div>
