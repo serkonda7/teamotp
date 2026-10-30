@@ -2,6 +2,7 @@
   "name": "teamotp",
   "description": "",
   "version": "1.0.0",
+  "type": "module",
   "license": "MPL-2.0",
   "author": "Lukas Neubert (serkonda7)",
   "homepage": "https://github.com/serkonda7/teamotp",
