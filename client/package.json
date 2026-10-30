@@ -20,6 +20,8 @@
     "shared": "workspace:*",
     "solid-js": "~1.9.17",
     "@tabler/icons-solidjs": "~3.49.0",
+    "@tanstack/solid-query": "~5.105.0",
+    "@tanstack/solid-router": "~1.170.43",
     "@serkonda7/solid-components": "~0.2.0"
   }
 }

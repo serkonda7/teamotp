@@ -1,41 +1,31 @@
 import { IconTrash } from '@tabler/icons-solidjs'
+import { useMutation } from '@tanstack/solid-query'
 import { Result } from 'better-result'
 import type { TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
-import { createResource, createSignal, For, Show } from 'solid-js'
-import { create_tag, delete_tag, fetch_tags } from '../api'
-import { setTagsChanged } from '../router'
+import { createSignal, For, Show } from 'solid-js'
+import { create_tag, delete_tag } from '../api'
+import { refresh_data, tags_query, use_query } from '../queries'
 import type { InputEventAndTarget } from '../types'
 import { matchesQuery } from '../util/otp_search'
-import { makeArrayRefetch } from '../util/resource_helpers'
+import { useMainView } from './MainView'
 
 const DEFAULT_COLOR = '#16a34a'
 
-type TagsPageProps = {
-	searchQuery: string
-}
-
-const TagsPage = (props: TagsPageProps): JSX.Element => {
+const TagsPage = (): JSX.Element => {
+	const { tagSearchQuery } = useMainView()
 	const [name, setName] = createSignal('')
 	const [color, setColor] = createSignal(DEFAULT_COLOR)
-	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
 
-	const [tags, { refetch }] = createResource(
-		async (): Promise<TagWithMemberCount[]> => {
-			const res = await fetch_tags()
-			if (Result.isError(res)) {
-				setError(res.error.message)
-				return []
-			}
-			return res.value
-		},
-		{ initialValue: [] },
-	)
-	const refetchTyped = makeArrayRefetch<TagWithMemberCount>(refetch)
+	const tags = use_query(tags_query)
+	const createTag = useMutation(() => ({
+		mutationFn: (tag: { name: string; color: string }) => create_tag(tag.name, tag.color),
+	}))
+	const shownError = (): string | null => error() ?? tags.error()
 
 	const filteredTags = (): TagWithMemberCount[] =>
-		tags().filter((tag) => matchesQuery([tag.name], props.searchQuery))
+		(tags.data() ?? []).filter((tag) => matchesQuery([tag.name], tagSearchQuery()))
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -47,9 +37,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 			return
 		}
 
-		setSubmitting(true)
-		const res = await create_tag(nameVal, color())
-		setSubmitting(false)
+		const res = await createTag.mutateAsync({ name: nameVal, color: color() })
 
 		if (Result.isError(res)) {
 			setError(res.error.message)
@@ -58,8 +46,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 
 		setName('')
 		setColor(DEFAULT_COLOR)
-		await refetchTyped()
-		setTagsChanged(true)
+		await refresh_data()
 	}
 
 	async function handleDelete(tag: TagWithMemberCount): Promise<void> {
@@ -74,16 +61,15 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 			return
 		}
 
-		await refetchTyped()
-		setTagsChanged(true)
+		await refresh_data()
 	}
 
 	return (
 		<div class="tags-page">
 			<h2>Tags</h2>
 
-			<Show when={error()}>
-				<div class="app-inline-error">{error()}</div>
+			<Show when={shownError()}>
+				<div class="app-inline-error">{shownError()}</div>
 			</Show>
 
 			<form class="tags-create-form" onSubmit={handleSubmit}>
@@ -97,7 +83,7 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 						onInput={(e: InputEventAndTarget): void => {
 							setName(e.currentTarget.value)
 						}}
-						disabled={submitting()}
+						disabled={createTag.isPending}
 						placeholder="z. B. Arbeit"
 						required
 					/>
@@ -112,17 +98,22 @@ const TagsPage = (props: TagsPageProps): JSX.Element => {
 						onInput={(e: InputEventAndTarget): void => {
 							setColor(e.currentTarget.value)
 						}}
-						disabled={submitting()}
+						disabled={createTag.isPending}
 					/>
 				</div>
-				<button type="submit" class="login-button" tabindex={4} disabled={submitting()}>
-					{submitting() ? 'Erstellen...' : 'Erstellen'}
+				<button
+					type="submit"
+					class="login-button"
+					tabindex={4}
+					disabled={createTag.isPending}
+				>
+					{createTag.isPending ? 'Erstellen...' : 'Erstellen'}
 				</button>
 			</form>
 
-			<Show when={!tags.loading} fallback={<div>Laden...</div>}>
+			<Show when={!tags.isPending()} fallback={<div>Laden...</div>}>
 				<Show
-					when={tags().length > 0}
+					when={(tags.data() ?? []).length > 0}
 					fallback={
 						<div class="tag-list__empty" role="status" aria-live="polite">
 							Keine Tags vorhanden.

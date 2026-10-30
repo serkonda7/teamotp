@@ -1,10 +1,11 @@
 import { SearchBar } from '@serkonda7/solid-components'
 import { IconHome, IconLogout, IconTag } from '@tabler/icons-solidjs'
+import { useNavigate } from '@tanstack/solid-router'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
-import { navigate, path } from '../router'
 import TeamOtpLogo from './TeamOtpLogo'
 
 type AppHeaderProps = {
+	isTagsPage: boolean
 	onLogout: () => void
 	searchQuery: string
 	onSearchInput: (query: string) => void
@@ -56,6 +57,7 @@ const HeaderSearch = (props: HeaderSearchProps): JSX.Element => {
 }
 
 const AppHeader = (props: AppHeaderProps): JSX.Element => {
+	const navigate = useNavigate()
 	const [isScrolled, setIsScrolled] = createSignal(false)
 	let search: HTMLDivElement | undefined
 
@@ -82,7 +84,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			</div>
 			<div ref={search} class="header-search">
 				<Show
-					when={path() === '/tags'}
+					when={props.isTagsPage}
 					fallback={
 						<HeaderSearch
 							value={props.searchQuery}
@@ -103,13 +105,13 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 				<div class="header-pills">{props.tagPills}</div>
 				<div class="header-actions">
 					<Show
-						when={path() === '/tags'}
+						when={props.isTagsPage}
 						fallback={
 							<button
 								type="button"
 								class="icon-button"
 								tabindex={5}
-								onClick={(): void => navigate('/tags')}
+								onClick={(): void => void navigate({ to: '/tags', search: true })}
 								aria-label="Tags verwalten"
 								title="Tags"
 							>
@@ -121,7 +123,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 							type="button"
 							class="icon-button"
 							tabindex={6}
-							onClick={(): void => navigate('/')}
+							onClick={(): void => void navigate({ to: '/', search: true })}
 							aria-label="Zurück zur Übersicht"
 							title="Übersicht"
 						>
@@ -131,7 +133,7 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					<button
 						type="button"
 						class="icon-button logout-button"
-						tabindex={path() === '/tags' ? 7 : 6}
+						tabindex={props.isTagsPage ? 7 : 6}
 						onClick={props.onLogout}
 						aria-label="Abmelden"
 						title="Abmelden"

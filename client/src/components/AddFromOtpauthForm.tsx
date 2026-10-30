@@ -1,26 +1,26 @@
+import { useMutation } from '@tanstack/solid-query'
 import { Result } from 'better-result'
-import type { OtpDisplayInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { create_entry } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
+import { refresh_data } from '../queries'
 import type { InputEventAndTarget } from '../types'
 
 type Props = {
-	otpauthUrl: () => string
-	setOtpauthUrl: (v: string) => void
-	submitting: () => boolean
-	setSubmitting: (b: boolean) => void
 	setError: (e: string | null) => void
-	refetch: () => Promise<OtpDisplayInfo[]>
 	onCreated: (id: string) => void
 }
 
 const AddFromOtpauthForm = (props: Props): JSX.Element => {
+	const [otpauthUrl, setOtpauthUrl] = createSignal('')
+	const createEntry = useMutation(() => ({ mutationFn: create_entry }))
+
 	async function addFromOtpauthUrl(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
 		props.setError(null)
 
-		const raw = props.otpauthUrl().trim()
+		const raw = otpauthUrl().trim()
 		if (!raw) {
 			props.setError('Füge eine otpauth:// URL ein')
 			return
@@ -32,20 +32,15 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 			return
 		}
 
-		props.setSubmitting(true)
-		try {
-			const created = await create_entry(Result.unwrap(payload_res))
-			if (Result.isError(created)) {
-				props.setError(created.error.message)
-				return
-			}
-
-			props.setOtpauthUrl('')
-			await props.refetch()
-			props.onCreated(created.value)
-		} finally {
-			props.setSubmitting(false)
+		const created = await createEntry.mutateAsync(Result.unwrap(payload_res))
+		if (Result.isError(created)) {
+			props.setError(created.error.message)
+			return
 		}
+
+		setOtpauthUrl('')
+		await refresh_data()
+		props.onCreated(created.value)
 	}
 
 	return (
@@ -57,12 +52,12 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 				tabindex={3}
 				placeholder="otpauth://totp/..."
 				aria-label="OTPAuth URL"
-				value={props.otpauthUrl()}
+				value={otpauthUrl()}
 				onInput={(e: InputEventAndTarget): void => {
-					props.setOtpauthUrl(e.currentTarget.value)
+					setOtpauthUrl(e.currentTarget.value)
 					props.setError(null)
 				}}
-				disabled={props.submitting()}
+				disabled={createEntry.isPending}
 				autocomplete="off"
 				spellcheck={false}
 			/>
@@ -71,9 +66,9 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 				type="submit"
 				class="add-entry__submit"
 				tabindex={3}
-				disabled={props.submitting()}
+				disabled={createEntry.isPending}
 			>
-				{props.submitting() ? 'Wird erstellt...' : 'Neuer Eintrag'}
+				{createEntry.isPending ? 'Wird erstellt...' : 'Neuer Eintrag'}
 			</button>
 		</form>
 	)

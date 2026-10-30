@@ -3,7 +3,8 @@ import { Result } from 'better-result'
 import type { OtpDisplayInfo, TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
-import { archive_entry, fetch_entry_tags, fetch_tags, set_entry_tag, update_entry } from '../api'
+import { archive_entry, fetch_entry_tags, set_entry_tag, update_entry } from '../api'
+import { tags_query, use_query } from '../queries'
 import type { InputEventAndTarget } from '../types'
 import TagSelectMark from './TagSelectMark'
 
@@ -71,21 +72,17 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 	const [issuerSecond, setIssuerSecond] = createSignal(props.otp.issuer_second)
 	const [submitting, setSubmitting] = createSignal(false)
 	const [error, setError] = createSignal<string | null>(null)
-	const [allTags, setAllTags] = createSignal<TagWithMemberCount[]>([])
 	const [assignedTagIds, setAssignedTagIds] = createSignal<ReadonlySet<string>>(new Set())
 	const [initialTagIds, setInitialTagIds] = createSignal<ReadonlySet<string>>(new Set())
 
-	onMount(async () => {
-		const [tagsRes, entryTagsRes] = await Promise.all([
-			fetch_tags(),
-			fetch_entry_tags(props.otp.id),
-		])
+	const tags = use_query(tags_query)
+	const allTags = (): TagWithMemberCount[] => tags.data() ?? []
+	const shownError = (): string | null => error() ?? tags.error()
 
-		if (Result.isError(tagsRes)) {
-			setError(tagsRes.error.message)
-			return
-		}
-		setAllTags(tagsRes.value)
+	// Read once instead of through a query: this is the baseline of the form, which
+	// a background refetch must not move while the user is editing
+	onMount(async () => {
+		const entryTagsRes = await fetch_entry_tags(props.otp.id)
 
 		if (Result.isError(entryTagsRes)) {
 			setError(entryTagsRes.error.message)
@@ -243,9 +240,9 @@ function DialogContent(props: EditDialogProps): JSX.Element {
 
 				<h2 style={{ 'margin-bottom': '1rem' }}>Eintrag bearbeiten</h2>
 
-				<Show when={error()}>
+				<Show when={shownError()}>
 					<div class="login-error" style={{ 'margin-bottom': '1rem' }}>
-						{error()}
+						{shownError()}
 					</div>
 				</Show>
 

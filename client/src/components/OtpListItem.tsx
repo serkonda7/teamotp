@@ -4,13 +4,13 @@ import type { OtpDisplayInfo, TagInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js'
 import { fetch_otp_code } from '../api'
+import { refresh_data } from '../queries'
 import type { MouseEventAndTarget } from '../types'
 import EditDialog from './EditDialog'
 
 type Props = {
 	otp: OtpDisplayInfo
 	setError: (e: string | null) => void
-	refetch: () => Promise<OtpDisplayInfo[]>
 	autoFocus?: boolean
 	onFocused?: () => void
 }
@@ -306,7 +306,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 				}}
 				onSave={async (): Promise<void> => {
 					setIsEditing(false)
-					await props.refetch()
+					await refresh_data()
 				}}
 			/>
 		</li>

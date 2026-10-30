@@ -1,7 +1,10 @@
+import { useNavigate, useSearch } from '@tanstack/solid-router'
 import { Result } from 'better-result'
 import type { JSX } from 'solid-js'
-import { createResource, createSignal, Show } from 'solid-js'
-import { type AuthProviders, fetchProviders, login } from '../../api_auth'
+import { createSignal, onMount, Show } from 'solid-js'
+import { login } from '../../api_auth'
+import { providers_query, use_query } from '../../queries'
+import type { AppSearch } from '../../router'
 import type { InputEventAndTarget } from '../../types'
 import TeamOtpLogo from '../TeamOtpLogo'
 import MicrosoftSignInSection from './MicrosoftSignInSection'
@@ -12,22 +15,11 @@ type Props = {
 	sessionExpired: boolean
 }
 
-/** Reads and clears the `?error=` param set by the OAuth callback redirect. */
-function readOauthError(): string | null {
-	if (typeof window === 'undefined') {
-		return null
-	}
-	const params = new URLSearchParams(window.location.search)
-	const code = params.get('error')
+/** Translates the `?error=` param set by the OAuth callback redirect. */
+function oauthErrorMessage(code: string | undefined): string | null {
 	if (code !== 'invalid_state' && code !== 'expired_state') {
 		return null
 	}
-	params.delete('error')
-	history.replaceState(
-		null,
-		'',
-		`${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`,
-	)
 	return 'Anmeldung abgelaufen.' // Show simple generic error to avoid info overload
 }
 
@@ -37,9 +29,21 @@ const LoginPage = (props: Props): JSX.Element => {
 	const [error, setError] = createSignal<string | null>(null)
 	const [isSubmitting, setIsSubmitting] = createSignal(false)
 
-	const oauthError = readOauthError()
+	const navigate = useNavigate()
+	const search = useSearch({ from: '__root__' })
+	const oauthError = oauthErrorMessage(search().error)
 
-	const [providers] = createResource<AuthProviders | undefined>(fetchProviders)
+	const providers = use_query(providers_query)
+
+	onMount(() => {
+		if (oauthError) {
+			void navigate({
+				to: '.',
+				search: (prev: AppSearch) => ({ ...prev, error: undefined }),
+				replace: true,
+			})
+		}
+	})
 
 	async function handleSubmit(e: SubmitEvent): Promise<void> {
 		e.preventDefault()
@@ -66,9 +70,9 @@ const LoginPage = (props: Props): JSX.Element => {
 		}
 	}
 
-	const hasMicrosoftProvider = (): boolean => providers()?.microsoft === true
-	const hasLocalProvider = (): boolean => providers()?.local === true
-	const isProvidersKnown = (): boolean => providers() !== undefined
+	const hasMicrosoftProvider = (): boolean => providers.data()?.microsoft === true
+	const hasLocalProvider = (): boolean => providers.data()?.local === true
+	const isProvidersKnown = (): boolean => providers.data() != null
 
 	const localLoginForm = (): JSX.Element => (
 		<form onSubmit={handleSubmit} class="login-form">

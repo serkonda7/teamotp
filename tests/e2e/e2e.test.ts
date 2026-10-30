@@ -145,3 +145,80 @@ test('clicking the same entry again after 5 seconds copies a fresh code', async 
 
 	expect(secondCode).not.toBe(firstCode)
 })
+
+test('entry search stays in the URL across pages and reloads', async ({ page }) => {
+	await login(page)
+
+	const search = page.getByLabel('Einträge suchen')
+	await search.pressSequentially('period-5')
+	await expect(search).toHaveValue('period-5')
+	await expect(page).toHaveURL(/[?&]search=/)
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
+	await expect(page).toHaveURL(/\/tags\?search=/)
+	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await expect(search).toHaveValue('period-5')
+
+	await page.reload()
+	await expect(page.getByLabel('Einträge suchen')).toHaveValue('period-5')
+	await expect(page.locator('.otp-list__item')).toHaveCount(1)
+
+	await page.getByLabel('Einträge suchen').clear()
+	await expect(page).not.toHaveURL(/search=/)
+})
+
+test('oauth error from the callback redirect is shown once', async ({ page }) => {
+	await page.goto('/?error=expired_state')
+
+	await expect(page.locator('.login-error')).toHaveText('Anmeldung abgelaufen.')
+	await expect(page).not.toHaveURL(/error=/)
+})
+
+test('unknown paths fall back to the entry list', async ({ page }) => {
+	await login(page)
+	await expect(page.locator('.otp-list__item').first()).toBeVisible()
+
+	await page.goto('/does-not-exist')
+
+	await expect(page.locator('.otp-list__item').first()).toBeVisible()
+	await expect(page).toHaveURL(/\/$/)
+})
+
+test('logout clears the session view and login loads it again', async ({ page }) => {
+	await login(page)
+	await page.getByLabel('Einträge suchen').fill('period')
+	await expect(page).toHaveURL(/search=/)
+
+	await page.getByRole('button', { name: 'Abmelden' }).click()
+	await expect(page.locator('.login-card')).toBeVisible()
+	await expect(page.getByLabel('E-Mail')).toBeVisible()
+	await expect(page).not.toHaveURL(/search=/)
+
+	await login(page)
+	await expect(page.getByLabel('Einträge suchen')).toHaveValue('')
+	await expect(page.locator('.otp-list__item').first()).toBeVisible()
+})
+
+test('a new entry appears and receives focus without a reload', async ({ page }) => {
+	await login(page)
+	await expect(page.locator('.otp-list__item').first()).toBeVisible()
+	const before = await page.locator('.otp-list__item').count()
+
+	await page
+		.getByLabel('OTPAuth URL')
+		.fill('otpauth://totp/Fresh:new-entry?secret=JBSWY3DPEHPK3PXP&issuer=Fresh')
+	await page.getByRole('button', { name: 'Neuer Eintrag' }).click()
+
+	const items = page.locator('.otp-list__item')
+	await expect(items).toHaveCount(before + 1)
+	await expect(page.getByLabel('OTPAuth URL')).toHaveValue('')
+	const entry = items.filter({ hasText: 'new-entry' })
+	await expect(entry.locator(':focus')).toHaveCount(1)
+
+	// The visual tests assert against the seeded entries
+	page.once('dialog', (dialog) => dialog.accept())
+	await page.getByRole('button', { name: 'Eintrag für Fresh bearbeiten' }).click()
+	await page.getByRole('button', { name: 'Archivieren' }).click()
+	await expect(items).toHaveCount(before)
+})
