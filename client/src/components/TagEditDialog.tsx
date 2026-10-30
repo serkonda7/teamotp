@@ -4,8 +4,8 @@ import type { TagInfo } from 'shared/src/types'
 import type { JSX } from 'solid-js'
 import { createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { update_tag } from '../api'
-import type { InputEventAndTarget } from '../types'
 import { Asterisk, FormField } from './EditDialog'
+import TagColorInput from './TagColorInput'
 
 type TagEditDialogProps = {
 	tag: TagInfo
@@ -126,13 +126,10 @@ const TagEditDialog = (props: TagEditDialogProps): JSX.Element => {
 								</Show>
 								Farbe
 							</label>
-							<input
+							<TagColorInput
 								id="edit-tag-color"
-								type="color"
 								value={color()}
-								onInput={(e: InputEventAndTarget): void => {
-									setColor(e.currentTarget.value)
-								}}
+								onInput={setColor}
 								disabled={submitting()}
 							/>
 						</div>

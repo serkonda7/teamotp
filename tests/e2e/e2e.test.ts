@@ -48,13 +48,30 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 
 	// Create a tag
 	await page.getByLabel('Name').fill('Arbeit')
-	await page.getByLabel('Farbe').fill('#3b82f6')
+	const color = page.getByLabel('Farbe', { exact: true })
+	const colorPicker = page.getByLabel('Farbe auswählen')
+	await expect(color).toHaveValue('#16a34a')
+	await page.getByLabel('Name').focus()
+	await page.keyboard.press('Tab')
+	await expect(colorPicker).toBeFocused()
+	await page.keyboard.press('Tab')
+	await expect(color).toBeFocused()
+	await page.keyboard.press('Tab')
+	await expect(page.getByRole('button', { name: 'Erstellen' })).toBeFocused()
+	await color.fill('invalid')
+	await color.blur()
+	await expect(color).toHaveValue('#16a34a')
+	await colorPicker.fill('#112233')
+	await expect(color).toHaveValue('#112233')
+	await color.fill('#3b82f6')
 	await page.getByRole('button', { name: 'Erstellen' }).click()
 
 	await expect(page.locator('.tag-list__item')).toHaveCount(2)
 	const tagItem = page.locator('.tag-list__item', { hasText: 'Arbeit' })
 	await expect(tagItem.locator('.tag-chip')).toHaveText('Arbeit')
+	await expect(tagItem.locator('.tag-chip')).toHaveAttribute('style', /#3b82f6/)
 	await expect(tagItem.locator('.tag-list__count')).toHaveText('0 Einträge')
+	await expect(color).toHaveValue('#16a34a')
 
 	// Assign the tag in the entry edit dialog
 	await page.getByRole('link', { name: 'Übersicht' }).click()
@@ -75,8 +92,13 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 
 	// Create a second, unassigned tag
 	await page.getByLabel('Name').fill('Privat')
-	await page.getByRole('button', { name: 'Erstellen' }).click()
+	await color.fill('abc')
+	await color.press('Enter')
 	await expect(page.locator('.tag-list__item')).toHaveCount(3)
+	await expect(
+		page.locator('.tag-list__item', { hasText: 'Privat' }).locator('.tag-chip'),
+	).toHaveAttribute('style', /#aabbcc/)
+	await expect(color).toHaveValue('#16a34a')
 
 	// The overview page shows a filter chip per tag inside the filter popover
 	await page.getByRole('link', { name: 'Übersicht' }).click()
@@ -160,7 +182,14 @@ test('tags can be edited', async ({ page }) => {
 	await expect(dialog.getByLabel('Name')).toHaveValue('Entwurf')
 
 	await dialog.getByLabel('Name').fill('Final')
-	await dialog.getByLabel('Farbe').fill('#3b82f6')
+	const color = dialog.getByLabel('Farbe', { exact: true })
+	await color.fill('ABC')
+	await color.blur()
+	await expect(color).toHaveValue('#aabbcc')
+	await expect(dialog.getByLabel('Farbe auswählen')).toHaveValue('#aabbcc')
+	await expect(dialog.locator('label[for="edit-tag-color"]')).toHaveClass(/field-changed/)
+	await dialog.getByLabel('Farbe auswählen').fill('#3b82f6')
+	await expect(color).toHaveValue('#3b82f6')
 	await dialog.getByRole('button', { name: 'Speichern' }).click()
 
 	await expect(dialog).toHaveCount(0)

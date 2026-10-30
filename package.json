@@ -29,7 +29,8 @@
     "test": "turbo run test",
     "test:smoke": "bun test tests/smoke --timeout 20000",
     "test:e2e": "playwright test",
-    "test:visual": "playwright test --project=visual-desktop --project=visual-narrow --no-deps"
+    "test:visual": "playwright test --project=visual-desktop --project=visual-narrow --no-deps",
+    "test:visual:update": "playwright test --project=visual-desktop --project=visual-narrow --no-deps --update-snapshots=all"
   },
   "packageManager": "bun@1.4.4",
   "catalog": {

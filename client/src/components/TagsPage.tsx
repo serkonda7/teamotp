@@ -10,6 +10,7 @@ import { refresh_data, tags_query, use_query } from '../queries'
 import type { InputEventAndTarget } from '../types'
 import { matchesQuery } from '../util/otp_search'
 import { useMainView } from './MainView'
+import TagColorInput from './TagColorInput'
 import TagEditDialog from './TagEditDialog'
 
 const DEFAULT_COLOR = '#16a34a'
@@ -108,14 +109,11 @@ const TagsPage = (): JSX.Element => {
 				</div>
 				<div class="form-group">
 					<label for="tag-color">Farbe</label>
-					<input
+					<TagColorInput
 						id="tag-color"
-						type="color"
 						tabindex={3}
 						value={color()}
-						onInput={(e: InputEventAndTarget): void => {
-							setColor(e.currentTarget.value)
-						}}
+						onInput={setColor}
 						disabled={createTag.isPending}
 					/>
 				</div>
