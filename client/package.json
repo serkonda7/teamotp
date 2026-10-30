@@ -10,18 +10,18 @@
   },
   "devDependencies": {
     "solid-devtools": "~0.34.5",
-    "vite": "~8.3.4",
-    "vite-plugin-solid": "~2.11.14"
+    "vite": "~8.3.5",
+    "vite-plugin-solid": "~2.11.15"
   },
   "dependencies": {
     "better-result": "catalog:",
     "hono": "catalog:",
     "server": "workspace:*",
     "shared": "workspace:*",
-    "solid-js": "~1.9.17",
-    "@tabler/icons-solidjs": "~3.49.0",
+    "solid-js": "~1.9.18",
+    "@tabler/icons-solidjs": "~3.50.0",
     "@tanstack/solid-query": "~5.105.0",
     "@tanstack/solid-router": "~1.170.43",
-    "@serkonda7/solid-components": "~0.2.0"
+    "@serkonda7/solid-components": "~0.3.2"
   }
 }
