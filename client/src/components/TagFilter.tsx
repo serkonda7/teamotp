@@ -1,4 +1,4 @@
-import { IconFilter2, IconX } from '@tabler/icons-solidjs'
+import { IconEye, IconEyeOff, IconFilter2, IconX } from '@tabler/icons-solidjs'
 import type { TagInfo } from 'shared/src/types'
 import { createEffect, createMemo, createSignal, For, type JSX, onCleanup, Show } from 'solid-js'
 import type { InputEventAndTarget } from '../types'
@@ -9,6 +9,8 @@ type Props = {
 	tags: TagInfo[]
 	activeTagIds: string[]
 	onToggle: (tagId: string) => void
+	showEntryTags: boolean
+	onToggleEntryTags: () => void
 }
 
 type TagChipProps = {
@@ -67,6 +69,8 @@ type TagFilterPopoverProps = {
 	tags: TagInfo[]
 	activeTagIds: string[]
 	onToggle: (tagId: string) => void
+	showEntryTags: boolean
+	onToggleEntryTags: () => void
 }
 
 // Below this many tags a search field inside the popover is just noise
@@ -117,6 +121,22 @@ const TagFilterPopover = (props: TagFilterPopoverProps): JSX.Element => {
 					)}
 				</For>
 			</div>
+			<button
+				type="button"
+				class="tag-filter__visibility"
+				tabindex={4}
+				onClick={props.onToggleEntryTags}
+			>
+				<Show
+					when={props.showEntryTags}
+					fallback={<IconEye size={16} aria-hidden="true" />}
+				>
+					<IconEyeOff size={16} aria-hidden="true" />
+				</Show>
+				{props.showEntryTags
+					? 'Tags in Übersicht ausblenden'
+					: 'Tags in Übersicht anzeigen'}
+			</button>
 		</div>
 	)
 }
@@ -175,6 +195,8 @@ const TagFilter = (props: Props): JSX.Element => {
 					tags={props.tags}
 					activeTagIds={props.activeTagIds}
 					onToggle={props.onToggle}
+					showEntryTags={props.showEntryTags}
+					onToggleEntryTags={props.onToggleEntryTags}
 				/>
 			</Show>
 		</div>

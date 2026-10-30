@@ -1,4 +1,11 @@
 # Changelog
+## 1.1.1
+_2026-10-30_
+
+- filter: add button to hide/show tags in overview
+- Remove logout button text label again
+
+
 ## 1.1.0
 _2026-10-30_
 

@@ -10,6 +10,7 @@ import EditDialog from './EditDialog'
 
 type Props = {
 	otp: OtpDisplayInfo
+	showEntryTags: boolean
 	setError: (e: string | null) => void
 	autoFocus?: boolean
 	onFocused?: () => void
@@ -242,7 +243,7 @@ const OtpListItem = (props: Props): JSX.Element => {
 				>
 					{isCodeVisible() && code() !== null ? code() : props.otp.label}
 				</span>
-				<Show when={props.otp.tags.length > 0}>
+				<Show when={props.showEntryTags && props.otp.tags.length > 0}>
 					<span class="otp-list__tags">
 						<For each={props.otp.tags}>
 							{(tag: TagInfo): JSX.Element => (

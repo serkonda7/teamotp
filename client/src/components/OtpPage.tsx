@@ -7,7 +7,7 @@ import { useMainView } from './MainView'
 import OtpList from './OtpList'
 
 const OtpPage = (): JSX.Element => {
-	const { searchQuery, activeTagIds, tagsError } = useMainView()
+	const { searchQuery, activeTagIds, showEntryTags, tagsError } = useMainView()
 
 	const otps = use_query(otps_query)
 	const [error, setError] = createSignal<string | null>(null)
@@ -36,6 +36,7 @@ const OtpPage = (): JSX.Element => {
 				loading={otps.isPending()}
 				searchQuery={searchQuery()}
 				tagFilterActive={activeTagIds().length > 0}
+				showEntryTags={showEntryTags()}
 				setError={setError}
 				focusedId={focusedEntryId}
 				onFocused={() => setFocusedEntryId(null)}

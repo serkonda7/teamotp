@@ -21,6 +21,7 @@ type MainViewState = {
 	searchQuery: Accessor<string>
 	tagSearchQuery: Accessor<string>
 	activeTagIds: Accessor<string[]>
+	showEntryTags: Accessor<boolean>
 	tagsError: Accessor<string | null>
 }
 
@@ -28,6 +29,7 @@ const MainViewContext = createContext<MainViewState>({
 	searchQuery: () => '',
 	tagSearchQuery: () => '',
 	activeTagIds: () => [],
+	showEntryTags: () => true,
 	tagsError: () => null,
 })
 
@@ -56,6 +58,7 @@ const MainView = (props: { onLogout: () => void }): JSX.Element => {
 	const [searchQuery, setSearchQuery] = createSignal(untrack(search).search ?? '')
 	const [tagSearchQuery, setTagSearchQuery] = createSignal('')
 	const [activeTagIds, setActiveTagIds] = createSignal<string[]>([])
+	const [showEntryTags, setShowEntryTags] = createSignal(true)
 
 	createEffect(() => {
 		const query = searchQuery().trim() || undefined
@@ -89,6 +92,7 @@ const MainView = (props: { onLogout: () => void }): JSX.Element => {
 				searchQuery,
 				tagSearchQuery,
 				activeTagIds,
+				showEntryTags,
 				tagsError: tags.error,
 			}}
 		>
@@ -116,6 +120,8 @@ const MainView = (props: { onLogout: () => void }): JSX.Element => {
 							tags={sortedTags()}
 							activeTagIds={activeTagIds()}
 							onToggle={toggleTagFilter}
+							showEntryTags={showEntryTags()}
+							onToggleEntryTags={() => setShowEntryTags((visible) => !visible)}
 						/>
 					</Show>
 				</AppHeader>

@@ -8,6 +8,7 @@ type Props = {
 	loading: boolean
 	searchQuery: string
 	tagFilterActive: boolean
+	showEntryTags: boolean
 	setError: (e: string | null) => void
 	focusedId?: () => string | null
 	onFocused?: () => void
@@ -40,6 +41,7 @@ const OtpList = (props: Props): JSX.Element => (
 					{(otp: OtpDisplayInfo): JSX.Element => (
 						<OtpListItem
 							otp={otp}
+							showEntryTags={props.showEntryTags}
 							setError={props.setError}
 							autoFocus={props.focusedId?.() === otp.id}
 							onFocused={props.onFocused}

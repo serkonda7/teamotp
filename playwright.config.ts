@@ -118,11 +118,17 @@ export default defineConfig({
 			use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
 		},
 		{
-			// Below the 800px header and 860px add-entry breakpoints
+			// Below the 800px header and 860px add-entry breakpoints. A touch device,
+			// as narrow screens are in practice; `isMobile` and `deviceScaleFactor`
+			// stay at their defaults for the reason given above.
 			name: 'visual-narrow',
 			testMatch: /.*\.visual\.test\.ts/,
 			dependencies: ['chromium'],
-			use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 } },
+			use: {
+				...devices['Desktop Chrome'],
+				viewport: { width: 390, height: 844 },
+				hasTouch: true,
+			},
 		},
 	],
 })

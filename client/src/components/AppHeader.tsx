@@ -121,9 +121,9 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 						class="icon-button header-button"
 						tabindex={6}
 						onClick={props.onLogout}
+						aria-label="Abmelden"
 					>
 						<IconLogout size={18} stroke="2" aria-hidden="true" />
-						Abmelden
 					</button>
 				</div>
 			</div>
