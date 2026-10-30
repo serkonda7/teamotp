@@ -1,5 +1,6 @@
 # Changelog
-## Unreleased
+## 1.1.0
+_2026-10-30_
 
 - UI and UX
   - Focus search bar after login
