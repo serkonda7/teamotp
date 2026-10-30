@@ -1,5 +1,29 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 import { login } from './helpers'
+
+const SCANNED_URL = 'otpauth://totp/Scanned:qr-entry?secret=JBSWY3DPEHPK3PXP&issuer=Scanned'
+
+/** Headless Chromium has no BarcodeDetector, so every frame "contains" `raw`. */
+async function fake_barcode_detector(page: Page, raw: string | null): Promise<void> {
+	await page.addInitScript((value) => {
+		class FakeBarcodeDetector {
+			static getSupportedFormats = async (): Promise<string[]> => ['qr_code']
+			detect = async (): Promise<{ rawValue: string }[]> =>
+				value ? [{ rawValue: value }] : []
+		}
+		Object.assign(globalThis, { BarcodeDetector: FakeBarcodeDetector })
+	}, raw)
+}
+
+async function fake_camera(page: Page): Promise<void> {
+	await page.addInitScript(() => {
+		navigator.mediaDevices.getUserMedia = async (): Promise<MediaStream> => {
+			const canvas = document.createElement('canvas')
+			canvas.getContext('2d')
+			return canvas.captureStream()
+		}
+	})
+}
 
 test('login page loads', async ({ page }) => {
 	await page.goto('/')
@@ -257,4 +281,65 @@ test('a new entry appears and receives focus without a reload', async ({ page })
 	await page.getByRole('button', { name: 'Eintrag für Fresh bearbeiten' }).click()
 	await page.getByRole('button', { name: 'Archivieren' }).click()
 	await expect(items).toHaveCount(before)
+})
+
+test.describe('touch devices', () => {
+	test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } })
+
+	test('the floating button replaces the form and scans a new entry', async ({ page }) => {
+		await fake_barcode_detector(page, SCANNED_URL)
+		await fake_camera(page)
+		await login(page)
+		await expect(page.locator('.otp-list__item').first()).toBeVisible()
+		const before = await page.locator('.otp-list__item').count()
+
+		await expect(page.getByLabel('OTPAuth URL')).toBeHidden()
+		await expect(page.getByRole('button', { name: 'Neuer Eintrag' })).toBeHidden()
+
+		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
+
+		const items = page.locator('.otp-list__item')
+		await expect(items).toHaveCount(before + 1)
+		await expect(page.getByRole('dialog', { name: 'QR-Code scannen' })).toHaveCount(0)
+
+		// The visual tests assert against the seeded entries
+		page.once('dialog', (dialog) => dialog.accept())
+		await page.getByRole('button', { name: 'Eintrag für Scanned bearbeiten' }).click()
+		await page.getByRole('button', { name: 'Archivieren' }).click()
+		await expect(items).toHaveCount(before)
+	})
+
+	test('a browser without BarcodeDetector gets an error', async ({ page }) => {
+		await page.addInitScript(() => {
+			Reflect.deleteProperty(globalThis, 'BarcodeDetector')
+		})
+		await login(page)
+
+		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
+		const dialog = page.getByRole('dialog', { name: 'QR-Code scannen' })
+		await expect(dialog.getByText('nicht unterstützt')).toBeVisible()
+	})
+
+	test('a denied camera permission is shown in the scanner', async ({ page }) => {
+		await fake_barcode_detector(page, null)
+		await page.addInitScript(() => {
+			navigator.mediaDevices.getUserMedia = (): Promise<MediaStream> =>
+				Promise.reject(new DOMException('denied', 'NotAllowedError'))
+		})
+		await login(page)
+
+		await page.getByRole('button', { name: 'QR-Code scannen' }).click()
+		const dialog = page.getByRole('dialog', { name: 'QR-Code scannen' })
+		await expect(dialog.getByText('Kamerazugriff wurde verweigert.')).toBeVisible()
+
+		await dialog.getByRole('button', { name: 'Dialog schließen' }).click()
+		await expect(dialog).toHaveCount(0)
+	})
+})
+
+test('the floating button stays hidden with a mouse', async ({ page }) => {
+	await login(page)
+
+	await expect(page.getByLabel('OTPAuth URL')).toBeVisible()
+	await expect(page.getByRole('button', { name: 'QR-Code scannen' })).toBeHidden()
 })

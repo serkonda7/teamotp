@@ -1,5 +1,7 @@
 # teamotp
 ## Scanning QR codes
+On touch devices, tap the "+" button to scan a code with the camera. This requires HTTPS and a browser with the [Barcode Detection API][barcode-detector], such as Chrome on Android. Safari and Firefox do not support it.
+
 For desktop, we recommend this Chrome extension: [Image QR Scanner][ext-webstore]
 
 
@@ -84,4 +86,5 @@ Pending migrations run automatically on startup.
 
 
 <!-- links -->
+[barcode-detector]: https://developer.mozilla.org/en-US/docs/Web/API/BarcodeDetector
 [ext-webstore]: https://chromewebstore.google.com/detail/image-qr-scanner/moeefnhmhiflglcmjnbnoeijpinjgoop

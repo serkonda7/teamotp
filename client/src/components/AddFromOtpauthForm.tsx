@@ -1,11 +1,13 @@
+import { IconPlus } from '@tabler/icons-solidjs'
 import { useMutation } from '@tanstack/solid-query'
 import { Result } from 'better-result'
 import type { JSX } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 import { create_entry } from '../api'
 import { parse_otpauth_url } from '../otpauth_parse'
 import { refresh_data } from '../queries'
 import type { InputEventAndTarget } from '../types'
+import QrScannerDialog from './QrScannerDialog'
 
 type Props = {
 	setError: (e: string | null) => void
@@ -14,13 +16,13 @@ type Props = {
 
 const AddFromOtpauthForm = (props: Props): JSX.Element => {
 	const [otpauthUrl, setOtpauthUrl] = createSignal('')
+	const [scanning, setScanning] = createSignal(false)
 	const createEntry = useMutation(() => ({ mutationFn: create_entry }))
 
-	async function addFromOtpauthUrl(e: SubmitEvent): Promise<void> {
-		e.preventDefault()
+	async function addFromOtpauthUrl(url: string): Promise<void> {
 		props.setError(null)
 
-		const raw = otpauthUrl().trim()
+		const raw = url.trim()
 		if (!raw) {
 			props.setError('Füge eine otpauth:// URL ein')
 			return
@@ -43,34 +45,64 @@ const AddFromOtpauthForm = (props: Props): JSX.Element => {
 		props.onCreated(created.value)
 	}
 
+	function handleSubmit(e: SubmitEvent): void {
+		e.preventDefault()
+		void addFromOtpauthUrl(otpauthUrl())
+	}
+
+	function handleScan(raw: string): void {
+		setScanning(false)
+		void addFromOtpauthUrl(raw)
+	}
+
 	return (
-		<form class="add-entry" onSubmit={addFromOtpauthUrl}>
-			<input
-				id="otpauth-url"
-				class="add-entry__input"
-				type="text"
-				tabindex={3}
-				placeholder="otpauth://totp/..."
-				aria-label="OTPAuth URL"
-				value={otpauthUrl()}
-				onInput={(e: InputEventAndTarget): void => {
-					setOtpauthUrl(e.currentTarget.value)
-					props.setError(null)
-				}}
-				disabled={createEntry.isPending}
-				autocomplete="off"
-				spellcheck={false}
-			/>
+		<>
+			<form class="add-entry" onSubmit={handleSubmit}>
+				<input
+					id="otpauth-url"
+					class="add-entry__input"
+					type="text"
+					tabindex={3}
+					placeholder="otpauth://totp/..."
+					aria-label="OTPAuth URL"
+					value={otpauthUrl()}
+					onInput={(e: InputEventAndTarget): void => {
+						setOtpauthUrl(e.currentTarget.value)
+						props.setError(null)
+					}}
+					disabled={createEntry.isPending}
+					autocomplete="off"
+					spellcheck={false}
+				/>
+
+				<button
+					type="submit"
+					class="add-entry__submit"
+					tabindex={3}
+					disabled={createEntry.isPending}
+				>
+					{createEntry.isPending ? 'Wird erstellt...' : 'Neuer Eintrag'}
+				</button>
+			</form>
 
 			<button
-				type="submit"
-				class="add-entry__submit"
+				type="button"
+				class="add-entry-fab"
 				tabindex={3}
+				aria-label="QR-Code scannen"
 				disabled={createEntry.isPending}
+				onClick={() => {
+					props.setError(null)
+					setScanning(true)
+				}}
 			>
-				{createEntry.isPending ? 'Wird erstellt...' : 'Neuer Eintrag'}
+				<IconPlus size={28} stroke="2.5" aria-hidden="true" />
 			</button>
-		</form>
+
+			<Show when={scanning()}>
+				<QrScannerDialog onScan={handleScan} onClose={() => setScanning(false)} />
+			</Show>
+		</>
 	)
 }
 
