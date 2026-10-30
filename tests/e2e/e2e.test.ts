@@ -32,7 +32,7 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(tagItem.locator('.tag-list__count')).toHaveText('0 Einträge')
 
 	// Assign the tag in the entry edit dialog
-	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await page.getByRole('link', { name: 'Übersicht' }).click()
 	await expect(page).toHaveURL(/\/$/)
 	await page.getByRole('button', { name: 'Eintrag für test bearbeiten' }).click()
 	const tagOption = page.locator('.edit-tags__option', { hasText: 'Arbeit' })
@@ -54,7 +54,7 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(page.locator('.tag-list__item')).toHaveCount(3)
 
 	// The overview page shows a filter chip per tag inside the filter popover
-	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await page.getByRole('link', { name: 'Übersicht' }).click()
 	const filterButton = page.getByRole('button', { name: 'Nach Tags filtern' })
 	const arbeitChip = page.locator('.tag-filter__chip', { hasText: 'Arbeit' })
 	const privatChip = page.locator('.tag-filter__chip', { hasText: 'Privat' })
@@ -110,7 +110,7 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await expect(page.locator('.tag-list__item')).toHaveCount(2)
 
 	// The deleted tag disappears from the filter and is deselected
-	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+	await page.getByRole('link', { name: 'Übersicht' }).click()
 	await expect(filterButton.locator('.tag-filter__badge')).toHaveCount(0)
 	await filterButton.click()
 	await expect(page.locator('.tag-filter__chip')).toHaveCount(2)
@@ -157,7 +157,14 @@ test('entry search stays in the URL across pages and reloads', async ({ page }) 
 
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	await expect(page).toHaveURL(/\/tags\?search=/)
-	await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click()
+
+	// The breadcrumb link comes right after the search in the tab order
+	const breadcrumbLink = page.getByRole('link', { name: 'Übersicht' })
+	await page.getByLabel('Tags suchen').focus()
+	await page.keyboard.press('Tab')
+	await expect(breadcrumbLink).toBeFocused()
+
+	await breadcrumbLink.click()
 	await expect(search).toHaveValue('period-5')
 
 	await page.reload()

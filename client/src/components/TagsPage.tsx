@@ -1,5 +1,6 @@
-import { IconTrash } from '@tabler/icons-solidjs'
+import { IconChevronRight, IconTrash } from '@tabler/icons-solidjs'
 import { useMutation } from '@tanstack/solid-query'
+import { Link } from '@tanstack/solid-router'
 import { Result } from 'better-result'
 import type { TagWithMemberCount } from 'shared/src/types'
 import type { JSX } from 'solid-js'
@@ -66,6 +67,21 @@ const TagsPage = (): JSX.Element => {
 
 	return (
 		<div class="tags-page">
+			<nav aria-label="Seitenpfad">
+				<ol class="breadcrumb">
+					<li>
+						{/* Shares the search input's tabindex, so it follows it in document order */}
+						<Link to="/" search={true} tabindex={1}>
+							Übersicht
+						</Link>
+					</li>
+					<li aria-hidden="true">
+						<IconChevronRight size={16} stroke="2" />
+					</li>
+					<li aria-current="page">Tags</li>
+				</ol>
+			</nav>
+
 			<h2>Tags</h2>
 
 			<Show when={shownError()}>

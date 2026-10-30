@@ -3,6 +3,7 @@
 
 - UI and UX
   - Focus search bar after login
+  - Tags page: replace the home icon with breadcrumb navigation
 
 
 ## 1.0.0

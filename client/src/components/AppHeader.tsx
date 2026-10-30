@@ -1,5 +1,5 @@
 import { SearchBar } from '@serkonda7/solid-components'
-import { IconHome, IconLogout, IconTag } from '@tabler/icons-solidjs'
+import { IconLogout, IconTag } from '@tabler/icons-solidjs'
 import { useNavigate } from '@tanstack/solid-router'
 import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js'
 import TeamOtpLogo from './TeamOtpLogo'
@@ -104,36 +104,22 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 			<div class="header-end">
 				<div class="header-pills">{props.tagPills}</div>
 				<div class="header-actions">
-					<Show
-						when={props.isTagsPage}
-						fallback={
-							<button
-								type="button"
-								class="icon-button"
-								tabindex={5}
-								onClick={(): void => void navigate({ to: '/tags', search: true })}
-								aria-label="Tags verwalten"
-								title="Tags"
-							>
-								<IconTag size={18} stroke="2" aria-hidden="true" />
-							</button>
-						}
-					>
+					<Show when={!props.isTagsPage}>
 						<button
 							type="button"
 							class="icon-button"
-							tabindex={6}
-							onClick={(): void => void navigate({ to: '/', search: true })}
-							aria-label="Zurück zur Übersicht"
-							title="Übersicht"
+							tabindex={5}
+							onClick={(): void => void navigate({ to: '/tags', search: true })}
+							aria-label="Tags verwalten"
+							title="Tags"
 						>
-							<IconHome size={18} stroke="2" aria-hidden="true" />
+							<IconTag size={18} stroke="2" aria-hidden="true" />
 						</button>
 					</Show>
 					<button
 						type="button"
 						class="icon-button logout-button"
-						tabindex={props.isTagsPage ? 7 : 6}
+						tabindex={6}
 						onClick={props.onLogout}
 						aria-label="Abmelden"
 						title="Abmelden"
