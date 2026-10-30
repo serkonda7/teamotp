@@ -4,7 +4,7 @@ import { Hono } from 'hono'
 import { NewTagSchema } from 'shared/src/schemas'
 import { logAccess } from '../audit'
 import { DuplicateTagError } from '../db/errors'
-import { createTag, deleteTag, getTagByName, listTags } from '../db/tags'
+import { createTag, deleteTag, getTagById, getTagByName, listTags, updateTag } from '../db/tags'
 import { authMiddleware } from '../middleware/auth'
 import { onValidationError } from '../middleware/validation'
 import { jsonError } from '../util/http'
@@ -37,6 +37,25 @@ export const tagApp = new Hono()
 		const tag = Result.unwrap(tagRes)
 		logAccess(c, 'tag.create', tag.id)
 		return c.json({ id: tag.id }, 201)
+	})
+
+	// POST /tags/:id — update name and color of an existing tag
+	.post('/:id', vValidator('json', NewTagSchema, onValidationError), (c) => {
+		const id = c.req.param('id')
+		if (!getTagById(id)) {
+			return jsonError(c, 'Tag not found', 404)
+		}
+
+		const updateRes = updateTag(id, c.req.valid('json'))
+		if (Result.isError(updateRes)) {
+			if (updateRes.error instanceof DuplicateTagError) {
+				return jsonError(c, 'A tag with this name already exists', 409)
+			}
+			return jsonError(c, 'Internal server error', 500)
+		}
+
+		logAccess(c, 'tag.update', id)
+		return c.json({ success: true })
 	})
 
 	// DELETE /tags/:id — delete a tag and all its assignments

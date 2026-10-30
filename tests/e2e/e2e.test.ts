@@ -17,6 +17,7 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	await login(page)
 
 	// Navigate to the tags page, which starts with the seeded tag
+	await expect(page.getByRole('button', { name: 'Tags verwalten' })).toHaveText('Tags')
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	await expect(page).toHaveURL(/\/tags$/)
 	await expect(page.locator('.tag-list__item')).toHaveCount(1)
@@ -119,6 +120,34 @@ test('tags can be created, assigned, filtered and deleted', async ({ page }) => 
 	// Delete the tag created here, leaving only the seeded one
 	await page.getByRole('button', { name: 'Tags verwalten' }).click()
 	await page.getByRole('button', { name: 'Tag Privat löschen' }).click()
+	await expect(page.locator('.tag-list__item')).toHaveCount(1)
+})
+
+test('tags can be edited', async ({ page }) => {
+	await login(page)
+	await page.getByRole('button', { name: 'Tags verwalten' }).click()
+
+	await page.getByLabel('Name').fill('Entwurf')
+	await page.getByRole('button', { name: 'Erstellen' }).click()
+	await expect(page.locator('.tag-list__item')).toHaveCount(2)
+
+	await page.getByRole('button', { name: 'Tag Entwurf bearbeiten' }).click()
+	const dialog = page.getByRole('dialog', { name: 'Tag bearbeiten' })
+	await expect(dialog.getByLabel('Name')).toHaveValue('Entwurf')
+
+	await dialog.getByLabel('Name').fill('Final')
+	await dialog.getByLabel('Farbe').fill('#3b82f6')
+	await dialog.getByRole('button', { name: 'Speichern' }).click()
+
+	await expect(dialog).toHaveCount(0)
+	const tagChip = page.locator('.tag-list__item .tag-chip', { hasText: 'Final' })
+	await expect(tagChip).toBeVisible()
+	await expect(tagChip).toHaveAttribute('style', /#3b82f6/)
+	await expect(page.locator('.tag-list__item', { hasText: 'Entwurf' })).toHaveCount(0)
+
+	// Clean up, leaving only the seeded tag
+	page.on('dialog', (confirmDialog) => confirmDialog.accept())
+	await page.getByRole('button', { name: 'Tag Final löschen' }).click()
 	await expect(page.locator('.tag-list__item')).toHaveCount(1)
 })
 

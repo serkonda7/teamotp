@@ -40,11 +40,11 @@ function withToggled(set: ReadonlySet<string>, id: string, on: boolean): Set<str
 
 // visible=false hides the asterisk but reserves its space (unlike <Show>),
 // so toggling it never shifts surrounding content.
-const Asterisk = (props: { visible?: boolean }): JSX.Element => (
+export const Asterisk = (props: { visible?: boolean }): JSX.Element => (
 	<span style={{ visibility: props.visible === false ? 'hidden' : 'visible' }}>* </span>
 )
 
-const FormField = (props: FormFieldProps): JSX.Element => (
+export const FormField = (props: FormFieldProps): JSX.Element => (
 	<div class="form-row">
 		<div class={`form-group ${props.colClass}`}>
 			<label for={props.id} classList={{ 'field-changed': props.changed }}>

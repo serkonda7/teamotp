@@ -1,4 +1,4 @@
-import { IconChevronRight, IconTrash } from '@tabler/icons-solidjs'
+import { IconChevronRight, IconPencil, IconTrash } from '@tabler/icons-solidjs'
 import { useMutation } from '@tanstack/solid-query'
 import { Link } from '@tanstack/solid-router'
 import { Result } from 'better-result'
@@ -10,6 +10,7 @@ import { refresh_data, tags_query, use_query } from '../queries'
 import type { InputEventAndTarget } from '../types'
 import { matchesQuery } from '../util/otp_search'
 import { useMainView } from './MainView'
+import TagEditDialog from './TagEditDialog'
 
 const DEFAULT_COLOR = '#16a34a'
 
@@ -18,6 +19,7 @@ const TagsPage = (): JSX.Element => {
 	const [name, setName] = createSignal('')
 	const [color, setColor] = createSignal(DEFAULT_COLOR)
 	const [error, setError] = createSignal<string | null>(null)
+	const [editingTag, setEditingTag] = createSignal<TagWithMemberCount | null>(null)
 
 	const tags = use_query(tags_query)
 	const createTag = useMutation(() => ({
@@ -160,6 +162,18 @@ const TagsPage = (): JSX.Element => {
 											type="button"
 											class="icon-button"
 											tabindex={5}
+											onClick={(): void => {
+												setEditingTag(tag)
+											}}
+											aria-label={`Tag ${tag.name} bearbeiten`}
+											title="Bearbeiten"
+										>
+											<IconPencil size={18} stroke="2" aria-hidden="true" />
+										</button>
+										<button
+											type="button"
+											class="icon-button"
+											tabindex={5}
 											onClick={(): Promise<void> => handleDelete(tag)}
 											aria-label={`Tag ${tag.name} löschen`}
 											title="Löschen"
@@ -172,6 +186,22 @@ const TagsPage = (): JSX.Element => {
 						</ul>
 					</Show>
 				</Show>
+			</Show>
+
+			{/* Keyed: the form starts from a snapshot of the tag, which a refetch must not move */}
+			<Show when={editingTag()} keyed>
+				{(tag: TagWithMemberCount): JSX.Element => (
+					<TagEditDialog
+						tag={tag}
+						onClose={(): void => {
+							setEditingTag(null)
+						}}
+						onSave={async (): Promise<void> => {
+							setEditingTag(null)
+							await refresh_data()
+						}}
+					/>
+				)}
 			</Show>
 		</div>
 	)

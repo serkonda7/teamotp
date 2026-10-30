@@ -12,6 +12,7 @@ export type AuditAction =
 	| 'entry.update'
 	| 'entry.archive'
 	| 'tag.create'
+	| 'tag.update'
 	| 'tag.delete'
 	| 'tag.assign'
 	| 'tag.unassign'

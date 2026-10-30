@@ -4,6 +4,9 @@
 - UI and UX
   - Focus search bar after login
   - Tags page: replace the home icon with breadcrumb navigation
+  - Edit name and color of existing tags
+  - Show text labels on the tags and logout buttons
+  - Remove danger color from the logout button
 
 
 ## 1.0.0

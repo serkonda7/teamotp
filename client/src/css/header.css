@@ -61,17 +61,11 @@
 	margin-left: auto;
 }
 
-.icon-button.logout-button {
-	color: var(--color-danger);
-	border-color: var(--color-danger);
-	background-color: var(--color-danger-bg);
-}
-
-.icon-button.logout-button:hover,
-.icon-button.logout-button:hover:enabled {
-	background-color: var(--color-danger-bg-hover);
-	color: var(--color-danger);
-	border-color: var(--color-danger);
+.icon-button.header-button {
+	width: auto;
+	gap: 0.35rem;
+	padding: 0 0.6rem;
+	line-height: 1;
 }
 
 @media (max-width: 800px) {

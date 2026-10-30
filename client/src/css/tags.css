@@ -71,7 +71,8 @@
 	flex: 1 1 12rem;
 }
 
-.tags-create-form input[type="color"] {
+.tags-create-form input[type="color"],
+.tag-edit-dialog input[type="color"] {
 	width: 3.2rem;
 	height: 2.35rem;
 	padding: 0.15rem;
@@ -79,6 +80,17 @@
 	border-radius: var(--corner-radius);
 	background: var(--color-bg);
 	cursor: pointer;
+}
+
+/* Label and field share one line, labels aligned in a fixed column */
+.tag-edit-dialog .form-group {
+	display: grid;
+	grid-template-columns: 5rem minmax(0, 1fr);
+	align-items: center;
+}
+
+.tag-edit-dialog input[type="color"] {
+	justify-self: start;
 }
 
 .tag-list {

@@ -107,24 +107,23 @@ const AppHeader = (props: AppHeaderProps): JSX.Element => {
 					<Show when={!props.isTagsPage}>
 						<button
 							type="button"
-							class="icon-button"
+							class="icon-button header-button"
 							tabindex={5}
 							onClick={(): void => void navigate({ to: '/tags', search: true })}
 							aria-label="Tags verwalten"
-							title="Tags"
 						>
 							<IconTag size={18} stroke="2" aria-hidden="true" />
+							Tags
 						</button>
 					</Show>
 					<button
 						type="button"
-						class="icon-button logout-button"
+						class="icon-button header-button"
 						tabindex={6}
 						onClick={props.onLogout}
-						aria-label="Abmelden"
-						title="Abmelden"
 					>
 						<IconLogout size={18} stroke="2" aria-hidden="true" />
+						Abmelden
 					</button>
 				</div>
 			</div>
